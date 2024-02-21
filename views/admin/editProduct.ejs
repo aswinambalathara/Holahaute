@@ -1,0 +1,210 @@
+<%- include('../includes/admin/adminhead')%>
+  <!-- Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <%- include('../includes/admin/adminSidebar')%>
+      <!-- Main wraapper -->
+      <div class="body-wrapper">
+        <%- include('../includes/admin/adminHeader')%>
+          <div class="container-fluid bg-light">
+            <div class="add-prd-form-container">
+              <h3 class="mt-3">Edit Product</h3>
+
+              <form action="/admin/products/editproduct/<%=product._id %>?_method=PATCH" enctype="multipart/form-data"
+                method="post" id="addproductForm">
+                <div class="d-flex justify-content-between flex-column flex-md-row">
+                  <div class="mt-3 col-md-5">
+                    <label for="Product Name" class="form-label">Product Name</label>
+                    <input type="text" style="text-transform: capitalize;" class="form-control" name="productName"
+                      id="productName" value="<%= product.productName %>" />
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+                  <div class="mt-3 col-md-5">
+                    <label for="Category" class="form-label">Category</label>
+                    <select name="category" id="category" class="form-select" style="text-transform: capitalize;">
+                      <option value="<%=product.category._id%>" style="text-transform: capitalize;">
+                        <%=product.category.categoryName%>
+                      </option>
+                      <% categories.forEach(function(category){ %>
+                        <% if (category.categoryName !==product.category.categoryName){%>
+                          <option style="text-transform: capitalize;" value="<%=category._id%>">
+                            <%=category.categoryName%>
+                          </option>
+                          <%} %>
+                            <%}); %>
+                    </select>
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between flex-column flex-md-row">
+                  <div class="mt-3 col-md-5">
+                    <label for="Price" class="form-label">Price</label>
+                    <div class="d-flex price-container " id="price-parent">
+                      <p class="rupee-symbol mb-0">₹</p>
+                      <input type="number" class="form-control border-0 ms-3" name="price" id="price"
+                        value="<%= product.price %>" />
+                    </div>
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+                  <div class="mt-3 col-md-5">
+                    <label for="Product Name" class="form-label">Quantity</label>
+                    <input type="number" class="form-control" min="0" id="quantity" name="quantity"
+                      value="<%= product.quantity%>" />
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between flex-column flex-md-row">
+
+                  <div class="mt-3 col-md-5">
+                    <label for="userTypes" class="form-label">User Type</label>
+                    <select name="userType" style="text-transform: capitalize;" id="userTypes" class="form-select">
+                      <option value="men">Men</option>
+                      <option value="women">Women</option>
+                      <option value="unisex">Unisex</option>
+                    </select>
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+
+                  <div class="mt-3 col-md-5">
+                    <label for="Color Options" class="form-label">Color</label>
+                    <input type="text" class="form-control" id="colorinput" name="color" value="<%= product.color%>" />
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4 flex-column-reverse flex-md-row ">
+                  <div class="mt-3 col-12 col-md-6">
+                    <label for="Product Name" class="form-label">Size Options</label>
+                    <div class="form-group d-flex mt-1 flex-wrap" id="size-Parent">
+                      <div class="ms-1 mb-1 mb-lg-0">
+                        <input type="hidden" id="sizeOptionsData" value="<%=product.sizeOptions%>">
+                        <input type="checkbox" class="btn-check" id="38-s" autocomplete="off" name="sizeOptions"
+                          value="38-s">
+                        <label for="38-s" class="btn btn-outline-primary ">38-S</label>
+                      </div>
+                      <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check" id="40-m" autocomplete="off" name="sizeOptions"
+                          value="40-m">
+                        <label for="40-m" class="btn btn-outline-primary ">40-M</label>
+                      </div>
+                      <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check" id="42-l" autocomplete="off" name="sizeOptions"
+                          value="42-l">
+                        <label for="42-l" class="btn btn-outline-primary ">42-L</label>
+                      </div>
+                      <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check" id="44-xl" autocomplete="off" name="sizeOptions"
+                          value="44-xl">
+                        <label for="44-xl" class="btn btn-outline-primary ">44-XL</label>
+                      </div>
+                      <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check" id="46-xxl" autocomplete="off" name="sizeOptions"
+                          value="46-xxl">
+                        <label for="46-xxl" class="btn btn-outline-primary ">46-XXL</label>
+                      </div>
+                    </div>
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+
+                </div>
+
+                <div class="mt-5">
+                  <label for="" class="form-label">Description</label>
+                  <div
+                    class="description-container d-flex align-items-center flex-column flex-md-row justify-content-between p-2"
+                    id="des-parent">
+
+                    <div class="col-12  mt-2 mt-md-0">
+                      <textarea class="form-control ps-2 border-info" id="description" rows="8"
+                        name="description"><%= product.description %></textarea>
+                    </div>
+                  </div>
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+              <label for="" class="form-label">Additional Information</label>
+              <div class="addl-container d-flex align-items-center p-3">
+                <textarea id="additionalInformation" cols="150" rows="7"
+                  class=" border border-info rounded p-2 form-control" style="width: 100%;"
+                  name="additionalInformation"><%= product.additionalInformation %></textarea>
+              </div>
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+
+            <div class="mt-5">
+              <label for="" class="form-label">Images</label>
+              <div class="images-container d-flex flex-column p-3 ">
+                <div class="border-1 border-info border rounded btn mb-2 ">
+                  <div class="d-flex mb-2 align-items-center " id="preview-image">
+                    <!-- <div class="img-frame">
+                      <img src="/images/sampleImages/gallery-02.jpg" alt="" class="me-2 border rounded"
+                        style="width: 150px; height: 150px;"> -->
+                    <!-- <i class="fa-regular fa-rectangle-xmark img-close"></i> -->
+                    <!-- </div> -->
+                    <!-- <label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label> -->
+                  </div>
+                  <input type="file" class="form-control" multiple id="images" name="images"
+                    accept=".jpg, .jpeg, .webp, .png" />
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="mt-5 align-items-center justify-content-center d-flex flex-column">
+              <button type="submit" class="btn btn-primary rounded "
+                onclick="return confirm('Are you sure the entered details are correct ?')">Edit Product</button>
+              <%if (err) {%>
+                <div class="mt-2" style="color: red;  font-size: small; text-align: center;">
+                  <%= err %>
+                </div>
+                <%} %>
+            </div>
+
+            </form>
+          </div>
+      </div>
+  </div>
+  </div>
+  <%- include('../includes/validations/editProductVal')%>
+  <script>
+    const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
+    const checkBoxes = document.getElementsByName('sizeOptions');
+    const selectedUserType = "<%=product.userType%>"
+    const includedImages = "<%= product.images%>";
+    const includedImagesNames = includedImages.split(',')
+
+    includedImagesNames.forEach((image) => {
+      const imageFrame = document.createElement('div');
+      imageFrame.classList.add('img-frame');
+      const img = document.createElement('img');
+      img.src = `/images/product-images/${image}`
+      img.classList.add("me-2", "border", "rounded");
+      img.style.cssText = "width : 150px; height: 150px";
+      imageFrame.appendChild(img);
+      previewImg.appendChild(imageFrame);
+    })
+
+    console.log(includedImagesNames)
+
+    Array.from(userTypes.options).forEach((option) => {
+      if (selectedUserType.includes(option.value)) {
+        option.selected = true
+      }
+    })
+
+    checkBoxes.forEach((checkBox) => {
+      if (selectedSizeOptions.includes(checkBox.value)) {
+        checkBox.checked = true;
+      } else {
+        checkBox.checked = false;
+      }
+    })
+
+  </script>
+  
+    <%- include('../includes/admin/adminEnd')%>

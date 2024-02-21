@@ -1,0 +1,65 @@
+<%- include('../includes/register/authHead')%>
+    <div class="container-fluid">
+        <div class="otpverification-wrapper col-12 col-sm-6 col-md-6 col-lg-4">
+            <form action="/otpverification" class="form-group" method="post">
+                <div>
+                    <label for="otp">Enter OTP received at <span class="text-primary">"<%= locals.email %>
+                                "</span></label>
+                    <input type="text" class="form-control" name="otp">
+                    <!-- <div class="mt-1" style="font-size: smaller; text-align: center; color: rgb(0, 187, 255);"></div> -->
+                    <p class="mt-3" style="font-size: small;">Didn't receive OTP? <span id="resend-otp"
+                            type="button">Resend OTP</span></p>
+                    <small class="status" style="color: brown;"></small>
+                </div>
+                <div class="text-center mb-3 text-info" id="counter"></div>
+                <button type="submit" class="btn btn-primary mt-3">Verify</button>
+                <div class="error mt-3" style="color: red; font-size: small; text-align: center;">
+                    <%=err%>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const resendbtn = document.getElementById('resend-otp');
+        const responseTag = document.querySelector('.status');
+
+        resendbtn.addEventListener('click', () => {
+            console.log('clicked')
+            fetch('http://localhost:3000/resendotp', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    action: "resend"
+                })
+            }).then((res) => res.json()).then((data) => {
+                console.log(data)
+                if (data.message) {
+                    responseTag.innerText = data.message
+                }
+                if(data.status === 'otpsend'){
+                    updateCounter(30)
+                }
+            })
+        })
+
+        updateCounter(30)
+
+        function updateCounter(count) {
+            const counter = document.getElementById('counter');
+            counter.textContent = `${count} seconds Left`
+
+            count--;
+            if (count >= 0) {
+                setTimeout(() => {
+                    updateCounter(count);
+                }, 1000);
+            } else {
+                counter.textContent = ''
+                sendBtn.disabled = false;
+            }
+        }
+    </script>
+    <%- include('../includes/register/authEnd.ejs')%>

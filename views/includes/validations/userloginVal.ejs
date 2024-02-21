@@ -1,0 +1,54 @@
+<script>
+    const email = document.getElementById("loginEmail");
+    const password = document.getElementById("loginPassword");
+  
+    document.querySelector("#loginForm").addEventListener("submit", (e) => {
+      e.preventDefault(); //preventing form from submitting
+  
+      if (validateInputs()) {
+        document.querySelector("#loginForm").submit();
+      }
+    });
+  
+    const setError = (element, message) => {
+      const inputParent = element.parentElement;
+      const errorDisplay = inputParent.querySelector(".error");
+  
+      errorDisplay.innerText = message;
+    };
+  
+    function validateInputs() {
+      // get input values
+      const emailValue = email.value.trim();
+      const passwordValue = password.value.trim();
+  
+      let hasError = false;
+      if (emailValue === "") {
+        setError(email, "This is field is required");
+        hasError = true;
+      } else {
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValue)) {
+          setError(email, "Invalid email address;");
+          hasError = true;
+        } else {
+          setError(email, "");
+        }
+      }
+      if (passwordValue === "") {
+        setError(password, "This field is required");
+        hasError = true;
+      } else {
+          if(passwordValue.length < 8){
+            setError(password,"Password must have atleast 8 letters");
+            hasError = true;
+          }else{
+            setError(password,'');
+          }
+      }
+  
+      if(!hasError){
+        return true
+      }
+    }
+  </script>

@@ -1,0 +1,239 @@
+const categorySchema = require("../models/categoryModel");
+const productSchema = require("../models/productModel");
+const { imageNameArray } = require("../helpers/productImageHelper");
+const fs = require("fs");
+
+module.exports.getAdminProducts = async (req, res) => {
+  try {
+    const products = await productSchema
+      .find({ isDeleted: false })
+      .populate("category");
+    res.render("admin/adminProducts", {
+      title: "Products",
+      products,
+      success: req.flash("success"),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getAddProducts = async (req, res) => {
+  const categories = await categorySchema.find({ status: true });
+  res.render("admin/addProduct", {
+    title: "Add Product",
+    categories,
+    err: req.flash("error"),
+  });
+};
+
+module.exports.doAddProducts = async (req, res) => {
+  try {
+    const images = imageNameArray(req.files);
+    console.log(images);
+    const newProductName = req.body.productName.toLowerCase();
+    const productCheck = await productSchema.findOne({
+      productName: newProductName,
+    });
+    if (productCheck) {
+      if (productCheck.isDeleted === false) {
+        req.flash("error", "This Product with product Name already Exist");
+        for (let file of req.files) {
+          fs.unlink(
+            `public/images/product-images/${file.filename}`,
+            (error) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(`${file.filename} is deleted`);
+              }
+            }
+          );
+        }
+        res.redirect("/admin/products/addproduct");
+      } else {
+        for (let image of productCheck.images) {
+          fs.unlink(`public/images/product-images/${image}`, (error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(`${image} is deleted`);
+            }
+          });
+        }
+        await productSchema.updateOne(
+          { productName: newProductName },
+          {
+            $set: {
+              category: req.body.category,
+              price: req.body.price,
+              quantity: req.body.quantity,
+              userType: req.body.userType,
+              color: req.body.color,
+              sizeOptions: req.body.sizeOptions,
+              description: req.body.description,
+              additionalInformation: req.body.additionalInformation,
+              images: images,
+            },
+          }
+        );
+        res.redirect("/admin/products");
+      }
+    } else {
+      const product = new productSchema({
+        productName: req.body.productName.toLowerCase(),
+        category: req.body.category,
+        price: req.body.price,
+        quantity: req.body.quantity,
+        userType: req.body.userType,
+        color: req.body.color,
+        sizeOptions: req.body.sizeOptions,
+        description: req.body.description,
+        additionalInformation: req.body.additionalInformation,
+        images: images,
+      });
+      await product.save();
+      res.redirect("/admin/products");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getEditProducts = async (req, res) => {
+  try {
+    const product = await productSchema
+      .findOne({ _id: req.params.id })
+      .populate("category");
+    //console.log(product)
+    const categories = await categorySchema.find({ status: true });
+    res.render("admin/editProduct.ejs", {
+      title: "Edit Product",
+      categories,
+      product: product,
+      err: req.flash("error"),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+module.exports.doEditProducts = async (req, res) => {
+  try {
+    const newProductName = req.body.productName.toLowerCase();
+   // console.log(newProductName);
+    const productCheck = await productSchema.findOne({
+      productName: newProductName,
+    });
+    const product = await productSchema.findOne({ _id: req.params.id });
+    let images = [];
+    if (req.files) {
+      images = imageNameArray(req.files);
+    }
+    if (productCheck && product.productName !== newProductName) {
+      if (productCheck.isDeleted === false) {
+        req.flash("error", "This Product with product name already exist");
+        for (let image of images) {
+          fs.unlink(`public/images/product-images/${image}`, (error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(`${image} is deleted`);
+            }
+          });
+        }
+        res.redirect(`/admin/products/editproduct/${product._id}`);
+      } else {
+        for (let image of productCheck.images) {
+          fs.unlink(`public/images/product-images/${image}`, (error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(`${image} is deleted`);
+            }
+          });
+        }
+        await productSchema.deleteOne({ productName: newProductName });
+        if (images.length !== 0) {
+          for (let image of product.images) {
+            fs.unlink(`public/images/product-images/${image}`, (error) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(`${image} is deleted`);
+              }
+            });
+          }
+        }
+        await productSchema.updateOne(
+          { _id: req.params.id },
+          {
+            $set: {
+              productName: req.body.productName !== ''? req.body.productName.toLowerCase() : undefined,
+              category: req.body.category !== ''? req.body.category : undefined,
+              price: req.body.price !== ''? req.body.price : undefined,
+              quantity: req.body.quantity !== ''? req.body.quantity : undefined,
+              userType: req.body.userType !== ''? req.body.userType : undefined,
+              color: req.body.color !== ''? req.body.color : undefined,
+              sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
+              description: req.body.description !== ''? req.body.description : undefined,
+              additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,
+              images: images.length !== 0 ? images : undefined,
+            },
+          }
+        );
+        res.redirect("/admin/products");
+      }
+    } else {
+      if (images.length !== 0) {
+        for (let image of product.images) {
+          fs.unlink(`public/images/product-images/${image}`, (error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(`${image} is deleted`);
+            }
+          });
+        }
+      }
+      await productSchema.updateOne(
+        { _id: req.params.id },
+        {
+          $set: {
+            productName: req.body.productName !== ''? req.body.productName.toLowerCase() : undefined,
+            category: req.body.category !== ''? req.body.category : undefined,
+            price: req.body.price !== ''? req.body.price : undefined,
+            quantity: req.body.quantity !== ''? req.body.quantity : undefined,
+            userType: req.body.userType !== ''? req.body.userType : undefined,
+            color: req.body.color !== ''? req.body.color : undefined,
+            sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
+            description: req.body.description !== ''? req.body.description : undefined,
+            additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,
+            images: images.length !== 0 ? images : undefined,
+          },
+        }
+      );
+      res.redirect("/admin/products");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doDeleteProducts = async (req, res) => {
+  try {
+    if (req.params.id) {
+      await productSchema.updateOne(
+        { _id: req.params.id },
+        {
+          $set: {
+            isDeleted: true,
+          },
+        }
+      );
+      req.flash("success", "Product Deleted");
+      res.redirect("/admin/products");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

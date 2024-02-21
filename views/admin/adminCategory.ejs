@@ -1,0 +1,85 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- body wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+                    <div class="container-fluid vh-100 bg-light ">
+
+                        <div class="row mt-5">
+                            <div class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between">
+                                <!-- <div class="search-box-wrapper col-12 col-md-9">
+                                    <input type="text" placeholder="Search" class="search-box">
+                                    <i class="fa-solid fa-magnifying-glass icon"></i>
+                                </div> -->
+                                <a href="/admin/category/addcategory" class=" btn add-product col-12 mt-3 mt-md-0 col-md-2 ">Add Category</a>
+                            </div>
+                        </div>
+
+
+                        <div class= "mt-5">
+
+                            <table class="table display border border-2 rounded" id="product-table">
+                                <thead >
+                                    <tr>
+                                        <th>CATEGORY</th>
+                                        <th>SOLD PRODUCT</th>
+                                        <th>TOTAL SALES</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% data.forEach(function(item){ %> 
+                                    <tr class="mt-3 border border-rounded">
+                                        <td style="text-transform: capitalize;"><%= item.categoryName %></td>
+                                        <td>23150</td>
+                                        <td>15200000</td>
+                                        <td>
+                                            <div class="d-flex justify-content-evenly align-items-center">
+                                                <a href="/admin/category/editcategory/<%= item._id %>"><i class="fa-solid fa-pen-to-square text-warning"></i></a>
+
+                                                <form action="/admin/category/deletecategory/<%= item._id %>?_method=PATCH"  method="post">
+
+                                                  <button type="submit" onclick="return confirm('Are you want to delete <%= item.categoryName%> ?')" style="background: none; border: none;"><i class="fa-solid fa-trash-can text-danger"></i></button> 
+                                      
+                                                  </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    <!-- <% data.forEach(function(item){ %> 
+                        <div class="card" style="width: 18rem;">
+                            <img src="/images/product-images/<%= item.image %>" class="card-img-top" alt="...">
+                            <div class="card-body">
+                              <h5 class="card-title"><%= item.categoryName %></h5>
+                              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                              <a href="#" class="btn btn-primary">Go somewhere</a>
+                            </div>
+                          </div>
+                          <% }); %> -->
+                        
+                    </div>
+            </div>
+    </div>
+
+    
+
+   <!-- DATA Tables Script -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        new DataTable('#product-table', {
+            responsive: true
+        });
+    </script>
+    <%- include('../includes/admin/adminEnd')%>

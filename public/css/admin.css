@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+
+*{
+    font-family: poppins;
+}
+
+
+
+/* .search-box-wrapper{
+    position: relative;
+} */
+/* .icon{
+    position: absolute;
+    right: 30px;
+    top: 10px;
+} */
+/* .search-container{
+    width: 90%;
+} */
+/* .search-box{
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    box-shadow: 0px 4px 9px 0px rgba(0, 0, 0, 0.5);
+} 
+
+
+.search-box:focus{
+    border: 1px solid rgba(0, 0, 0, 0.205);
+    box-shadow: 0px 4px 9px 0px rgba(0, 0, 0, 0.5);
+} */
+
+.fade-in-out{
+    animation: fadeInOut 3s ease-in-out;
+    opacity: 0;
+}
+
+@keyframes fadeInOut{
+    0% {opacity: 0;}
+    50% {opacity: 1;}
+   100% {opacity: 0;}
+}
+
+.add-product{
+    background:#1500ffbc;
+    border: none;
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: white;
+    font-weight: 400;
+    box-shadow: 0px 4px 9px 0px rgba(0, 0, 0, 0.5);
+}
+.add-product:hover{
+    color: black;
+}
+
+.rupee-symbol{
+    position: absolute;
+    top: 8px;
+    left: 10px;
+}
+.price-container{
+    position: relative;
+    border: 1px solid #DFE5EF;
+    border-radius: 7px;
+}
+
+.description-container, .addl-container{
+    border: 1px solid rgba(0, 0, 0, 0.153);
+    border-radius: 10px;
+}
+.images-container{
+    border: 1px solid rgba(0, 0, 0, 0.153);
+    /* height: 200px; */
+    border-radius: 10px;
+}
+
+.image-label{
+    cursor: pointer;
+}
+
+.section{
+    position: relative;
+}
+.addCategoryForm{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+   
+    border: 1px solid rgba(0, 0, 0, 0.232);
+    border-radius: 10px;
+}
+
+#selectedcolors{
+    position: relative;
+}
+.addColor{
+    height: fit-content;
+    cursor: pointer;
+    color: black;
+}
+
+.img-frame{
+    position: relative;
+}
+
+.img-close{
+    padding: 2px;
+    border-radius: 3px;
+    position: absolute;
+    color: rgb(255, 0, 0);
+    background-color: rgb(255, 255, 255);
+    top: 5px;
+    left: 125px;
+}
+
+.vh-130{
+    height: 130vh;
+}

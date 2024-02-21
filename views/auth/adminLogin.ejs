@@ -1,0 +1,165 @@
+<!-- ======AdminLogin Header======== -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    <%= title%>
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
+
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      /* background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(75,14,154,1) 35%, rgba(0,212,255,1) 100%); */
+      font-family: "Poppins", sans-serif;
+      padding: 0;
+      margin: 0;
+    }
+
+    .form-container {
+      box-shadow: 0px 4px 29px 11px rgba(109, 59, 121, 0.39);
+    }
+
+    .admin-head {
+      font-weight: bolder;
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<!-- ======AdminLogin Body======== -->
+
+<body>
+  <!-- <nav class="navbar navbar-light bg-light pb-4 shadow mt-2">
+    <span class="navbar-brand mb-0 ms-3"><img src="/images/logo-01.png" alt="" /></span>
+  </nav> -->
+  <section class="vh-100 d-flex align-items-center justify-content-center">
+    <div class="container py-5 mt-5 d-flex justify-content-center">
+      <div class="col-lg-6 p-5 border rounded-5 form-container row">
+        <div class="col-md-6 align-items-center d-flex mb-3">
+          <img src="/images/sampleImages/logo-01.png" alt="logo" />
+        </div>
+        <div class="col-md-6">
+          <h2 class="admin-head">Admin Login</h2>
+
+          <form class="admin-form" method="post" id="adminLoginForm" action="/admin/login">
+            <!-- Email input -->
+            <div class="form-outline mb-4 mt-4">
+              <label class="form-label" for="AdminEmail">Email address</label>
+              <input type="email" id="adminEmail" class="form-control" name="email" />
+              <div class="error mt-1 ms-2" style="color: red; font-weight: bold; font-size: small;">
+              </div>
+            </div>
+
+            <!-- Password input -->
+            <div class="form-outline">
+              <label class="form-label" for="AdminPassword">Password</label>
+              <input type="password" id="adminPassword" class="form-control " name="password" />
+              <div class="error mt-1 ms-2" style="color: red; font-weight: bold; font-size: small">
+              </div>
+            </div>
+            <% if(err.length>0) {%>
+              <div class="alert alert-danger text-center mt-3 rounded-5 color-red flash-div p-1 fade-in" role="alert">
+                <%= err %>
+              </div>
+              <%} %>
+                <!-- Submit button -->
+                <div class="d-flex justify-content-center mt-4">
+                  <button type="submit" class="btn btn-primary btn-block">
+                    Sign in
+                  </button>
+                </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======AdminLogin End======== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
+
+<script>
+  const form = document.querySelector('form');
+  const email = document.getElementById('adminEmail');
+  const password = document.getElementById('adminPassword');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    if (validateInputs()) {
+      form.submit()
+    }
+  })
+
+  const setError = (element, message) => {
+    const inputParent = element.parentElement;
+    const errorDisplay = inputParent.querySelector('.error')
+
+    errorDisplay.innerText = message;
+  }
+
+  function validateInputs() {
+    const emailValue = email.value.trim();
+    const passwordValue = password.value.trim();
+
+    let hasError = false;
+
+    if (emailValue === '') {
+      setError(email, 'Email is required');
+      hasError = true;
+    } else {
+      let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(emailValue)) {
+        setError(email, 'Invalid email address');
+        hasError = true;
+      } else {
+        setError(email, '')
+      }
+    }
+
+    if (passwordValue === '') {
+      setError(password, 'Password is required');
+      hasError = true;
+    } else {
+      if (passwordValue.length < 8) {
+        setError(password, 'Password must have atleast 8 letters')
+        hasError = true
+      } else {
+        setError(password, '')
+      }
+    }
+
+    if (!hasError) {
+      return true;
+    }
+  }
+</script>

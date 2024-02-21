@@ -1,0 +1,106 @@
+<script>
+  const fullName = document.getElementById("fullName");
+  const email = document.getElementById("loginEmail");
+  const userMobile = document.getElementById("userMobile");
+  const password = document.getElementById("loginPassword");
+  const confirmPassword = document.getElementById("confirmPassword");
+
+  document.querySelector("#signupForm").addEventListener("submit", (e) => {
+    e.preventDefault(); //prevent form form submitting
+
+    if (validateInputs()) {
+      document.querySelector("#signupForm").submit();
+    }
+  });
+
+  document.querySelector('#signupForm').addEventListener('input',()=>{
+    validateInputs()
+  })
+
+  const setError = (element, message) => {
+    const inputParent = element.parentElement;
+    const errorDisplay = inputParent.querySelector(".error");
+
+    errorDisplay.innerText = message;
+  };
+
+  function validateInputs() {
+    const fullNameValue = fullName.value.trim();
+    const emailValue = email.value.trim();
+    const userMobileValue = userMobile.value.trim();
+    const passwordValue = password.value.trim();
+    const confirmPasswordValue = confirmPassword.value.trim();
+
+    let hasError = false;
+
+    if (fullNameValue === "") {
+      setError(fullName, "This field is required");
+      hasError = true;
+    } else {
+      let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+      if (!lettersOnlyRegex.test(fullNameValue)) {
+        setError(fullName, "This field should only contain letters");
+        hasError = true;
+      } else {
+        setError(fullName, " ");
+      }
+    }
+
+    if (emailValue === "") {
+      setError(email, "This field is required");
+      hasError = true;
+    } else {
+      let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailValue)) {
+        setError(email, "Invalid email address");
+        hasError = true;
+      } else {
+        setError(email, " ");
+      }
+    }
+
+    if (userMobileValue === "") {
+      setError(userMobile, "This field is required");
+      hasError = true;
+    } else {
+      let mobileRegex = /^\d{10}$/;
+      if (!mobileRegex.test(userMobileValue)) {
+        setError(userMobile, "Invalid Phone Number");
+        hasError = true;
+      } else {
+        setError(userMobile, " ");
+      }
+    }
+
+    if (passwordValue === "") {
+      setError(password, "This field is required");
+      hasError = true;
+    } else {
+        let passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(passwordValue)) {
+        setError(
+          password,
+          "Password should contain at least 8 characters, including uppercase letters, lowercase letters, numbers, and symbols"
+        );
+        hasError = true;
+      } else {
+        setError(password, " ");
+      }
+    }
+
+    if (confirmPasswordValue === "") {
+      setError(confirmPassword, "This field is required");
+      hasError = true;
+    } else if (passwordValue !== confirmPasswordValue) {
+      setError(confirmPassword, "Password doesn't match");
+      hasError = true;
+    } else {
+      setError(confirmPassword, " ");
+    }
+
+    if (!hasError) {
+      return true;
+    }
+  }
+</script>

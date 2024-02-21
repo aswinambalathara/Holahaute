@@ -1,0 +1,116 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+                    <div class="container-fluid">
+                        <section class="bg-light vh-130 section">
+                            <div class="addCategoryForm p-5 col-12 col-md-6 col-sm-8 col-lg-4">
+                                <form action="/admin/category/addcategory" method="post" enctype="multipart/form-data">
+                                    <% if (err) {%>
+                                        <div class="mb-3" style="color: red;  font-size: small; text-align: center;">
+                                            <%=err%>
+                                        </div>
+                                        <%} %>
+                                            <h4>Add Category</h4>
+                                            <div class="mb-3 mt-3">
+                                                <label for="CategoryName" class="form-label">Category Name</label>
+                                                <input type="text" class="form-control" name="catName" id="catName">
+                                                <div class="error mt-1 ms-2" style="color: red;  font-size: small;">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="catImg" class="form-label">Category Image</label>
+                                                <div id="preview-image"></div>
+
+                                                <input class="form-control" type="file" id="catImg" name="image"
+                                                    accept=".jpg, .jpeg, .webp, .png">
+                                                <div style="font-size: x-small;" class="ms-2 mt-1">attach file do not
+                                                    exceed
+                                                    10mb(supported types : jpg,jpeg,png,webp)</div>
+
+                                                <div class="error mt-1 ms-2" style="color: red;  font-size: small;">
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                                </form>
+                            </div>
+                        </section>
+                    </div>
+            </div>
+    </div>
+
+    <script>
+        const catName = document.getElementById('catName')
+        const catImg = document.getElementById('catImg')
+        const form = document.querySelector('form');
+        const previewImage = document.getElementById('preview-image');
+
+        catImg.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            previewImage.innerHTML = ''
+
+            const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+            if (!allowedExtensions.exec(file.name)) {
+                return setError(catImg, "Check File Type")
+            } else {
+                setError(catImg, '');
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const imgFrame = document.createElement('img');
+                imgFrame.classList.add('mb-2', 'border', 'rounded', 'col-10','col-sm-8','col-md-8');
+                imgFrame.src = event.target.result;
+                imgFrame.style.cssText = `height: 200px;`
+                previewImage.appendChild(imgFrame);
+            }
+            reader.readAsDataURL(file)
+        })
+
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+
+            const catNameValue = catName.value.trim()
+            const catImgValue = catImg.value.trim()
+            const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+            //console.log(catImgValue)
+            let hasError = false
+            if (catNameValue === '') {
+                setError(catName, "This Field is required")
+                hasError = true;
+            } else {
+                setError(catName, " ")
+            }
+
+            if (catImgValue === '') {
+                setError(catImg, "This field is required")
+                hasError = true;
+            } else {
+                if (!allowedExtensions.exec(catImgValue)) {
+                    setError(catImg, "Check file type")
+                    hasError = true;
+                } else {
+                    setError(catImg, "")
+                }
+            }
+
+            if (!hasError) {
+                form.submit()
+            }
+        })
+
+        function setError(element, message) {
+            const inputParent = element.parentElement;
+            const errorDisplay = inputParent.querySelector('.error')
+
+            errorDisplay.innerText = message;
+        }
+
+    </script>
+    <%- include('../includes/admin/adminEnd')%>

@@ -1,0 +1,125 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- body wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+                    <div class="container-fluid vh-100 bg-light ">
+
+                        <!-- <div class="row mt-5">
+                            <div class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between">
+                                
+                                <a href="/admin/products/addproduct" class=" btn add-product col-12 mt-3 mt-md-0 col-md-2 ">Add Product</a>
+                            </div>
+                            
+                        </div> -->
+
+
+                        <div class="mt-5">
+                            <table class="table display border border-2 rounded" id="product-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"> UserName</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Phone</th>
+                                        <th scope="col">Address</th>
+                                        <th scope="col">joined AT</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% users.forEach(function(user){ %>
+                                        <tr class="mt-3 border border-rounded">
+                                            <th scope="row">
+                                                <%= user.fullName%>
+                                            </th>
+                                            <td>
+                                                <%= user.email%>
+                                            </td>
+                                            <td>
+                                                <%= user.phone%>
+                                            </td>
+                                            <td>ADDRESS</td>
+                                            <td style="overflow: hidden;">
+                                                <%= user.joinedDate%>
+                                            </td>
+                                            <td>
+                                                <% if(user.isBlocked) {%>
+                                                <div class="d-flex justify-content-evenly align-items-center">
+                                                    <i class="fa-solid fa-user user-Icon" style="color: red"
+                                                        ></i>
+                                                    <button class="btn btn-success btn-sm ms-3 blockUserbtn" data-user-id ="<%=user._id%>" type="button"
+                                                 >Unblock</button>
+                                                </div>
+                                                <%}else{%>
+                                                    <div class="d-flex justify-content-evenly align-items-center">
+                                                        <i class="fa-solid fa-user user-Icon" style="color: green"
+                                                            ></i>
+                                                        <button class="btn btn-danger btn-sm ms-3 blockUserbtn" data-user-id ="<%=user._id%>" type="button"
+                                                            >Block</button>
+                                                    </div>
+                                                    <%} %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>
+    </div>
+    <!-- DATA Tables Script -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        new DataTable('#product-table', {
+            responsive: true
+        });
+
+         const blockBtns = document.querySelectorAll('.blockUserbtn');
+
+        blockBtns.forEach((btn)=>{
+            btn.addEventListener('click',()=>{
+                const userId = btn.getAttribute('data-user-id');
+                blockUser(userId,btn)
+            })
+        })
+
+
+            function blockUser(userId,btn) {
+                const btnParent = btn.parentElement;
+                const icon = btnParent.querySelector('.user-Icon');
+            fetch(`http://localhost:3000/admin/users/blockuser/${userId}`,{
+                    method : "PATCH",
+                    headers : {
+                        "Content-Type":"application/json"
+                    },
+                    body : JSON.stringify({
+                        status : "clicked",
+                    })
+                }).then((res)=>res.json())
+                .then((data)=>{
+                    if(data.status === "blocked"){
+                        btn.innerText = "Unblock"
+                        btn.classList.remove('btn-danger');
+                        btn.classList.add('btn-success');
+                        
+                        icon.style.color = 'Red'
+                    }else{
+                        btn.innerText = "Block"
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-danger');
+
+                        icon.style.color = 'green'
+                    }
+                })
+        }
+
+    </script>
+    <%- include('../includes/admin/adminEnd')%>

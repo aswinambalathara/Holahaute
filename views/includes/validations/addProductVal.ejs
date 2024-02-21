@@ -1,0 +1,250 @@
+<script>
+  const form = document.getElementById("addproductForm");
+  const productName = document.getElementById("productName");
+  const category = document.getElementById("category");
+  const price = document.getElementById("price");
+  const priceParent = document.getElementById("price-parent");
+  const quantity = document.getElementById("quantity");
+  const userTypes = document.getElementById("userTypes");
+  const color = document.getElementById("colorinput");
+  const sizeOptions = document.querySelectorAll(".btn-check");
+  const sizeParent = document.getElementById("size-Parent");
+  const description = document.getElementById("description");
+  const desParent = document.getElementById("des-parent");
+  const additionalInformation = document.getElementById(
+    "additionalInformation"
+  );
+  const imageInput = document.getElementById("images");
+  const previewImg = document.getElementById("preview-image");
+
+
+  // Image Preview and Validation
+  // imageInput.addEventListener("change", (e) => {
+  //   const files = e.target.files;
+  //   previewImg.innerHTML = "";
+
+  //   if (files.length > 4) {
+  //     return setError(images, "Maximum 4 files can be uploaded");
+  //   } else {
+  //     setError(images, "");
+  //   }
+
+  //   
+
+  //   if (files.length > 0) {
+  //     for (let image of files) {
+  //       // console.log(image);
+  //       if (!allowedExtensions.exec(image.name)) {
+  //         return setError(images, "Check the file type");
+  //       }
+
+  //       const reader = new FileReader();
+
+  //       reader.onload = function (event) {
+  //         imageArray.push(event.target.result);
+  //         const imgframe = document.createElement("div");
+  //         imgframe.classList.add("img-frame");
+  //         const img = document.createElement("img");
+  //         img.src = event.target.result;
+  //         img.classList.add("me-2", "border", "rounded");
+  //         img.style.cssText = "width : 150px; height: 150px";
+  //         imgframe.appendChild(img);
+  //         previewImg.appendChild(imgframe);
+  //       };
+  //       reader.readAsDataURL(image);
+  //     }
+  //   }
+  //   for(let image of imageArray){
+  //         console.log(image)
+  //       }
+  // });
+
+
+  imageInput.addEventListener('change',(e)=>{
+    
+    previewImg.innerHTML = ''
+    files = e.target.files
+
+    if (files.length > 4) {
+      return setError(images, "Maximum 4 files can be uploaded");
+    } else {
+      setError(images, "");
+    }
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+    
+    for(let image of files){
+      if (!allowedExtensions.exec(image.name)) {
+           return setError(images, "Check the file type");
+         }
+      const reader = new FileReader();
+
+      reader.onload = function (event){
+        const imgframe = document.createElement("div");
+          imgframe.classList.add("img-frame");
+          const img = document.createElement("img");
+          img.src = event.target.result;
+          img.classList.add("me-2", "border", "rounded");
+          img.style.cssText = "width : 150px; height: 150px";
+          const closebtn = document.createElement('i');
+          closebtn.addEventListener('click',()=>{
+            clearSelectedImages(image,imgframe)
+          });
+          closebtn.classList.add("fa-regular","fa-rectangle-xmark","img-close")
+          imgframe.appendChild(img);
+          imgframe.appendChild(closebtn);
+          previewImg.appendChild(imgframe);
+      }
+      reader.readAsDataURL(image);
+    }
+  });
+
+  function clearSelectedImages(file,imgframe){
+    const files = Array.from(imageInput.files);
+    const index = files.indexOf(file);
+    if(index !== -1){
+      const dataTransfer = new DataTransfer();
+      files.splice(index,1)
+      for(let file of files){
+        dataTransfer.items.add(file);
+      }
+      imageInput.files = dataTransfer.files
+      imgframe.style.display = 'none';
+    }
+  }
+
+  form.addEventListener('input', () => {
+    validateInputs()
+  });
+
+  // Form submit validation
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (validateInputs()) {
+      form.submit();
+    }
+  });
+
+  function validateInputs() {
+    const productNameValue = productName.value.trim();
+    const categoryValue = category.value.trim();
+    const priceValue = price.value.trim();
+    const quantityValue = quantity.value.trim();
+    const userTypesValue = userTypes.value.trim();
+    const descriptionValue = description.value.trim();
+    const colorValue = color.value.trim();
+    const imagesValue = images.files;
+
+    let hasError = false;
+    if (productNameValue === "") {
+      setError(productName, "This field is required");
+      hasError = true;
+    } else {
+      const productRegex = /^(?!^[!@#%*+=/\\[\](){}<>,.?`|&^~$'":;-]*$)[a-zA-Z0-9\s\-',.()&!@#%*+="/\\[\]]+$/
+      if (!productRegex.test(productNameValue)) {
+        setError(productName, "symbols not allowed as product name");
+        hasError = true;
+      } else {
+        setError(productName, "");
+      }
+    }
+
+    if (categoryValue === "") {
+      setError(category, "This field is required");
+      hasError = true;
+    } else {
+      setError(category, "");
+    }
+
+    if (priceValue === "") {
+      setError(priceParent, "This field is required");
+      hasError = true;
+    } else {
+      const priceRegex = /^\d+(\.\d{1,2})?$/;
+      if (!priceRegex.test(priceValue) || parseFloat(priceValue) <= 0) {
+        setError(priceParent, "Price value must be a positive number");
+        hasError = true;
+      } else {
+        setError(priceParent, ""); // Clear error message if input is valid
+      }
+    }
+
+    if (quantityValue === "") {
+      setError(quantity, "This field is required");
+      hasError = true;
+    } else {
+      setError(quantity, "");
+    }
+
+    if (userTypesValue === "") {
+      setError(userTypes, "This field is required");
+      hasError = true;
+    } else {
+      setError(userTypes, "");
+    }
+
+    if (descriptionValue === "") {
+      setError(desParent, "This field is required");
+      hasError = true;
+    } else {
+      setError(desParent, "");
+    }
+
+    if (colorValue === "") {
+      setError(color, "This field is required");
+      hasError = true;
+    } else {
+      const lettersOnlyRegex = /^[A-Za-z\s]*$/;
+      if (!lettersOnlyRegex.test(colorValue)) {
+        setError(color, "Only letters are allowed");
+      } else {
+        setError(color, "");
+      }
+    }
+
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+
+    if (imagesValue.length === 0) {
+      setError(images, "This field is required");
+      // console.log(imagesValue)
+    } else if (imagesValue.length > 4) {
+      setError(images, "Maximum 4 files can be uploaded");
+      hasError = true;
+    } else {
+      for (let image of imagesValue) {
+        const imageName = image.name;
+        if (!allowedExtensions.exec(imageName)) {
+          setError(images, "Check file type");
+          //console.log(imagesValue)
+          hasError = true;
+        } else {
+          setError(images, " ");
+        }
+      }
+    }
+
+    let haschecked = false;
+    sizeOptions.forEach((checkbox) => {
+      if (checkbox.checked) {
+        haschecked = true;
+      }
+    });
+    if (!haschecked) {
+      setError(sizeParent, "At least one checkbox must be checked");
+      hasError = true;
+    } else {
+      setError(sizeParent, "");
+    }
+
+    if (!hasError) {
+      return true;
+    }
+  }
+
+  function setError(element, message) {
+    const inputParent = element.parentElement;
+    const errorDisplay = inputParent.querySelector(".error");
+
+    errorDisplay.innerText = message;
+  }
+</script>

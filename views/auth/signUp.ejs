@@ -1,0 +1,91 @@
+<%- include('../includes/register/authHead')%>
+
+<div class="container-fluid section">
+  <form
+    class="mx-auto col-12 col-md-6 col-lg-4 mb-5 form-container"
+    method="post"
+    action="/signup"
+    id="signupForm"
+  >
+    <h4 class="text-center">Signup</h4>
+    <div class="mb-3 mt-5">
+      <label for="fullName" class="form-label">Full Name</label>
+      <input type="text" class="form-control" id="fullName" name="fullName" />
+      <div
+        class="error mt-1"
+        style="color: red;  font-size: small"
+      ></div>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="loginEmail" class="form-label">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        id="loginEmail"
+        aria-describedby="emailHelp"
+        name="email"
+      />
+      <div
+        class="error mt-1"
+        style="color: red;  font-size: small"
+      ></div>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="userMobile" class="form-label">Phone Number</label>
+      <input
+        type="text"
+        class="form-control"
+        id="userMobile"
+        aria-describedby="emailHelp"
+        name="phone"
+      />
+      <div
+        class="error mt-1"
+        style="color: red;  font-size: small"
+      ></div>
+    </div>
+    <div class="mb-3 mt-3">
+      <label for="loginPassword" class="form-label">Password</label>
+      <input
+        type="password"
+        class="form-control"
+        id="loginPassword"
+        name="password"
+      />
+      <div
+        class="error mt-1"
+        style="color: red;  font-size: small"
+      ></div>
+    </div>
+
+    <div class="mb-3 mt-3">
+      <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" id="confirmPassword" />
+      <div
+        class="error mt-1"
+        style="color: red; font-size: small"
+      ></div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">SignUp</button>
+    <% if(err.length>0){%>
+    <div
+      class="alert alert-danger text-center mt-3 rounded-5 color-red flash-div p-1"
+      role="alert"
+    >
+      <%= err %>
+    </div>
+    <%}%>
+    <div
+      class="d-flex p-1 mt-3 justify-content-around border rounded-2 border-dark align-items-center"
+    >
+      <p class="m-0">Return to login?</p>
+      <a href="/login">Login</a>
+    </div>
+  </form>
+</div>
+
+
+
+<%- include('../includes/validations/signupval.ejs') %> 
+<%-include('../includes/register/authEnd.ejs') %>

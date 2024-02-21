@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        /* background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(75,14,154,1) 35%, rgba(0,212,255,1) 100%); */
+        font-family: "Poppins", sans-serif;
+        padding: 0;
+        margin: 0;
+      }
+      .form-container {
+        box-shadow: 0px 4px 29px 11px rgba(109, 59, 121, 0.39);
+        margin-top: 7rem;
+      }
+      .admin-form{
+        font-weight: bolder;
+      }
+      
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-light bg-light pb-4 shadow mt-2">
+        <span class="navbar-brand mb-0 ms-3"><img src="/public/images/logo-01.png" alt=""></span>
+      </nav>
+
+    <section class="vh-100">
+      <div class="container py-5 h-100">
+        <div class="row d-flex align-items-center justify-content-center">
+          <div
+            class="col-md-7 col-lg-5 col-xl-5 p-5 border rounded-5 form-container mb-5"
+          >
+            <h2 class="admin-head">Admin Login</h2>
+            <form class="admin-form">
+              <!-- Email input -->
+              <div class="form-outline mb-4 mt-5">
+                <input
+                  type="email"
+                  id="form1Example13"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form1Example13"
+                  >Email address</label
+                >
+              </div>
+
+              <!-- Password input -->
+              <div class="form-outline mb-4">
+                <input
+                  type="password"
+                  id="form1Example23"
+                  class="form-control form-control-lg"
+                />
+                <label class="form-label" for="form1Example23">Password</label>
+              </div>
+
+              <!-- Submit button -->
+              <button type="submit" class="btn btn-primary btn-lg btn-block">
+                Sign in
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
