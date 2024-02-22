@@ -15,66 +15,24 @@
     "additionalInformation"
   );
   const imageInput = document.getElementById("images");
-  const previewImg = document.getElementById("preview-image");
-
-
-  // Image Preview and Validation
-  // imageInput.addEventListener("change", (e) => {
-  //   const files = e.target.files;
-  //   previewImg.innerHTML = "";
-
-  //   if (files.length > 4) {
-  //     return setError(images, "Maximum 4 files can be uploaded");
-  //   } else {
-  //     setError(images, "");
-  //   }
-
-  //   
-
-  //   if (files.length > 0) {
-  //     for (let image of files) {
-  //       // console.log(image);
-  //       if (!allowedExtensions.exec(image.name)) {
-  //         return setError(images, "Check the file type");
-  //       }
-
-  //       const reader = new FileReader();
-
-  //       reader.onload = function (event) {
-  //         imageArray.push(event.target.result);
-  //         const imgframe = document.createElement("div");
-  //         imgframe.classList.add("img-frame");
-  //         const img = document.createElement("img");
-  //         img.src = event.target.result;
-  //         img.classList.add("me-2", "border", "rounded");
-  //         img.style.cssText = "width : 150px; height: 150px";
-  //         imgframe.appendChild(img);
-  //         previewImg.appendChild(imgframe);
-  //       };
-  //       reader.readAsDataURL(image);
-  //     }
-  //   }
-  //   for(let image of imageArray){
-  //         console.log(image)
-  //       }
-  // });
-
+  const previewImg = document.getElementById("preview-image")
+  // const imageArray = [];
 
   imageInput.addEventListener('change',(e)=>{
-    
-    previewImg.innerHTML = ''
-    files = e.target.files
 
+    previewImg.innerHTML = ''
+    const files = e.target.files;
+    
     if (files.length > 4) {
-      return setError(images, "Maximum 4 files can be uploaded");
+      return setError(imageInput, "Maximum 4 files can be uploaded");
     } else {
-      setError(images, "");
+      setError(imageInput, "");
     }
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
-    
+
     for(let image of files){
       if (!allowedExtensions.exec(image.name)) {
-           return setError(images, "Check the file type");
+           return setError(imageInput, "Check the file type");
          }
       const reader = new FileReader();
 
@@ -98,6 +56,8 @@
     }
   });
 
+
+ 
   function clearSelectedImages(file,imgframe){
     const files = Array.from(imageInput.files);
     const index = files.indexOf(file);
@@ -109,6 +69,11 @@
       }
       imageInput.files = dataTransfer.files
       imgframe.style.display = 'none';
+      if(imageInput.files.length === 0){
+        previewImg.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label>`
+      }
+      
     }
   }
 
