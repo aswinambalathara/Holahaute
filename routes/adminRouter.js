@@ -18,6 +18,7 @@ router.patch('/products/deleteproduct/:id',productController.doDeleteProducts);
 
 router.get('/users',adminController.getAdminUsers);
 router.patch('/users/blockuser/:id',adminController.doUserBlock);
+router.patch('/users/unblockuser/:id',adminController.doUserUnBlock);
 
 router.get('/category',categoryController.getAdminCategory)
 router.get('/category/addcategory',categoryController.getAddCategory) 

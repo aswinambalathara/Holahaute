@@ -18,26 +18,32 @@ try {
 
 module.exports.doUserBlock = async (req,res)=>{
   try {
-    const {status} = req.body
-    //console.log(req.params.id)
-    if(status === 'clicked'){
-      const user = await userSchema.findOne({_id:req.params.id});
-      if(user.isBlocked === true){
-       await userSchema.updateOne({_id:req.params.id},{$set:{
-          isBlocked : false
-        }});
-       
-        res.json({
-          status: "unblocked"
-        });
-      }else{
-        await userSchema.updateOne({_id:req.params.id},{$set:{
-          isBlocked: true
-        }});
-        res.json({
-          status: "blocked"
-        })
-      }
+    const user = await userSchema.findOne({_id:req.params.id});
+    if(user){
+      await userSchema.updateOne({_id:req.params.id},{$set:{
+        isBlocked : true
+       }});
+
+       res.json({
+        status: 'blocked'
+       });
+    }
+  } catch (error) {
+    console.log(error); 
+  }
+}
+
+module.exports.doUserUnBlock = async (req,res)=>{
+  try {
+    const user = await userSchema.findOne({_id:req.params.id});
+    if(user){
+      await userSchema.updateOne({_id:req.params.id},{$set:{
+        isBlocked : false
+       }});
+
+       res.json({
+        status: 'unBlocked'
+       });
     }
   } catch (error) {
     console.log(error);
