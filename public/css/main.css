@@ -38,7 +38,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 
 /*//////////////////////////////////////////////////////////////////
 [ FONT ]*/
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @font-face {
     font-family: Poppins-Regular;
     src: url('../fonts/Poppins/Poppins-Regular.ttf'); 
@@ -115,7 +115,9 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   
   
   
-  
+  a{
+    text-decoration: none;
+  }
   
   /*//////////////////////////////////////////////////////////////////
   [ LOADDING ]*/
@@ -3336,3 +3338,54 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
     }
   
   }
+
+  /* custom style */
+.font-poppins{
+  font-family: poppins;
+}
+  .address-btns{
+    background: none;
+    border: none;
+    font-size: x-small;
+    font-weight: 500;
+    color: rgba(0, 0, 255, 0.592);
+}
+.address{
+    color: rgba(0, 0, 0, 0.537);
+}
+
+.address-wrapper{
+    position: relative;
+}
+.address-ribbon{
+    position: absolute;
+    left: 235px;
+    top: 1px;
+    background-color: rgb(4, 131, 204);
+    padding: 0px 5px 3px 10px;
+    border-top-right-radius: .375rem;
+    border-bottom-left-radius: 3px;
+    color: white;
+    text-transform: capitalize;
+    font-size: smaller;
+    font-weight: 400;
+}
+
+/* .edit-profile-form{
+  max-width: 50%;
+} */
+
+.edit-element,.edit-element1{
+  position: relative;
+  display: inline;
+}
+.icon{
+  position: absolute;
+  top: 20%;
+  left: 95%;
+}
+.icon1{
+  position: absolute;
+  top: 20%;
+  left: 88%;
+}
