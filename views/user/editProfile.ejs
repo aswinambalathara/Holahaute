@@ -4,8 +4,8 @@
     <div class="container-fluid p-0">
         <div class="mt-4 p-0 p-md-5">
             <h5 class="mt-5 ms-2 font-poppins">Edit Profile</h5>
-            <div class="edit-profile-container pt-5 mt-4 d-flex align-items-center justify-content-center">
-                <form action="" class="form-control shadow rounded border edit-profile-form p-5 col-12 col-md-4 font-poppins">
+            <div class="edit-profile-container pt-5 my-4 d-flex align-items-center justify-content-center">
+                <form action="" class="form-control shadow rounded border edit-profile-form p-5 col-12 col-md-6 col-xl-4 font-poppins">
                     <div class="d-flex align-items-center flex-column flex-md-row">
                         <div class="profile-img-frame border border-1 border-dark p-2 rounded">
                           <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-person-square" viewBox="0 0 16 16">
@@ -18,9 +18,9 @@
                        <div class="form-part mt-4 d-flex flex-column">
                         <div>
                           <label for="fullName" class="form-label m-0">Full Name</label>
-                          <div class="edit-element ">
+                          <div class="edit-element">
+                            <input type="text" name="fullName" value="<%=userdetail.fullName%>" id="fullName" class="form-control" disabled>
                             <i class="bi bi-pencil-square text-danger icon"></i>
-                           <input type="text" name="fullName" id="fullName" class="form-control">
                           </div>
                         </div>
 
@@ -28,7 +28,7 @@
                           <label for="email" class="form-label m-0">Email</label>
                           <div class="edit-element ">
                             <i class="bi bi-pencil-square text-danger icon"></i>
-                           <input type="email" name="email" id="email" class="form-control">
+                           <input type="email" name="email" id="email" class="form-control pe-5" style="overflow: hidden;" value="<%=userdetail.email%>" disabled>
                           </div>
                         </div>
                         
@@ -37,16 +37,16 @@
                           <div class="col-12 col-md-5 p-0">
                             <label for="mobile" class="form-label m-0">Mobile</label>
                             <div class="edit-element1">
-                             <input type="text" name="mobile" id="mobile" class="form-control">
-                             <i class="bi bi-pencil-square text-danger icon1"></i>
+                             <input type="text" name="mobile" id="mobile" class="form-control pe-5" style="overflow: hidden;" value="<%=userdetail.phone%>" disabled>
+                             <i class="bi bi-pencil-square text-danger icon"></i>
                             </div>
                           </div>
                
                           <div class="col-12 col-md-5 p-0 mt-3 mt-md-0">
                            <label for="password" class="form-label m-0">Password</label>
                             <div class="edit-element1">
-                             <input type="password" name="password" id="password" class="form-control">
-                             <i class="bi bi-pencil-square text-danger icon1"></i>
+                             <input type="password" name="password" id="password" value="********" class="form-control pe-5" style="overflow: hidden;" disabled>
+                             <i class="bi bi-pencil-square text-danger icon"></i>
                             </div>
                           </div>
                

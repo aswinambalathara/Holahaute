@@ -12,4 +12,6 @@ router.get('/shop',shopController.getProductsPage);
 
 router.get('/userprofile',userController.getUserProfile);
 router.get('/editprofile',userController.getEditUserProfile);
+router.get('/addaddress',userController.getAddAddress);
+router.get('/editaddress',userController.getEditAddress); 
 module.exports = router 

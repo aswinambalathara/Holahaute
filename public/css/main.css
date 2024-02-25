@@ -3343,6 +3343,12 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 .font-poppins{
   font-family: poppins;
 }
+
+.address-btn-con{
+  position: absolute;
+  top: 154px;
+  right: 2px;
+}
   .address-btns{
     background: none;
     border: none;
@@ -3354,12 +3360,12 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
     color: rgba(0, 0, 0, 0.537);
 }
 
-.address-wrapper{
+.address-wrapper,.new-address-frame{
     position: relative;
 }
 .address-ribbon{
     position: absolute;
-    left: 235px;
+    right: 1px;
     top: 1px;
     background-color: rgb(4, 131, 204);
     padding: 0px 5px 3px 10px;
@@ -3379,13 +3385,26 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   position: relative;
   display: inline;
 }
-.icon{
+.edit-element .icon{
   position: absolute;
-  top: 20%;
-  left: 95%;
+  top: 8px;
+  right: 14px;
 }
-.icon1{
+
+.edit-element1 .icon{
   position: absolute;
-  top: 20%;
-  left: 88%;
+  top: 8px;
+  right: 14px;
+}
+
+
+.edit-element .edit-icon{
+  position: absolute;
+  top: 8px;
+  right: 14px;
+}
+
+
+input{
+  overflow: hidden;
 }
