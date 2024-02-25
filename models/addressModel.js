@@ -60,7 +60,7 @@ const addressSchema = Schema({
 
     isPrimary :{
         type : Boolean,
-        default : true
+        default : false
     }
 })
 

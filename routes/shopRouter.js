@@ -10,8 +10,12 @@ router.get('/shop',shopController.getProductsPage);
 
 //userRoutes
 
-router.get('/userprofile',userController.getUserProfile);
-router.get('/editprofile',userController.getEditUserProfile);
-router.get('/addaddress',userController.getAddAddress);
-router.get('/editaddress',userController.getEditAddress); 
+router.get('/user/userprofile',userController.getUserProfile);
+router.get('/user/editprofile',userController.getEditUserProfile);
+router.patch('/user/userprofile/setprimary/:id',userController.doSetPrimaryAddress);
+
+router.get('/user/addaddress',userController.getAddAddress);
+router.post('/user/addaddress',userController.doAddAddress);
+
+router.get('/user/editaddress',userController.getEditAddress); 
 module.exports = router 
