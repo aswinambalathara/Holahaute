@@ -3,30 +3,38 @@ const jwt = require('jsonwebtoken');
 module.exports.isUserAuth = (req,res,next)=>{
 if(!req.session.userAuthId){
     res.redirect('/login')
+}else{
+    next()
 }
-next()
+
 }
 
 module.exports.isUserLoggedOut = (req,res,next)=>{
     if(req.session.userAuthId){
         res.redirect('/home');
+    }else{
+        next()
     }
-    next()
+    
 }
 
 
 module.exports.isAdminAuth = (req,res,next)=>{
     if(!req.session.adminAuth){
         res.redirect('/admin/login') 
+    }else{
+        next()
     }
-    next()
+    
 }
 
 module.exports.isAdminLoggedOut = (req,res,next)=>{
     if(req.session.adminAuth){
         res.redirect('/admin');
+    }else{
+        next()
     }
-    next()
+    
 }
 
 

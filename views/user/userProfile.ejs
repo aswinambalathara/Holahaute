@@ -71,10 +71,10 @@
                                 </div>
                                 <div class="d-flex justify-content-end me-2 address-btn-con">
                                     <%if(!address.isPrimary) {%>
-                                    <button class="address-btns" onclick="setPrimary('<%= address._id%>')">Set as primary address</button>
+                                    <button class="address-btns" onclick="setPrimary('<%= address._id %>')">Set as primary address</button>
                                     <%} %>
-                                    <button class=" ms-2 address-btns">Edit</button>
-                                    <button class="ms-2 address-btns">Remove</button>
+                                    <button class=" ms-2 address-btns"><a href="/user/editaddress/<%address._id%>" style="text-decoration: none;">Edit</a></button>
+                                    <button class="ms-2 address-btns" onclick="removeAddress('<%= address._id %>')">Remove</button>
                                 </div>
                             </div>
                             <%} )%>
@@ -124,6 +124,19 @@
                 .then((data)=>{
                     if(data.status === 'success'){
                         location.reload('/user/userprofile')
+                    }
+                })
+            }
+            function removeAddress(addressId){
+                fetch(`http://localhost:3000/user/removeaddress/${addressId}`,{
+                    method : "PATCH",
+                    headers:{
+                        "Content-Type":"application/json"
+                    }
+                }).then((res)=>res.json())
+                .then((data)=>{
+                    if(data.status === 'success'){
+                        location.reload('/user/userprofile');
                     }
                 })
             }

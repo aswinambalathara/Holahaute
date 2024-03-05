@@ -1,0 +1,175 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verificationModal" id="modalBtn">
+    Launch demo modal
+</button>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="passwordModal">
+    Launch password modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade font-poppins" id="verificationModal" tabindex="-1" aria-labelledby="verificationModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Verification</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="otpverification" class="form-label mb-0">Enter OTP</label>
+                <small class="text-success">An otp has send to <%=userdetail.email%></small>
+                <input type="text" class="form-control mt-2" />
+                <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="validateOTP()">Submit OTP</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade font-poppins" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Change Password</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="font-poppins" id="changePasswordForm">
+                    <div>
+                        <label for="oldpassword" class="form-label">Old Password</label>
+                        <input type="text" placeholder="Enter old password" class="form-control" id="oldPasswordInput">
+                        <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
+                    </div>
+                    <div>
+                        <label for="newpassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPasswordInput">
+                        <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
+                    </div>
+                    <div>
+                        <label for="confirmpassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                        <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" id="changePassword">Change Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const changePasswordBtn = document.getElementById('changePassword');
+    const oldPasswordInput = document.getElementById('oldPasswordInput');
+    const newPasswordInput = document.getElementById('newPasswordInput');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordInput = document.getElementById('password');
+
+
+    function validatePasswordForm() {
+        newPasswordInput.addEventListener('blur', () => {
+            const inputValue = newPasswordInput.value.trim()
+            if (inputValue === '') {
+                setError(newPasswordInput, "This field cannot be empty");
+            } else {
+                const oldPasswordValue = oldPasswordInput.value.trim()
+                if (oldPasswordValue === inputValue) {
+                    setError(newPasswordInput, "Cannot set old Password as new password")
+                } else {
+                    let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                    if (!passwordRegex.test(inputValue)) {
+                        setError(newPasswordInput, "Make strong Password")
+                    } else {
+                        setError(newPasswordInput, "");
+                    }
+                }
+            }
+        });
+
+        oldPasswordInput.addEventListener('blur', () => {
+            const inputValue = oldPasswordInput.value.trim()
+            if (inputValue === '') {
+                setError(oldPasswordInput, "This field is required")
+            } else {
+                setError(oldPasswordInput, " ");
+            }
+        });
+
+        confirmPassword.addEventListener('blur', () => {
+            const inputValue = confirmPassword.value.trim()
+            const newPasswordValue = newPasswordInput.value.trim()
+            if (inputValue === '') {
+                setError(confirmPassword, 'This field is required')
+            } else if (inputValue !== newPasswordValue) {
+                setError(confirmPassword, "Password doesn't match");
+            } else {
+                setError(confirmPassword, " ")
+            }
+        })
+    }
+
+    changePasswordBtn.addEventListener('click', () => {
+        const newPasswordInputValue = newPasswordInput.value.trim()
+        const oldPasswordValue = oldPasswordInput.value.trim()
+        const confirmPasswordValue = confirmPassword.value.trim()
+        let hasError = false
+        if (newPasswordInputValue === '') {
+            setError(newPasswordInput, "This field cannot be empty");
+            hasError = true;
+        } else {
+            if (oldPasswordValue === newPasswordInputValue) {
+                setError(newPasswordInput, "Cannot set old Password as new password")
+                hasError = true;
+            } else {
+                let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (!passwordRegex.test(newPasswordInputValue)) {
+                    setError(newPasswordInput, "Make strong Password")
+                    hasError = true;
+                } else {
+                    setError(newPasswordInput, "");
+                }
+            }
+        }
+
+        if (oldPasswordValue === '') {
+            setError(oldPasswordInput, "This field is required")
+            hasError = true;
+        } else {
+            setError(oldPasswordInput, " ");
+        }
+
+        if (confirmPasswordValue === '') {
+            setError(confirmPassword, 'This field is required')
+            hasError = true;
+        } else if (confirmPasswordValue !== newPasswordInputValue) {
+            setError(confirmPassword, "Password doesn't match");
+            hasError = true;
+        } else {
+            setError(confirmPassword, " ")
+        }
+
+        if (!hasError) {
+            console.log(userId)
+            fetch(`/user/changepassword/${userId}`,{
+                method : "POST"
+            })
+        }
+    })
+
+
+
+   function validateOTP(){
+
+   }
+</script>

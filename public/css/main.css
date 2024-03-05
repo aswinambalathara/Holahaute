@@ -3385,16 +3385,33 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   position: relative;
   display: inline;
 }
+
 .edit-element .icon{
   position: absolute;
   top: 8px;
   right: 14px;
+  cursor: pointer;
 }
+
+/* .edit-element .icon-cancel{
+  position: absolute;
+  top: 11px;
+  right: 38px;
+  color: red;
+}
+
+.edit-element .icon-check{
+  position: absolute;
+  top: 11px;
+  right: 14px;
+  color: green;
+} */
 
 .edit-element1 .icon{
   position: absolute;
   top: 8px;
   right: 14px;
+  cursor: pointer;
 }
 
 
@@ -3403,6 +3420,8 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   top: 8px;
   right: 14px;
 }
+
+
 
 
 input{

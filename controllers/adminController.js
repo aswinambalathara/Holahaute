@@ -49,3 +49,16 @@ module.exports.doUserUnBlock = async (req,res)=>{
     console.log(error);
   }
 }
+
+module.exports.toggleUserBlock = async (req,res)=>{
+  try {
+    const user = await userSchema.findOne({_id:req.params.id});
+    user.isBlocked = !user.isBlocked
+    await user.save()
+    res.json({
+      status : user.isBlocked? "blocked" : "unblocked"
+    })
+  } catch (error) {
+    console.log(error);  
+  }
+}

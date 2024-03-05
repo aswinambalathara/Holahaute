@@ -1,0 +1,121 @@
+<script>
+    const oldEmail = "<%=userdetail.email%>";
+    const userId = "<%= userdetail._id%>"
+    // const oldPassword = "<%=userdetail.password%>";
+    const oldMobile = "<%=userdetail.phone%>";
+    const fullName = document.getElementById("fullName");
+    const form = document.getElementById("editProfileForm");
+    const email = document.getElementById("email");
+    const mobile = document.getElementById("mobile");
+    //const password = document.getElementById("password");
+    const icons = document.querySelectorAll(".icon");
+    const modalBtn = document.getElementById("modalBtn");
+    const passwordModal = document.getElementById('passwordModal')
+
+
+    icons.forEach((icon) => {
+      icon.addEventListener("click", () => {
+        const parent = icon.parentElement;
+        const input = parent.querySelector('input');
+        input.disabled =
+          !input.disabled;
+          if(input.id === 'password'){
+            input.disabled = true;
+            passwordModal.click()
+            validatePasswordForm()
+          }
+      });
+    });
+
+    fullName.addEventListener("blur", () => {
+      const fullNameValue = fullName.value.trim();
+      console.log(fullNameValue);
+      let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+      if (!lettersOnlyRegex.test(fullNameValue)) {
+        setError(fullName, "Only Letters Allowed");
+      } else {
+        setError(fullName, "");
+      }
+    });
+
+    mobile.addEventListener("blur", () => {
+      const mobileValue = mobile.value.trim();
+      let mobileRegex = /^\d{10}$/;
+      if (!mobileRegex.test(mobileValue)) {
+        setError(mobile, "Invalid Mobile Number");
+      } else {
+        setError(mobile, "");
+      }
+    });
+
+    email.addEventListener("blur", () => {
+      const emailValue = email.value.trim();
+      let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailValue)) {
+        setError(email, "Invalid Email Address");
+      } else {
+        setError(email, "");
+      }
+    });
+
+    const setError = (element, message) => {
+      const inputParent = element.parentElement;
+      const errorDisplay = inputParent.querySelector(".error");
+
+      errorDisplay.innerText = message;
+    };
+
+    const validateAll = () => {
+      let hasError = false;
+
+      if (fullName.disabled === false) {
+        const fullNameValue = fullName.value.trim();
+        // console.log(fullNameValue);
+        let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+        if (!lettersOnlyRegex.test(fullNameValue)) {
+          setError(fullName, "Only Letters Allowed");
+          hasError = true;
+        } else {
+          setError(fullName, "");
+        }
+      }
+
+      if (mobile.disabled === false) {
+        const mobileValue = mobile.value.trim();
+        let mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobileValue)) {
+          setError(mobile, "Invalid Mobile Number");
+          hasError = true;
+        } else {
+          setError(mobile, "");
+        }
+      }
+      if (email.disabled === false) {
+        const emailValue = email.value.trim();
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValue)) {
+          setError(email, "Invalid Email Address");
+          hasError = true;
+        } else {
+          setError(email, "");
+        }
+      }
+      return hasError;
+    }
+    
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!validateAll()) {
+        if (
+          oldEmail !== email.value.trim() ||
+          oldMobile !== mobile.value.trim() ||
+          oldPassword !== password.value.trim()
+        ) { 
+            fetch()
+          modalBtn.click();
+        } else {
+          form.submit();
+        }
+      }
+    });
+  </script>

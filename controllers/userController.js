@@ -43,8 +43,8 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
       }
     );
     res.status(200).json({
-        status : 'success'
-    })
+      status: "success",
+    });
   } catch (error) {
     console.log(error);
   }
@@ -52,7 +52,7 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
 
 module.exports.getEditUserProfile = async (req, res) => {
   try {
-    const user = await userSchema.findOne({_id: req.session.userAuthId});
+    const user = await userSchema.findOne({ _id: req.session.userAuthId });
     res.render("user/editProfile.ejs", {
       title: "Edit Profile",
       userdetail: user,
@@ -62,6 +62,22 @@ module.exports.getEditUserProfile = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.DoEditUserProfile = async (req, res) => {
+  try {
+    
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doSendOTP = async (req,res)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}
 
 module.exports.getAddAddress = (req, res) => {
   try {
@@ -93,6 +109,29 @@ module.exports.doAddAddress = async (req, res) => {
         { $push: { addresses: result._id } }
       );
       res.redirect("/user/userprofile");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doUnlistAddress = async (req, res) => {
+  try {
+    const addressId = req.params.id;
+    const userId = req.session.userAuthId;
+console.log(addressId,"  ",userId)
+    if (addressId && userId) {
+      await addressSchema.updateOne(
+        { _id: addressId, userId },
+        {
+          $set: {
+            status: false,
+          },
+        }
+      );
+      res.status(200).json({
+        status : 'success'
+      })
     }
   } catch (error) {
     console.log(error);
