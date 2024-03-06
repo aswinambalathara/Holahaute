@@ -19,7 +19,7 @@
             <div class="modal-body">
                 <label for="otpverification" class="form-label mb-0">Enter OTP</label>
                 <small class="text-success">An otp has send to <%=userdetail.email%></small>
-                <input type="text" class="form-control mt-2" />
+                <input type="text" class="form-control mt-2" id="otp" />
                 <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
             </div>
             <div class="modal-footer">
@@ -42,6 +42,7 @@
             </div>
             <div class="modal-body">
                 <div class="font-poppins" id="changePasswordForm">
+                    <div class="error mt-1 ms-2" style="color: red; font-size: small" id="errorDisplay"></div>
                     <div>
                         <label for="oldpassword" class="form-label">Old Password</label>
                         <input type="text" placeholder="Enter old password" class="form-control" id="oldPasswordInput">
@@ -70,12 +71,25 @@
 </div>
 
 <script>
+    const oldEmail = "<%=userdetail.email%>";
+    const userId = "<%= userdetail._id%>"
+    const oldPassword = "<%=userdetail.password%>";
+    const oldMobile = "<%=userdetail.phone%>";
+    const fullName = document.getElementById("fullName");
+    const form = document.getElementById("editProfileForm");
+    const email = document.getElementById("email");
+    const mobile = document.getElementById("mobile");
+    const password = document.getElementById("password");
+    const icons = document.querySelectorAll(".icon");
+    const passwordModal = document.getElementById('passwordModal')
     const changePasswordBtn = document.getElementById('changePassword');
     const oldPasswordInput = document.getElementById('oldPasswordInput');
     const newPasswordInput = document.getElementById('newPasswordInput');
     const confirmPassword = document.getElementById('confirmPassword');
-    const passwordInput = document.getElementById('password');
-
+    const errorDisplay = document.getElementById('errorDisplay');
+    const modalBtn = document.getElementById("modalBtn");
+    const otp = document.getElementById('otp');
+const successAlert = document.getElementById('success-alert');
 
     function validatePasswordForm() {
         newPasswordInput.addEventListener('blur', () => {
@@ -161,15 +175,62 @@
 
         if (!hasError) {
             console.log(userId)
-            fetch(`/user/changepassword/${userId}`,{
-                method : "POST"
-            })
+            fetch('/user/sendotp', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    newPassword: newPasswordInputValue,
+                    oldPassword: oldPasswordValue,
+                })
+            }).then((res) => res.json())
+                .then((data) => {
+                    if (data.status === 'error') {
+                        errorDisplay.innerText = data.message
+                    } else if (data.status === 'success') {
+                        modalBtn.click()
+                    }
+                })
         }
     })
 
+    function validateOTP() {
+        if (newPasswordInput.value.trim()) {
+            fetch('/user/editprofile', {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    otp: otp.value.trim(),
+                    password: newPasswordInput.value.trim()
+                })
+            }).then((res)=>res.json())
+                .then((data)=>{
+                    if(data.status === 'success'){
+                        location.reload()
+                        successAlert.hidden = false;
+                        successAlert.innerText = data.message;
+                        setTimeout(()=>{
+                            successAlert.hidden = true;
+                        },3000);
+                    }
+                })
+        } else {
+            fetch('/user/editprofile',{
+                method : "PATCH",
+                headers: {
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    otp : otp.value.trim(),
+                    email : email.value.trim(),
+                    phone : mobile.value.trim(),
+                    fullName : fullName.value.trim()
+                })
+            })
+        }
+    }
 
-
-   function validateOTP(){
-
-   }
 </script>

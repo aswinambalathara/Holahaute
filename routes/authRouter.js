@@ -28,7 +28,7 @@ router.post('/resendotp',authController.doResendOTP);
 router.get('/forgotpassword',authController.getForgotPassword);
 router.post('/forgotpassword',authController.doForgotPassword);
 router.post('/forgotpassword/sendotp',authController.sendForgotOtp)
-router.get('/changepassword',authMiddleware.forgotuser,authController.getChangePassword);
+router.get('/changepassword',authController.getChangePassword);
 router.patch('/changepassword',authController.doChangePassword);
 
 //adminLogin

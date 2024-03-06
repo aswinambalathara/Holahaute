@@ -1,8 +1,6 @@
 const categorySchema = require("../models/categoryModel");
 const productSchema = require("../models/productModel");
 
-
-
 module.exports.getHomePage = async (req, res) => {
   try {
     const products = await productSchema.find({isDeleted:false});
@@ -46,4 +44,15 @@ module.exports.getProductsPage = async (req, res) => {
         console.log(error)
     }
   
+};
+
+module.exports.getCart = async (req,res) =>{
+try {
+  res.render('shop/cart.ejs',{
+    title : "Cart",
+    user : req.session.userAuth
+  })
+} catch (error) {
+  console.log(error)
+}
 };

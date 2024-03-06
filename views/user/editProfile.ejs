@@ -3,8 +3,11 @@
     <div class="container-fluid p-0">
       <div class="mt-4 p-0 p-md-5">
         <h5 class="mt-5 ms-2 font-poppins">Edit Profile</h5>
-        <div class="edit-profile-container pt-5 my-4 d-flex align-items-center justify-content-center">
-          <form action="/user/editprofile/"
+        <div class="edit-profile-container pt-5 my-4 d-flex flex-column align-items-center justify-content-center">
+          <div class="alert alert-success rounded-pill col-md-4" role="alert" id="success-alert" hidden>
+            sample
+        </div>
+          <form action="/user/editprofile/?_method=PATCH"
             class="form-control shadow rounded border edit-profile-form p-5 col-12 col-md-6 col-xl-4 font-poppins"
             method="post" id="editProfileForm">
             <div class="d-flex align-items-center flex-column flex-md-row">
@@ -51,7 +54,7 @@
                 <div class="col-12 col-md-5 p-0">
                   <label for="mobile" class="form-label m-0">Mobile</label>
                   <div class="edit-element1">
-                    <input type="text" name="mobile" id="mobile" class="form-control pe-5" style="overflow: hidden"
+                    <input type="text" name="phone" id="mobile" class="form-control pe-5" style="overflow: hidden"
                       value="<%=userdetail.phone%>" disabled />
                     <i class="bi bi-pencil-square text-danger icon"></i>
                     <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
@@ -61,7 +64,7 @@
                 <div class="col-12 col-md-5 p-0 mt-3 mt-md-0">
                   <label for="password" class="form-label m-0">Password</label>
                   <div class="edit-element1">
-                    <input type="password" name="password" id="password" value="<%=userdetail.password%>"
+                    <input type="password" id="password" value="<%=userdetail.password%>"
                       class="form-control pe-5" style="overflow: hidden" disabled />
                     <i class="bi bi-pencil-square text-danger icon"></i>
                     <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>

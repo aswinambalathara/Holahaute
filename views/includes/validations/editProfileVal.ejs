@@ -1,17 +1,5 @@
 <script>
-    const oldEmail = "<%=userdetail.email%>";
-    const userId = "<%= userdetail._id%>"
-    // const oldPassword = "<%=userdetail.password%>";
-    const oldMobile = "<%=userdetail.phone%>";
-    const fullName = document.getElementById("fullName");
-    const form = document.getElementById("editProfileForm");
-    const email = document.getElementById("email");
-    const mobile = document.getElementById("mobile");
-    //const password = document.getElementById("password");
-    const icons = document.querySelectorAll(".icon");
-    const modalBtn = document.getElementById("modalBtn");
-    const passwordModal = document.getElementById('passwordModal')
-
+    //console.log(password.value)
 
     icons.forEach((icon) => {
       icon.addEventListener("click", () => {
@@ -108,11 +96,22 @@
       if (!validateAll()) {
         if (
           oldEmail !== email.value.trim() ||
-          oldMobile !== mobile.value.trim() ||
-          oldPassword !== password.value.trim()
+          oldMobile !== mobile.value.trim()
         ) { 
-            fetch()
-          modalBtn.click();
+            fetch('/user/sendotp',{
+              method : "POST",
+              headers :{
+                "Content-Type":"application/json"
+              },
+              body : JSON.stringify({
+                email : email.value.trim()
+              })
+            }).then((res)=>res.json())
+            .then((data)=>{
+              if(data.status === 'success'){
+                modalBtn.click();
+              }
+            })
         } else {
           form.submit();
         }

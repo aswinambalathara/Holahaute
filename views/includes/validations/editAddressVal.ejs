@@ -1,0 +1,184 @@
+<script>
+    const fullName = document.getElementById('fullName');
+    const mobile = document.getElementById('mobile');
+    const mobileParent = document.getElementById('mobileParent');
+    const address = document.getElementById('address');
+    const district = document.getElementById('district');
+    const state = document.getElementById('state');
+    const pincode = document.getElementById('pincode');
+    const addressForm = document.getElementById('add-address-form');
+
+    addressForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (validateInputs()) {
+            addressForm.submit()
+        }
+
+    });
+
+    function validateInputs() {
+        let hasError = false;
+        const fullNameValue = fullName.value;
+        if (fullNameValue === '') {
+            hasError = true;
+            setError(fullName, "This field is required")
+        } else {
+            let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+            if (!lettersOnlyRegex.test(fullNameValue)) {
+                hasError = true;
+                setError(fullName, "Only Letters Allowed")
+            } else {
+                setError(fullName, "");
+            }
+        }
+
+        const mobileValue = mobile.value;
+        if (mobileValue === '') {
+            hasError = true;
+            setError(mobileParent, "This field is required");
+        } else {
+            let mobileRegex = /^\d{10}$/;
+            if (!mobileRegex.test(mobileValue)) {
+                hasError = true;
+                setError(mobileParent, "Invalid Mobile Number")
+            } else {
+                setError(mobileParent, " ");
+            }
+        }
+
+        const addressValue = address.value;
+        if (addressValue === '') {
+            hasError = true;
+            setError(address, "This field is required");
+        } else {
+            setError(address, " ");
+        }
+
+        const districtValue = district.value;
+        //console.log(districtValue)
+        if (districtValue === 'null') {
+            hasError = true;
+            setError(district, "This field is required");
+        } else {
+            setError(district, " ");
+        }
+
+        const stateValue = state.value;
+        //console.log(districtValue)
+        if (stateValue === 'null') {
+            hasError = true;
+            setError(state, "This field is required");
+        } else {
+            setError(state, " ");
+        }
+
+        const pincodeValue = pincode.value.trim();
+        //console.log(districtValue)
+        if (pincodeValue === '') {
+            hasError = true;
+            setError(pincode, "This field is required");
+        } else {
+            let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
+            if (!pincodeRegex.test(pincodeValue)) {
+                hasError = true;
+                setError(pincode, "Invalid Postal code")
+            } else {
+                setError(pincode, " ");
+            }
+        }
+
+        if (!hasError) {
+            return true
+        }
+    }
+
+    fullName.addEventListener('input', () => {
+        const fullNameValue = fullName.value;
+        if (fullNameValue === '') {
+            setError(fullName, "This field is required")
+        } else {
+            let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+            if (!lettersOnlyRegex.test(fullNameValue)) {
+
+                setError(fullName, "Only Letters Allowed")
+            } else {
+                setError(fullName, "");
+            }
+        }
+    });
+
+    mobile.addEventListener('input', () => {
+        const mobileValue = mobile.value;
+        if (mobileValue === '') {
+
+            setError(mobileParent, "This field is required");
+        } else {
+            let mobileRegex = /^\d{10}$/;
+            if (!mobileRegex.test(mobileValue)) {
+
+                setError(mobileParent, "Invalid Mobile Number")
+            } else {
+                setError(mobileParent, " ");
+            }
+        }
+    });
+
+    address.addEventListener('input', () => {
+        const addressValue = address.value;
+        if (addressValue === '') {
+
+            setError(address, "This field is required");
+        } else {
+            setError(address, " ");
+        }
+    });
+
+    district.addEventListener('change', () => {
+
+        const districtValue = district.value;
+        //console.log(districtValue)
+        if (districtValue === 'null') {
+
+            setError(district, "This field is required");
+        } else {
+            setError(district, " ");
+        }
+    });
+
+    state.addEventListener('change', () => {
+        const stateValue = state.value;
+        //console.log(districtValue)
+        if (stateValue === 'null') {
+
+            setError(state, "This field is required");
+        } else {
+            setError(state, " ");
+        }
+    });
+
+    pincode.addEventListener('input', () => {
+        const pincodeValue = pincode.value.trim();
+        //console.log(districtValue)
+        if (pincodeValue === '') {
+
+            setError(pincode, "This field is required");
+        } else {
+            let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
+            if (!pincodeRegex.test(pincodeValue)) {
+
+                setError(pincode, "Invalid Postal code")
+            } else {
+                setError(pincode, " ");
+            }
+        }
+    });
+
+    function setError(element, message) {
+        const inputParent = element.parentElement;
+        const errorDisplay = inputParent.querySelector('.error');
+
+        errorDisplay.innerText = message;
+    }
+
+</script>
