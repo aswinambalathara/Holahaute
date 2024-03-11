@@ -46,13 +46,19 @@ module.exports.getProductsPage = async (req, res) => {
   
 };
 
-module.exports.getCart = async (req,res) =>{
-try {
-  res.render('shop/cart.ejs',{
-    title : "Cart",
-    user : req.session.userAuth
+module.exports.doSearch = async (req,res)=>{
+ try {
+  const {searchTerm} = req.body
+  const suggestions = await productSchema.find({isDeleted:false,$or :[
+    {productName : {$regex : searchTerm, $options : 'i'}},
+    {description : {$regex : searchTerm, $options : 'i'}}
+  ]})
+  res.json({
+    suggestions : suggestions,
+    success : true
   })
-} catch (error) {
+ } catch (error) {
   console.log(error)
+ }
+ 
 }
-};

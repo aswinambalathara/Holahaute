@@ -18,12 +18,13 @@ try {
 
 module.exports.doUserBlock = async (req,res)=>{
   try {
-    const user = await userSchema.findOne({_id:req.params.id});
+    const id = req.params.id
+    const user = await userSchema.findOne({_id:id});
     if(user){
-      await userSchema.updateOne({_id:req.params.id},{$set:{
+      await userSchema.updateOne({_id:id},{$set:{
         isBlocked : true
        }});
-
+       req.session.userIsBlocked = true;
        res.json({
         status: 'blocked'
        });
@@ -40,7 +41,7 @@ module.exports.doUserUnBlock = async (req,res)=>{
       await userSchema.updateOne({_id:req.params.id},{$set:{
         isBlocked : false
        }});
-
+       req.session.userIsBlocked = false
        res.json({
         status: 'unBlocked'
        });

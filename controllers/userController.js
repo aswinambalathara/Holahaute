@@ -69,20 +69,24 @@ module.exports.getEditUserProfile = async (req, res) => {
 module.exports.DoEditUserProfile = async (req, res) => {
   try {
     const id = req.session.userAuthId;
-    console.log(req.body);
-    const { fullName, password, email, phone, otp } = req.body;
+    console.log('entered');
+    const { fullNameFt,fullName, password, email, phone, otp } = req.body;
     const user = await userSchema.findOne({ _id: id });
     if(fullName){
-      user.fullName = fullName
-      user.save()
-    }else if (fullName && email && phone && otp) {
+      user.fullName = fullName !== ''? fullName : undefined;
+      await user.save()
+      req.flash('success',"Updates Successfull");
+        res.redirect('/user/userprofile')
+    }else if (fullNameFt && email && phone && otp) {
       if (otp === user.token.otp) {
-        user.fullName = fulName !== " " ? fullName : undefined;
+        user.fullName = fullNameFt !== " " ? fullNameFt : undefined;
         user.email = email !== "" ? email : undefined;
         user.phone = phone !== "" ? phone : undefined;
         await user.save();
-        req.flash('success',"Updates Successfull");
-        res.redirect('/user/userprofile')
+        res.json({
+          status: "success",
+          message :"Profile Updated"
+        });
       }else{
         res.json({
           status : 'error',
@@ -149,7 +153,7 @@ module.exports.sendOtp = async (req, res) => {
             message : "Email exist with another account"
           })
         }else{
-          const otp = verficationController.sendEmail(user.email);
+          const otp = verficationController.sendEmail(email);
           user.token.otp = otp;
           user.token.generatedTime = Date.now();
           await user.save();
@@ -177,7 +181,7 @@ module.exports.getAddAddress = (req, res) => {
 
 module.exports.doAddAddress = async (req, res) => {
   try {
-    console.log(req.body);
+  //  console.log(req.body);
     if (req.session.userAuthId) {
       const address = new addressSchema({
         fullName: req.body.fullName,
@@ -225,7 +229,7 @@ module.exports.doUnlistAddress = async (req, res) => {
 
 module.exports.getEditAddress = async (req, res) => {
   try {
-    console.log(req.params.id);
+    //console.log(req.params.id);
     const address = await addressSchema.findOne({_id:req.params.id});
     res.render("user/editAddress.ejs", {
       title: "Edit Address",
@@ -236,3 +240,22 @@ module.exports.getEditAddress = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.doEditAddress = async (req, res)=>{
+  try {
+    const addressId = req.params.id
+    const {fullName,mobile,address,district,state,pincode} = req.body
+     await addressSchema.updateOne({_id:addressId},{$set:{
+      fullName : fullName !== ''? fullName : undefined,
+      mobile : mobile !== ''? mobile : undefined,
+      address : address !== ''? address : undefined,
+      district : district !== ''? district : undefined,
+      state : state !== ''? state : undefined,
+      pincode : pincode !== ''? pincode : undefined,
+     }});
+     req.flash('success',"Address Update SuccessFull");
+     res.redirect('/user/userprofile')
+  } catch (error) {
+    console.log(error)
+  }
+}

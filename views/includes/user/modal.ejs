@@ -1,9 +1,9 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verificationModal" id="modalBtn">
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verificationModal" id="modalBtn" hidden>
     Launch demo modal
 </button>
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="passwordModal">
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="passwordModal" hidden>
     Launch password modal
 </button>
 
@@ -18,7 +18,7 @@
             </div>
             <div class="modal-body">
                 <label for="otpverification" class="form-label mb-0">Enter OTP</label>
-                <small class="text-success">An otp has send to <%=userdetail.email%></small>
+                <small class="text-success email-not">An otp has send to <%=userdetail.email%></small>
                 <input type="text" class="form-control mt-2" id="otp" />
                 <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
             </div>
@@ -190,6 +190,7 @@ const successAlert = document.getElementById('success-alert');
                         errorDisplay.innerText = data.message
                     } else if (data.status === 'success') {
                         modalBtn.click()
+                        //document.querySelector('.email-not').innerText = `An otp has send to ${email.value.trim()}`
                     }
                 })
         }
@@ -218,7 +219,8 @@ const successAlert = document.getElementById('success-alert');
                     }
                 })
         } else {
-            fetch('/user/editprofile',{
+             console.log(email.value.trim(),mobile.value.trim(),otp.value.trim(),fullName.value.trim());
+            fetch('/user/editprofile', {
                 method : "PATCH",
                 headers: {
                     "Content-Type":"application/json"
@@ -227,8 +229,13 @@ const successAlert = document.getElementById('success-alert');
                     otp : otp.value.trim(),
                     email : email.value.trim(),
                     phone : mobile.value.trim(),
-                    fullName : fullName.value.trim()
+                    fullNameFt : fullName.value.trim()
                 })
+            }).then((response)=>response.json())
+            .then((data)=>{
+                if(data.status === 'success'){
+                    location.assign('/user/userprofile');
+                }
             })
         }
     }

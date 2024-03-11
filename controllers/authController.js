@@ -140,6 +140,7 @@ module.exports.doUserLogin = async (req, res) => {
     const userData = await userSchema.findOne({ email });
     if (userData) {
       if (userData.isBlocked === false) {
+        req.session.userIsBlocked = false;
         const checkPassword = await bcrypt.compare(password, userData.password);
         if (checkPassword) {
           req.session.userAuthId = userData._id;

@@ -1,7 +1,86 @@
 <%- include('../includes/shop/shopHead.ejs') %>
 <%- include('../includes/shop/shopHeader.ejs') %>
-<div class="vh-100 bg-info">
 
+<div class="p-5">
+    <div class="container">
+        <div class="cart-container mt-5">
+        <h5>Your Cart</h5>
+        <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
+            <div class="cart-items col-12 col-md-7 border border-2 rounded p-2 me-2">
+                <div class="vstack gap-3">
+                    <div class="card shadow">
+                        <div class="card-body d-flex flex-column flex-md-row justify-content-between">
+                            <div class="d-flex">
+                                <div class="d-flex flex-column">
+                                    <div class="product-image" style="height: 8rem; width: 8rem; background-color: aqua ;">
+                                    </div>
+                                    <div class="d-flex justify-content-center mt-1">
+                                        <button class="btn btn-primary btn-sm">-</button>
+                                        <input type="text" min="1" style="width: 30px;" class="text-center" value="1">
+                                        <button class="btn btn-primary btn-sm">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="product-detail-wrapper d-flex flex-column ms-3 mt-3">
+                                    <h6>Ice Comfi</h6>
+                                    <p class="m-0">Size : <span>Medium</span></p>
+                                    <p class="m-0">Color : <span>Red</span></p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <strong>Price</strong>
+                                <p>1000</p>
+                            </div>
+                            
+                            <div class="d-flex flex-column mt-3">
+                                <button class="btn btn-outline-danger btn-sm ">Remove</button>
+                                <button class="btn btn-outline-success btn-sm mt-2">Add to wishlist</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </div>
+            <div class="cart-totals col-12 col-md-5 mt-3 mt-md-0">
+                <div class="border rounded border-2 p-2" style="height: 44rem;">
+                    <div class="grand-total d-flex flex-column border rounded shadow px-2 py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <h6>Grand Total</h6>
+                            <h6><span>₹</span>2000</h6>
+                            <small>Inclusive of all taxes</small>
+                        </div>
+                        <div class="justify-content-evenly d-flex mt-3 flex-wrap">
+                            <button class="btn btn-outline-dark fw-bold" style="text-transform: capitalize;">Continue
+                                Shopping</button>
+                            <button class="btn btn-primary fw-bold" style="text-transform: capitalize;">Proceed to
+                                checkout</button>
+                        </div>
+                    </div>
+                    <div class="billing mt-3 border rounded shadow px-3 py-4">
+                        <h6>Billing Details :</h6>
+                        <div class="product-card">
+                            <p>product namekkjfdgos;ygoipspoy;</p>
+    
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p>PRICE :</p>
+                                    <p>QUANTITY :</p>
+                                    <P>TOTAL :</P>
+                                </div>
+                                <div class="text-center">
+                                    <p> <span>₹ </span>1000</p>
+                                    <p>1</p>
+                                    <p><span>₹ </span>1000</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
 </div>
+
 <%- include('../includes/shop/shopFooter.ejs') %>
 <%- include('../includes/shop/shopEnd.ejs') %>

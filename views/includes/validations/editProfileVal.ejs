@@ -110,6 +110,9 @@
             .then((data)=>{
               if(data.status === 'success'){
                 modalBtn.click();
+                document.querySelector('.email-not').innerText = `An otp has send to ${email.value.trim()}`
+              }else{
+                document.getElementById('server-error').innerText = data.message
               }
             })
         } else {

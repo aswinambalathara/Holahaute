@@ -117,6 +117,7 @@ module.exports.getEditProducts = async (req, res) => {
     console.log(error);
   }
 };
+
 module.exports.doEditProducts = async (req, res) => {
   try {
     const newProductName = req.body.productName.toLowerCase();

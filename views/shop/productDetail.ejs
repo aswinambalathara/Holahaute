@@ -71,15 +71,17 @@
 
                                     <div class="size-204 respon6-next">
                                         <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="time">
-                                                <option>Choose an option</option>
+                                            <select class="js-select2" name="size" id="size">
+                                                <option value=" ">Choose an option</option>
                                                 <% product.sizeOptions.forEach(function(size) {%>
-                                                    <option style="text-transform: capitalize;">
+                                                    <option value="<%=size%>" style="text-transform: uppercase;">
                                                         <%=size%>
                                                     </option>
                                                     <%}) %>
                                             </select>
+                                            
                                             <div class="dropDownSelect2"></div>
+                                            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -120,7 +122,7 @@
 
                                         <div class="d-flex justify-content-between">
                                             <button
-                                                class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail">
+                                                class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail" onclick="addToCart('<%=product._id%>')" id="addToCartBtn">
                                                 Add to cart
                                             </button>
 
@@ -232,5 +234,42 @@
 
         <%- include('../includes/shop/relatedProducts.ejs') %>
 
+        <script>
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const sizeOption = document.getElementById('size');
+            function addToCart(id){
+                const sizeOptionValue = sizeOption.value;
+let hasError = false
+                if(sizeOptionValue === ''){
+                    setError (sizeOption,"Please continue after selecting a size");
+                    hasError = true;
+                }else{
+                    setError (sizeOption,'');
+                }
+
+                if(!hasError){
+
+                    console.log(sizeOptionValue ,' ' , id)
+                    // fetch('/addtocart',{
+                    //     method : "POST",
+                    //     headers : {
+                    //         "Content-Type":"application/json"
+                    //     },
+                    //     body : JSON.stringify({
+                    //         productId : id,
+                    //         size : sizeOptionValue,
+
+                    //     })
+                    // })
+                }
+            }
+
+            function setError(element, message) {
+        const inputParent = element.parentElement;
+        const errorDisplay = inputParent.querySelector('.error');
+
+        errorDisplay.innerText = message;
+    }
+        </script>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

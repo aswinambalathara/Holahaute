@@ -4,39 +4,39 @@
 <div class=" container-fluid">
     <div class=" section my-5 p-md-5">
             <div class="d-flex justify-content-center align-items-center">
-                <form action="/user/editaddress" class="form-control add-address-form p-5 shadow border-1 rounded col-12 col-sm-10 col-md-6">
+                <form action="/user/editaddress/<%= address._id%>?_method=PATCH" method="post" class="form-control add-address-form p-5 shadow border-1 rounded col-12 col-sm-10 col-md-6">
                     <h5>Edit Address</h5>
                     <div class="mt-4">
                         <label for="fullName" class="form-label">Full Name</label>
                         <div class="edit-element">
-                            <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i>
-                            <input type="text" class="form-control" value="<%=address.fullName%>" disabled>
+                            <!-- <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i> -->
+                            <input type="text" name="fullName" class="form-control" value="<%=address.fullName%>">
                         </div>
                     </div>
                     <div class="mt-4">
-                        <label for="fullName" class="form-label">Mobile</label>
+                        <label for="mobile" class="form-label">Mobile</label>
                         <div class="mobile-input-con d-flex justify-content-between">
                             <div class="col-4 col-md-2 p-0"> <select name="countryCode" id="countryCode"
                                     class="form-select" disabled>
                                     <option value="+91">+91</option>
                                 </select></div>
                             <div class="col-8 col-md-10 ps-2 pe-0 edit-element">
-                                <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i>
-                                <input type="text" class="form-control pe-5" value="<%=address.mobile%>" disabled>
+                                <!-- <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i> -->
+                                <input type="text" name="mobile" class="form-control pe-5" value="<%=address.mobile%>">
                             </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between flex-column flex-md-row">
                         <div class="mt-3 col-md-6 p-0">
-                            <label for="fullName" class="form-label">Address</label>
+                            <label for="address" class="form-label">Address</label>
                             <div class="edit-element">
-                            <input type="text" class="form-control pe-5" value="<%=address.address%>" disabled>
-                            <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i>
+                            <input type="text" name="address" class="form-control pe-5" value="<%=address.address%>">
+                            <!-- <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i> -->
                         </div>
                         </div>
                         <div class="mt-3 col-md-5 p-0">
-                            <label for="fullName" class="form-label">District</label>
-                            <select name="district" id="districts" class="form-select" disabled>
+                            <label for="district" class="form-label">District</label>
+                            <select name="district" id="districts" class="form-select">
                                 <option value="Thiruvananthapuram">Thiruvananthapuram</option>
                                 <option value="kollam">Kollam</option>
                                 <option value="Pathanamthitta">Pathanamthitta</option>
@@ -56,22 +56,22 @@
                     </div>
                     <div class="d-flex justify-content-between flex-column flex-md-row">
                         <div class="mt-3 col-md-6 p-0">
-                            <label for="fullName" class="form-label">State</label>
-                            <select name="district" id="" class="form-select" disabled>
+                            <label for="state" class="form-label">State</label>
+                            <select name="state" id="" class="form-select">
                                 <option value="Kerala">Kerala</option>
                             </select>
                         </div>
                         <div class="mt-3 col-md-5 p-0">
-                            <label for="fullName" class="form-label">Postal code</label>
+                            <label for="pincode" class="form-label">Postal code</label>
                             <div class="edit-element">
-                                <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i>
-                                <input type="text" class="form-control" disabled value="<%=address.pincode%>">
+                                <!-- <i class="fa-solid fa-pen-to-square edit-icon" style="color: red;"></i> -->
+                                <input type="text" name="pincode" class="form-control" value="<%=address.pincode%>">
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-center mt-5">
-                        <button class="btn btn-outline-primary">Submit</button>
+                        <button type="submit" class="btn btn-outline-primary">Submit</button>
                     </div>
                 </form>
             </div>

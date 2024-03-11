@@ -6,7 +6,7 @@
   const priceParent = document.getElementById("price-parent");
   const quantity = document.getElementById("quantity");
   const userTypes = document.getElementById("userTypes");
-  const color = document.getElementById("colorinput");
+  const colorInput = document.getElementById("colorinput");
   const sizeOptions = document.querySelectorAll(".btn-check");
   const sizeParent = document.getElementById("size-Parent");
   const description = document.getElementById("description");
@@ -17,6 +17,43 @@
   const imageInput = document.getElementById("images");
   const previewImg = document.getElementById("preview-image")
   // const imageArray = [];
+
+const addColorBtn = document.getElementById('addbtn');
+const colorsPreview = document.querySelector('.inputColors');
+const colorsInput = document.getElementById('colors-input');
+
+
+addColorBtn.addEventListener('click',()=>{
+  const newColor = colorInput.value.trim()
+
+  if(newColor){
+    const colorList = document.createElement('div')
+    colorList.classList.add("border", "border-2", "shadow", "px-2", "py-1", "rounded", "d-flex", "align-items-center", "me-2")
+    const color = document.createElement('p');
+    const close = document.createElement('i');
+    color.classList.add('m-0');
+    color.textContent = newColor;
+    close.classList.add("fa-regular","fa-circle-xmark","ms-2","text-danger" )
+    close.style = "cursor : pointer ;"
+    colorList.appendChild(color);
+    colorList.appendChild(close);
+    colorsPreview.appendChild(colorList);
+
+    let colors = colorsInput.value ? JSON.parse(colorsInput.value) : [];
+    colors.push(newColor);
+    colorsInput.value = JSON.stringify(colors);
+    colorInput.value = '';
+    close.addEventListener('click',()=>{
+      const removeColor = color.textContent;
+
+      colors = colors.filter(color => color !== removeColor);
+      colorsInput.value = JSON.stringify(colors);
+      colorsPreview.removeChild(colorList);
+    })
+    
+  }
+})
+
 
   imageInput.addEventListener('change',(e)=>{
 
@@ -97,7 +134,7 @@
     const quantityValue = quantity.value.trim();
     const userTypesValue = userTypes.value.trim();
     const descriptionValue = description.value.trim();
-    const colorValue = color.value.trim();
+    const colorValue = colorInput.value.trim();
     const imagesValue = images.files;
 
     let hasError = false;
@@ -155,17 +192,14 @@
       setError(desParent, "");
     }
 
-    if (colorValue === "") {
-      setError(color, "This field is required");
-      hasError = true;
-    } else {
-      const lettersOnlyRegex = /^[A-Za-z\s]*$/;
-      if (!lettersOnlyRegex.test(colorValue)) {
-        setError(color, "Only letters are allowed");
-      } else {
-        setError(color, "");
-      }
-    }
+   
+    //   const lettersOnlyRegex = /^[A-Za-z\s]*$/;
+    //   if (!lettersOnlyRegex.test(colorValue)) {
+    //     setError(color, "Only letters are allowed");
+    //   } else {
+    //     setError(color, "");
+    //   }
+    // }
 
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
 
