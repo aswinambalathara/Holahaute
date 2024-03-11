@@ -40,7 +40,7 @@ const productSchema = Schema({
   },
 
   color: {
-    type: String,
+    type: Array,
     required: true,
   },
 

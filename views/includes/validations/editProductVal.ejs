@@ -1,152 +1,208 @@
 <script>
-    const form = document.getElementById("addproductForm");
-    const productName = document.getElementById("productName");
-    const category = document.getElementById("category");
-    const price = document.getElementById("price");
-    const priceParent = document.getElementById("price-parent");
-    const quantity = document.getElementById("quantity");
-    const userTypes = document.getElementById("userTypes");
-    const color = document.getElementById("colorinput");
-    const sizeOptions = document.querySelectorAll(".btn-check");
-    const sizeParent = document.getElementById("size-Parent");
-    const description = document.getElementById("description");
-    const desParent = document.getElementById("des-parent");
-    const additionalInformation = document.getElementById(
-      "additionalInformation"
-    );
+  const form = document.getElementById("addproductForm");
+  const productName = document.getElementById("productName");
+  const price = document.getElementById("price");
+  const priceParent = document.getElementById("price-parent");
+  //const quantity = document.getElementById("quantity");
+  const userTypes = document.getElementById("userTypes");
+  const colorInput = document.getElementById("colorinput");
+  const sizeOptions = document.querySelectorAll(".btn-check");
+  //const sizeParent = document.getElementById("size-Parent");
+  // const description = document.getElementById("description");
+  // const desParent = document.getElementById("des-parent");
 
-    const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
-    const checkBoxes = document.getElementsByName('sizeOptions');
-    const selectedUserType = "<%=product.userType%>"
-    const includedImages = "<%= product.images%>";
-    const includedImagesNames = includedImages.split(',')
-    const images = document.getElementById("images");
-    const imageInput = document.getElementById("images");
-    const previewImg = document.getElementById("preview-image");
-  
-    // Image Preview and Validation
-    imageInput.addEventListener("change", (e) => {
-      const files = e.target.files;
-      previewImg.innerHTML = "";
-  
-      if (files.length > 4) {
-        return setError(images, "Maximum 4 files can be uploaded");
-      } else {
-        setError(images, "");
-      }
-  
-      const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
-  
-      if (files.length > 0) {
-        for (let image of files) {
-          //console.log(image);
-          if (!allowedExtensions.exec(image.name)) {
-            return setError(images, "Check the file type");
-          }
-  
-          const reader = new FileReader();
-  
-          reader.onload = function (event) {
-            //console.log(event.target.result)
-            const imgframe = document.createElement("div");
-            imgframe.classList.add("img-frame");
-            const img = document.createElement("img");
-            img.src = event.target.result;
-            img.classList.add("me-2", "border", "rounded");
-            img.style.cssText = "width : 150px; height: 150px";
-            imgframe.appendChild(img);
-            previewImg.appendChild(imgframe);
-          };
-          reader.readAsDataURL(image);
-        }
-      }
-    });
-  
+  const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
+  const checkBoxes = document.getElementsByName('sizeOptions');
+  const selectedUserType = "<%=product.userType%>"
+  const includedImages = "<%= product.images%>";
+  const includedImagesNames = includedImages.split(',')
+  const images = document.getElementById("images");
+  const imageInput = document.getElementById("images");
+  const previewImg = document.getElementById("preview-image");
 
-    includedImagesNames.forEach((image) => {
-      const imageFrame = document.createElement('div');
-      imageFrame.classList.add('img-frame');
-      const img = document.createElement('img');
-      img.src = `/images/product-images/${image}`
-      img.classList.add("me-2", "border", "rounded");
-      img.style.cssText = "width : 150px; height: 150px";
-      imageFrame.appendChild(img);
-      previewImg.appendChild(imageFrame);
+  let existedColors = "<%=product.color%>"
+  const addColorBtn = document.getElementById('addbtn');
+  const colorsPreview = document.querySelector('.inputColors');
+  const colorsInput = document.getElementById('colors-input');
+
+  existedColors = Array.from(existedColors.split(','));
+  console.log(existedColors)
+
+  existedColors.forEach((color) => {
+    const colorList = document.createElement('div')
+    colorList.classList.add("border", "border-2", "shadow", "px-2", "py-1", "rounded", "d-flex", "align-items-center", "me-2")
+    const colorName = document.createElement('p');
+    const close = document.createElement('i');
+    colorName.classList.add('m-0');
+    colorName.textContent = color;
+    colorName.style = "text-transform: capitalize;"
+    close.classList.add("fa-regular", "fa-circle-xmark", "ms-2", "text-danger")
+    close.style = "cursor : pointer ;"
+    colorList.appendChild(colorName);
+    colorList.appendChild(close);
+    colorsPreview.appendChild(colorList);
+
+    colorsInput.value = JSON.stringify(existedColors);
+
+    close.addEventListener('click', () => {
+      const removeColor = colorName.textContent;
+      existedColors = existedColors.filter(color => color !== removeColor);
+      colorsInput.value = JSON.stringify(existedColors);
+      colorsPreview.removeChild(colorList);
     })
+  })
 
-    console.log(includedImagesNames)
+  addColorBtn.addEventListener('click', () => {
+    const newColor = colorInput.value.trim()
 
-    Array.from(userTypes.options).forEach((option) => {
-      if (selectedUserType.includes(option.value)) {
-        option.selected = true
-      }
-    })
+    if (newColor) {
+      const colorList = document.createElement('div')
+      colorList.classList.add("border", "border-2", "shadow", "px-2", "py-1", "rounded", "d-flex", "align-items-center", "me-2")
+      const colorName = document.createElement('p');
+      const close = document.createElement('i');
+      colorName.classList.add('m-0');
+      colorName.textContent = newColor;
+      colorName.style = "text-transform: capitalize;"
+      close.classList.add("fa-regular", "fa-circle-xmark", "ms-2", "text-danger")
+      close.style = "cursor : pointer ;"
+      colorList.appendChild(colorName);
+      colorList.appendChild(close);
+      colorsPreview.appendChild(colorList);
 
-    checkBoxes.forEach((checkBox) => {
-      if (selectedSizeOptions.includes(checkBox.value)) {
-        checkBox.checked = true;
-      } else {
-        checkBox.checked = false;
-      }
-    })
+      let colors = colorsInput.value ? JSON.parse(colorsInput.value) : [];
+      colors.push(newColor.toLowerCase());
+      colorsInput.value = JSON.stringify(colors);
+      colorInput.value = '';
+
+      close.addEventListener('click', () => {
+        const removeColor = colorName.textContent;
+
+        colors = colors.filter(color => color !== removeColor);
+        colorsInput.value = JSON.stringify(colors);
+        colorsPreview.removeChild(colorList);
+      })
+    }
+  })
 
 
 
-    // Form submit validation
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-  
-      if (validateInputs()) {
-        form.submit();
-      }
-    });
-  
-    function validateInputs() {
-      const productNameValue = productName.value.trim();
-      //const categoryValue = category.value.trim();
-      const priceValue = price.value.trim();
-      //const quantityValue = quantity.value.trim();
-      //const userTypesValue = userTypes.value.trim();
-      //const descriptionValue = description.value.trim();
-      const colorValue = color.value.trim();
-      //const imagesValue = images.files;
-  
-      let hasError = false;
-     
-      const productRegex = /^(?!^[!@#%*+=/\\[\](){}<>,.?`|&^~$'":;-]*$)[a-zA-Z0-9\s\-',.()&!@#%*+="/\\[\]]+$/
-        if (!productRegex.test(productNameValue)) {
-          setError(productName, "symbols not allowed as product name");
-          hasError = true;
-        } else {
-          setError(productName, "");
-        }
-  
-        const priceRegex = /^\d+(\.\d{1,2})?$/;
-        if (!priceRegex.test(priceValue) || parseFloat(priceValue) <= 0) {
-          setError(priceParent, "Price value must be a positive number");
-          hasError = true;
-        } else {
-          setError(priceParent, ""); // Clear error message if input is valid
-        }
-      
-        const lettersOnlyRegex = /^[A-Za-z\s]*$/;
-        if (!lettersOnlyRegex.test(colorValue)) {
-          setError(color, "Only letters are allowed");
-        } else {
-          setError(color, "");
+
+
+
+  // Image Preview and Validation
+  imageInput.addEventListener("change", (e) => {
+    const files = e.target.files;
+    previewImg.innerHTML = "";
+
+    if (files.length > 4) {
+      return setError(images, "Maximum 4 files can be uploaded");
+    } else {
+      setError(images, "");
+    }
+
+    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+
+    if (files.length > 0) {
+      for (let image of files) {
+        //console.log(image);
+        if (!allowedExtensions.exec(image.name)) {
+          return setError(images, "Check the file type");
         }
 
+        const reader = new FileReader();
 
-      if (!hasError) {
-        return true;
+        reader.onload = function (event) {
+          //console.log(event.target.result)
+          const imgframe = document.createElement("div");
+          imgframe.classList.add("img-frame");
+          const img = document.createElement("img");
+          img.src = event.target.result;
+          img.classList.add("me-2", "border", "rounded");
+          img.style.cssText = "width : 150px; height: 150px";
+          imgframe.appendChild(img);
+          previewImg.appendChild(imgframe);
+        };
+        reader.readAsDataURL(image);
       }
     }
-  
-    function setError(element, message) {
-      const inputParent = element.parentElement;
-      const errorDisplay = inputParent.querySelector(".error");
-  
-      errorDisplay.innerText = message;
+  });
+
+  includedImagesNames.forEach((image) => {
+    const imageFrame = document.createElement('div');
+    imageFrame.classList.add('img-frame');
+    const img = document.createElement('img');
+    img.src = `/images/product-images/${image}`
+    img.classList.add("me-2", "border", "rounded");
+    img.style.cssText = "width : 150px; height: 150px";
+    imageFrame.appendChild(img);
+    previewImg.appendChild(imageFrame);
+  })
+
+  //console.log(includedImagesNames)
+
+  Array.from(userTypes.options).forEach((option) => {
+    if (selectedUserType.includes(option.value)) {
+      option.selected = true
     }
-  </script>
-  
+  })
+
+  checkBoxes.forEach((checkBox) => {
+    if (selectedSizeOptions.includes(checkBox.value)) {
+      checkBox.checked = true;
+    } else {
+      checkBox.checked = false;
+    }
+  })
+
+  // Form submit validation
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (validateInputs()) {
+      form.submit();
+    }
+  });
+
+  function validateInputs() {
+    const productNameValue = productName.value.trim();
+    const priceValue = price.value.trim();
+    const colorValue = colorInput.value.trim();
+
+    let hasError = false;
+
+    const productRegex = /^(?!^[!@#%*+=/\\[\](){}<>,.?`|&^~$'":;-]*$)[a-zA-Z0-9\s\-',.()&!@#%*+="/\\[\]]+$/
+    if (!productRegex.test(productNameValue)) {
+      setError(productName, "symbols not allowed as product name");
+      hasError = true;
+    } else {
+      setError(productName, "");
+    }
+
+    const priceRegex = /^\d+(\.\d{1,2})?$/;
+    if (!priceRegex.test(priceValue) || parseFloat(priceValue) <= 0) {
+      setError(priceParent, "Price value must be a positive number");
+      hasError = true;
+    } else {
+      setError(priceParent, ""); // Clear error message if input is valid
+    }
+
+    // const lettersOnlyRegex = /^[A-Za-z\s]*$/;
+    // if (!lettersOnlyRegex.test(colorValue)) {
+    //   setError(colorInput, "Only letters are allowed");
+    // } else {
+    //   setError(colorInput, "");
+    // }
+
+
+    if (!hasError) {
+      return true;
+    }
+  }
+
+  function setError(element, message) {
+    const inputParent = element.parentElement;
+    const errorDisplay = inputParent.querySelector(".error");
+
+    errorDisplay.innerText = message;
+  }
+</script>

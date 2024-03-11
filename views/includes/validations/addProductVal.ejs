@@ -33,6 +33,7 @@ addColorBtn.addEventListener('click',()=>{
     const close = document.createElement('i');
     color.classList.add('m-0');
     color.textContent = newColor;
+    color.style = "text-transform : capitalise"
     close.classList.add("fa-regular","fa-circle-xmark","ms-2","text-danger" )
     close.style = "cursor : pointer ;"
     colorList.appendChild(color);
@@ -40,7 +41,7 @@ addColorBtn.addEventListener('click',()=>{
     colorsPreview.appendChild(colorList);
 
     let colors = colorsInput.value ? JSON.parse(colorsInput.value) : [];
-    colors.push(newColor);
+    colors.push(newColor.toLowerCase());
     colorsInput.value = JSON.stringify(colors);
     colorInput.value = '';
     close.addEventListener('click',()=>{

@@ -30,8 +30,11 @@ module.exports.getAddProducts = async (req, res) => {
 module.exports.doAddProducts = async (req, res) => {
   try {
     const images = imageNameArray(req.files);
-    console.log(images);
+    //console.log(images);
     const newProductName = req.body.productName.toLowerCase();
+    const colors = JSON.parse(req.body.colors) ;
+    //console.log(req.body.colors);
+    //console.log(colors)
     const productCheck = await productSchema.findOne({
       productName: newProductName,
     });
@@ -69,7 +72,7 @@ module.exports.doAddProducts = async (req, res) => {
               price: req.body.price,
               quantity: req.body.quantity,
               userType: req.body.userType,
-              color: req.body.color,
+              color: colors,
               sizeOptions: req.body.sizeOptions,
               description: req.body.description,
               additionalInformation: req.body.additionalInformation,
@@ -86,7 +89,7 @@ module.exports.doAddProducts = async (req, res) => {
         price: req.body.price,
         quantity: req.body.quantity,
         userType: req.body.userType,
-        color: req.body.color,
+        color: colors,
         sizeOptions: req.body.sizeOptions,
         description: req.body.description,
         additionalInformation: req.body.additionalInformation,
@@ -121,6 +124,10 @@ module.exports.getEditProducts = async (req, res) => {
 module.exports.doEditProducts = async (req, res) => {
   try {
     const newProductName = req.body.productName.toLowerCase();
+
+    //console.log(req.body);
+    const colors = JSON.parse(req.body.colors);
+   // console.log(req.body.colors,"   ",colors);
    // console.log(newProductName);
     const productCheck = await productSchema.findOne({
       productName: newProductName,
@@ -174,7 +181,7 @@ module.exports.doEditProducts = async (req, res) => {
               price: req.body.price !== ''? req.body.price : undefined,
               quantity: req.body.quantity !== ''? req.body.quantity : undefined,
               userType: req.body.userType !== ''? req.body.userType : undefined,
-              color: req.body.color !== ''? req.body.color : undefined,
+              color: colors !== ''? colors : undefined,
               sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
               description: req.body.description !== ''? req.body.description : undefined,
               additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,
@@ -205,7 +212,7 @@ module.exports.doEditProducts = async (req, res) => {
             price: req.body.price !== ''? req.body.price : undefined,
             quantity: req.body.quantity !== ''? req.body.quantity : undefined,
             userType: req.body.userType !== ''? req.body.userType : undefined,
-            color: req.body.color !== ''? req.body.color : undefined,
+            color: colors !== ''? colors : undefined,
             sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
             description: req.body.description !== ''? req.body.description : undefined,
             additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,

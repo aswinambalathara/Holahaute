@@ -68,13 +68,17 @@
 
                   <div class="mt-3 col-md-5">
                     <label for="Color Options" class="form-label">Color</label>
-                    <input type="text" class="form-control" id="colorinput" name="color" value="<%= product.color%>" />
+                    <div class="color-input-wrapper">
+                      <button class="btn  rounded  btn-primary" type="button" id="addbtn"><i class="fa-solid fa-circle-plus"></i></button>
+                      <input type="text" class="form-control" id="colorinput" />
+                    </div>
                     <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                   </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4 flex-column-reverse flex-md-row ">
-                  <div class="mt-3 col-12 col-md-6">
+                
+                  <div class="mt-3 col-12 col-md-5">
                     <label for="Product Name" class="form-label">Size Options</label>
                     <div class="form-group d-flex mt-1 flex-wrap" id="size-Parent">
                       <div class="ms-1 mb-1 mb-lg-0">
@@ -104,6 +108,19 @@
                         <label for="46-xxl" class="btn btn-outline-primary ">46-XXL</label>
                       </div>
                     </div>
+                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                  </div>
+
+                  <div class="mt-3 col-12 col-md-5">
+
+                    <label for="Selected Colors" class="form-label">Selected Colors</label>
+                    <div class="inputColors border rounded border-primary d-flex p-2 flex-wrap">
+                      <!-- <div class="color-wrapper border border-2 shadow px-2 py-1 rounded d-flex align-items-center me-2">
+                        <p class="m-0">Red</p>
+                        <i class="fa-regular fa-circle-xmark ms-2 text-danger"></i>
+                      </div> -->
+                    </div>
+                    <input type="hidden" name="colors" id="colors-input">
                     <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                   </div>
 
@@ -138,7 +155,7 @@
               <label for="" class="form-label">Images</label>
               <div class="images-container d-flex flex-column p-3 ">
                 <div class="border-1 border-info border rounded btn mb-2 ">
-                  <div class="d-flex mb-2 align-items-center " id="preview-image">
+                  <div class="d-flex mb-2 align-items-center flex-wrap" id="preview-image">
                     <!-- <div class="img-frame">
                       <img src="/images/sampleImages/gallery-02.jpg" alt="" class="me-2 border rounded"
                         style="width: 150px; height: 150px;"> -->
@@ -171,7 +188,7 @@
   </div>
   </div>
   <%- include('../includes/validations/editProductVal')%>
-  <script>
+  <!-- <script>
     const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
     const checkBoxes = document.getElementsByName('sizeOptions');
     const selectedUserType = "<%=product.userType%>"
@@ -205,6 +222,6 @@
       }
     })
 
-  </script>
+  </script> -->
   
     <%- include('../includes/admin/adminEnd')%>
