@@ -3,13 +3,9 @@
   const productName = document.getElementById("productName");
   const price = document.getElementById("price");
   const priceParent = document.getElementById("price-parent");
-  //const quantity = document.getElementById("quantity");
   const userTypes = document.getElementById("userTypes");
   const colorInput = document.getElementById("colorinput");
   const sizeOptions = document.querySelectorAll(".btn-check");
-  //const sizeParent = document.getElementById("size-Parent");
-  // const description = document.getElementById("description");
-  // const desParent = document.getElementById("des-parent");
 
   const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
   const checkBoxes = document.getElementsByName('sizeOptions');
@@ -86,9 +82,7 @@
 
 
 
-
-
-
+  
   // Image Preview and Validation
   imageInput.addEventListener("change", (e) => {
     const files = e.target.files;

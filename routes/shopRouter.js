@@ -26,5 +26,5 @@ router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.is
 //cartRoutes
 
 router.get('/cart',authMiddleware.isUserAuth,cartController.getCart);
-
+router.post('/add_to_cart/:id',authMiddleware.isUserAuth,cartController.addToCart);
 module.exports = router 

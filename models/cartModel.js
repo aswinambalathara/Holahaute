@@ -18,6 +18,19 @@ const cartSchema = Schema({
             type : Number,
             required : true,
             default : 1
+        },
+
+        color : {
+            type : String,
+            required : true
+        },
+
+        size : {
+            type : String,
+            required : true
         }
+
     }]
 })
+
+module.exports = mongoose.model("cart", cartSchema);
