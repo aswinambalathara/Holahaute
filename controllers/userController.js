@@ -2,10 +2,12 @@ const userSchema = require("../models/userModel");
 const addressSchema = require("../models/addressModel");
 const verficationController = require("../controllers/verificationController");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken')
 module.exports.getUserProfile = async (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     const user = await userSchema
-      .findOne({ _id: req.session.userAuthId })
+      .findOne({ _id: authUser.userId })
       .populate({
         path: "addresses",
         model: "addresses",
@@ -14,7 +16,7 @@ module.exports.getUserProfile = async (req, res) => {
     res.render("user/userProfile.ejs", {
       title: "userProfile",
       userdetail: user,
-      user: req.session.userAuth,
+      user: authUser.userName,
       addresses: user.addresses,
     });
   } catch (error) {
@@ -24,8 +26,9 @@ module.exports.getUserProfile = async (req, res) => {
 
 module.exports.doSetPrimaryAddress = async (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     const addressId = req.params.id;
-    const userId = req.session.userAuthId;
+    const userId = authUser.userId;
     console.log(addressId, " ", userId);
     await addressSchema.updateOne(
       { userId, _id: addressId },
@@ -54,11 +57,12 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
 
 module.exports.getEditUserProfile = async (req, res) => {
   try {
-    const user = await userSchema.findOne({ _id: req.session.userAuthId });
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    const user = await userSchema.findOne({ _id: authUser.userId });
     res.render("user/editProfile.ejs", {
       title: "Edit Profile",
       userdetail: user,
-      user: req.session.userAuth,
+      user: authUser.userName,
       success: req.flash("success"),
     });
   } catch (error) {
@@ -68,7 +72,8 @@ module.exports.getEditUserProfile = async (req, res) => {
 
 module.exports.DoEditUserProfile = async (req, res) => {
   try {
-    const id = req.session.userAuthId;
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    const id = authUser.userId;
     console.log('entered');
     const { fullNameFt,fullName, password, email, phone, otp } = req.body;
     const user = await userSchema.findOne({ _id: id });
@@ -108,6 +113,8 @@ module.exports.DoEditUserProfile = async (req, res) => {
           message : 'Incorrect OTP'
         })
       }
+    }else{
+      res.redirect('/user/userprofile')
     }
   } catch (error) {
     console.log(error);
@@ -116,7 +123,8 @@ module.exports.DoEditUserProfile = async (req, res) => {
 
 module.exports.sendOtp = async (req, res) => {
   try {
-    const id = req.session.userAuthId;
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    const id = authUser.userId;
     const { newPassword, oldPassword } = req.body;
     const { email } = req.body;
     const user = await userSchema.findOne({ _id: id });
@@ -170,9 +178,10 @@ module.exports.sendOtp = async (req, res) => {
 
 module.exports.getAddAddress = (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     res.render("user/addAddress.ejs", {
       title: "Add Address",
-      user: req.session.userAuth,
+      user: authUser.userName,
     });
   } catch (error) {
     console.log(error);
@@ -182,7 +191,8 @@ module.exports.getAddAddress = (req, res) => {
 module.exports.doAddAddress = async (req, res) => {
   try {
   //  console.log(req.body);
-    if (req.session.userAuthId) {
+  const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    if (authUser.userId) {
       const address = new addressSchema({
         fullName: req.body.fullName,
         mobile: req.body.mobile,
@@ -190,11 +200,11 @@ module.exports.doAddAddress = async (req, res) => {
         district: req.body.district,
         state: req.body.state,
         pincode: req.body.pincode,
-        userId: req.session.userAuthId,
+        userId: authUser.userId,
       });
       const result = await address.save();
       await userSchema.updateOne(
-        { _id: req.session.userAuthId },
+        { _id: authUser.userId },
         { $push: { addresses: result._id } }
       );
       res.redirect("/user/userprofile");
@@ -206,8 +216,9 @@ module.exports.doAddAddress = async (req, res) => {
 
 module.exports.doUnlistAddress = async (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     const addressId = req.params.id;
-    const userId = req.session.userAuthId;
+    const userId = authUser.userId;
     console.log(addressId, "  ", userId);
     if (addressId && userId) {
       await addressSchema.updateOne(
@@ -229,11 +240,12 @@ module.exports.doUnlistAddress = async (req, res) => {
 
 module.exports.getEditAddress = async (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     //console.log(req.params.id);
     const address = await addressSchema.findOne({_id:req.params.id});
     res.render("user/editAddress.ejs", {
       title: "Edit Address",
-      user: req.session.userAuth,
+      user: authUser.userName,
       address : address
     });
   } catch (error) {

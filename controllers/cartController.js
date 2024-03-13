@@ -1,13 +1,20 @@
 const { default: mongoose } = require("mongoose");
 const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
-const { ObjectId } = require("mongodb");
+const cartHelper = require('../helpers/cartHelper');
+const jwt = require('jsonwebtoken')
 
 module.exports.getCart = async (req, res) => {
   try {
+     const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+     const userId = authUser.userId;
+    const cart = await cartHelper.getCartHelper(userId);
+    //console.log(cart[0])
+    //console.log(cart[0].cartItems[0]) 
     res.render("shop/cart.ejs", {
       title: "Cart",
-      user: req.session.userAuth,
+      user: authUser.userName,
+      cartData :cart[0]
     });
   } catch (error) {
     console.log(error);
@@ -16,7 +23,8 @@ module.exports.getCart = async (req, res) => {
 
 module.exports.addToCart = async (req, res) => {
   try {
-    const userId = req.session.userAuthId;
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    const userId = authUser.userId;
     const productId = req.params.id;
     const quantity = await productSchema.findOne(
       { _id: productId },
@@ -46,7 +54,8 @@ module.exports.addToCart = async (req, res) => {
                 "cartItems.color": exist.color,
                 "cartItems.size": exist.size,
               },
-              { $inc: { 'cartItems.$.quantity': 1 } }
+              { $inc: { "cartItems.$[itemRef].quantity": 1 } },
+              { arrayFilters: [{ "itemRef._id": exist._id }] }
             );
             res.json({
               status: true,
@@ -61,7 +70,7 @@ module.exports.addToCart = async (req, res) => {
         } else {
           res.json({
             status: false,
-            message: "outofstock",
+            stock: false,
           });
         }
       } else {

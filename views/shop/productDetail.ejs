@@ -157,7 +157,9 @@
                                     <div class="error mt-1 ms-2"
                                         style="color: red;  font-size: small; font-weight: 700;"></div>
                                 </div>
-
+                                <% if(product.quantity <= 0) {%>
+                                <div class="text-danger ms-2 mt-2 fw-bold">OUT OF STOCK</div>
+                                <%} %>
                             </div>
 
                             <!--  -->
@@ -261,6 +263,7 @@
             <script>
                 const addToCartBtn = document.getElementById('addToCartBtn');
                 const errorParent = document.getElementById('errorParent');
+                const productName = '<%= product.productName%>'
 
                 async function addToCart(id) {
                     const sizeOption = document.querySelector('input[name="sizeOption"]:checked').value;
@@ -295,13 +298,21 @@
                         } else {
                             const data = await response.json()
                             console.log(data)
-                            // if (data.status) {
-                            //     Swal.fire({
-                            //         title: "The Internet?",
-                            //         text: "That thing is still around?",
-                            //         icon: "question"
-                            //     });
-                            // }
+                            if (data.status) {
+                                Swal.fire({
+                                    title: productName.toLocaleUpperCase(),
+                                    text: data.message,
+                                    icon: "success"
+                                });
+                            }else if(data.stock === false){
+                                location.reload()
+                            }else{
+                                Swal.fire({
+                                    title: "Failed",
+                                    text: data.message,
+                                    icon: "error"
+                                });
+                            }
                         }
                     }
                 }

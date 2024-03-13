@@ -1,86 +1,131 @@
 <%- include('../includes/shop/shopHead.ejs') %>
-<%- include('../includes/shop/shopHeader.ejs') %>
+    <%- include('../includes/shop/shopHeader.ejs') %>
 
-<div class="p-5">
-    <div class="container">
-        <div class="cart-container mt-5">
-        <h5>Your Cart</h5>
-        <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
-            <div class="cart-items col-12 col-md-7 border border-2 rounded p-2 me-2">
-                <div class="vstack gap-3">
-                    <div class="card shadow">
-                        <div class="card-body d-flex flex-column flex-md-row justify-content-between">
-                            <div class="d-flex">
-                                <div class="d-flex flex-column">
-                                    <div class="product-image" style="height: 8rem; width: 8rem; background-color: aqua ;">
+        <div class="p-0 p-md-5">
+            <div class="container">
+                <div class="cart-container mt-5">
+                    <h5>Your Cart</h5>
+                    <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
+
+
+                        <div class="cart-items col-12 col-md-7 border border-2 rounded p-2 me-2">
+
+                            <div class="vstack gap-3">
+                                <% if (cartData.cartItems.length > 0) {%>
+                                    <% cartData.cartItems.forEach(function(item){%>
+                                <div class="card shadow">
+                                    
+                                    <div class="card-body d-flex flex-column flex-md-row align-items-center align-items-md-start">
+                                        <div class="part-1 col-8 col-md-3 d-flex flex-column align-items-center">
+                                            <div class="image-div"
+                                            style="height: 8rem ; width: 8rem;  background-size: cover; background-image: url('/images/product-images/<%= item.Products.images[0]%>');" ></div>
+                                            <div class="d-flex mt-2 justify-content-center col-12">
+                                                <button class="btn btn-secondary btn-sm" id="downBtn">-</button>
+                                                <input type="text" min="1" style="width: 30px;" class="text-center qtyInput" value="<%=item.quantity%>">
+                                                <button class="btn btn-secondary btn-sm" id="upBtn">+</button> 
+                                            </div>
+                                        </div>
+                                        
+
+                                        <div class="section-1 col-12">
+                                            <div class="product-detail-wrapper d-flex flex-column ms-3 mt-3">
+                                                <h6 class="fw-bold " style="text-transform: capitalize;"><%=item.Products.productName%></h6>
+                                                <small class="m-0">Size : <span style="text-transform: uppercase;"><%=item.size%></span></small>
+                                                <small class="m-0">Color : <span style="text-transform: capitalize;"><%=item.color%></span></small>
+                                            </div>
+                                            <div class="d-flex justify-content-between flex-column align-items-center mt-3 ms-3">
+                                                <div class="d-flex align-self-start">
+                                                    <strong>Price : </strong>
+                                                    <p class="m-0"><span>₹ </span><%= item.Products.price%></p>
+                                                </div>
+                                                <div class="d-flex mt-2">
+                                                    <button class="btn btn-outline-danger btn-sm me-2">Remove</button>
+                                                    <button class="btn btn-outline-success btn-sm">Add to wishlist</button>
+                                                </div>
+                                            </div>
+                                            <div class="error ms-3 mt-2"
+                                        style="color: red;  font-size: small; font-weight: 700;"></div>
+                                        </div>
+
                                     </div>
-                                    <div class="d-flex justify-content-center mt-1">
-                                        <button class="btn btn-primary btn-sm">-</button>
-                                        <input type="text" min="1" style="width: 30px;" class="text-center" value="1">
-                                        <button class="btn btn-primary btn-sm">+</button>
+                                    
+                                </div>
+                                <%})%>
+                                <%} %>
+                            </div>
+
+                        </div>
+
+
+                        <div class="cart-totals col-12 col-md-5 mt-3 mt-md-0">
+                            <div class="border rounded border-2 p-2">
+                                <div class="grand-total d-flex flex-column border rounded shadow px-2 py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <h4 class="fw-bolder text-success" style="text-transform: uppercase;">Grand Total</h4>
+                                        <h5 class="fw-bolder text-dark mt-2"><span>₹ </span><%=cartData.grandTotal %></h5>
+                                        <small>Inclusive of all taxes</small>
+                                    </div>
+                                    <div class="justify-content-evenly align-items-center d-flex mt-3 flex-wrap">
+                                        <button class="btn btn-outline-dark fw-bold" style="text-transform: capitalize;">Continue
+                                            Shopping</button>
+                                        <button class="btn btn-primary fw-bold mt-2 mt-md-0" style="text-transform: capitalize;">Proceed
+                                            to
+                                            checkout</button>
                                     </div>
                                 </div>
-                                
-                                <div class="product-detail-wrapper d-flex flex-column ms-3 mt-3">
-                                    <h6>Ice Comfi</h6>
-                                    <p class="m-0">Size : <span>Medium</span></p>
-                                    <p class="m-0">Color : <span>Red</span></p>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <strong>Price</strong>
-                                <p>1000</p>
-                            </div>
-                            
-                            <div class="d-flex flex-column mt-3">
-                                <button class="btn btn-outline-danger btn-sm ">Remove</button>
-                                <button class="btn btn-outline-success btn-sm mt-2">Add to wishlist</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-    
-            </div>
-            <div class="cart-totals col-12 col-md-5 mt-3 mt-md-0">
-                <div class="border rounded border-2 p-2" style="height: 44rem;">
-                    <div class="grand-total d-flex flex-column border rounded shadow px-2 py-4">
-                        <div class="d-flex flex-column align-items-center">
-                            <h6>Grand Total</h6>
-                            <h6><span>₹</span>2000</h6>
-                            <small>Inclusive of all taxes</small>
-                        </div>
-                        <div class="justify-content-evenly d-flex mt-3 flex-wrap">
-                            <button class="btn btn-outline-dark fw-bold" style="text-transform: capitalize;">Continue
-                                Shopping</button>
-                            <button class="btn btn-primary fw-bold" style="text-transform: capitalize;">Proceed to
-                                checkout</button>
-                        </div>
-                    </div>
-                    <div class="billing mt-3 border rounded shadow px-3 py-4">
-                        <h6>Billing Details :</h6>
-                        <div class="product-card">
-                            <p>product namekkjfdgos;ygoipspoy;</p>
-    
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p>PRICE :</p>
-                                    <p>QUANTITY :</p>
-                                    <P>TOTAL :</P>
-                                </div>
-                                <div class="text-center">
-                                    <p> <span>₹ </span>1000</p>
-                                    <p>1</p>
-                                    <p><span>₹ </span>1000</p>
+                                <div class="billing mt-3 border rounded shadow px-3 py-4">
+                                    <h6 class="fw-bold text-secondary">Billing Details :</h6>
+                                    <hr>
+                                    <% cartData.cartItems.forEach(function(item) {%>
+                                    <div class="product-card mt-3 border-bottom border-2 p-3">
+                                        <p class="fw-bold text-dark" style="text-transform: capitalize;"><%= item.Products.productName%> (<%= item.size %>, <%= item.color%>)</p>
+                        
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <div class="d-flex flex-column ">
+                                                <small class="fw-semibold">PRICE :</small>
+                                                <small class="fw-semibold">QUANTITY :</small>
+                                                <small class="fw-semibold">TOTAL :</small>
+                                            </div>
+                                            <div class="text-end d-flex flex-column">
+                                                <small> <span>₹ </span><%= item.Products.price%></small>
+                                                <small><%= item.quantity%></small>
+                                                <small><span>₹ </span><%=item.totalPrice %></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <%} )%>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-</div>
 
-<%- include('../includes/shop/shopFooter.ejs') %>
-<%- include('../includes/shop/shopEnd.ejs') %>
+        <script>
+            const qtyUpBtn = document.getElementById('upBtn');
+            const qtyDownBtn = document.getElementById('downBtn');
+            let qtyInput = document.querySelector('.qtyInput');
+            let quantity = qtyInput.value;
+            const errorDiv = document.querySelector('.error');
+            qtyUpBtn.addEventListener('click',()=>{
+                if(quantity < 5){
+                    quantity++
+                qtyInput.value = quantity;
+                }else{
+                    errorDiv.innerText = "Maximum Quantity Reached"
+                }
+            });
+
+            qtyDownBtn.addEventListener('click',()=>{
+                errorDiv.innerText = ''
+                if(quantity > 1){
+                    quantity--
+                    qtyInput.value = quantity
+                }
+            })
+            
+        </script>
+        <%- include('../includes/shop/shopFooter.ejs') %>
+            <%- include('../includes/shop/shopEnd.ejs') %>

@@ -9,7 +9,8 @@ module.exports.isUserAuth = (req, res, next) => {
 };
 
 module.exports.isUserLoggedOut = (req, res, next) => {
-  if (req.session.userAuthId) {
+  //console.log(req.session.userAuth);
+  if (req.session.userAuth) {
     res.redirect("/home");
   } else {
     next();
@@ -25,10 +26,10 @@ module.exports.isAdminAuth = (req, res, next) => {
 };
 
 module.exports.isAdminLoggedOut = (req, res, next) => {
-  if (req.session.adminAuth) {
-    res.redirect("/admin");
-  } else {
-    next();
+  if(req.cookies.token){
+    res.redirect('/home')
+  }else{
+    next()
   }
 };
 
@@ -40,54 +41,32 @@ module.exports.isnewUser = (req, res, next) => {
 };
 
 module.exports.forgotuser = (req, res, next) => {
-  if (!req.session.userWithOtp) {
+  if (!req.session.userWithOtp) {  
     res.redirect("/forgotpassword");
   }
   next();
 };
 
 module.exports.userStatus = (req, res, next) => {
-  if (!req.session.userIsBlocked) {
+  if (!req.session.userIsBlocked) { 
     next();
   } else {
-    req.session.userAuthId = null;
-    req.session.userAuth = null;
+    res.clearCookie('token')
     res.redirect("/home");
   }
 };
 
-
-
-
-
-
-
-
-
-// module.exports.verifyUser = (req,res,next)=>{
-//     const token = req.header('Authorization');
-//     if(!token){
-//        return res.redirect('/login').status(401)
-//     }
-//     try {
-//         const decoded = jwt.verify(token,USER_TOKEN)
-//         req.userId = decoded.userId;
-//         next();
-//     } catch (error) {
-//         res.redirect('/login').status(401)
-//     }
-// }
-
-// module.exports.verifyAdmin = (req,res,next) => {
-//     const token = req.header('Authorization');
-//     if(!token){
-//        return res.redirect('/admin/login').status(401)
-//     }
-//     try {
-//         const decoded = jwt.verify(token,ADMIN_TOKEN)
-//         req.adminId = decoded.adminId;
-//         next();
-//     } catch (error) {
-//         res.redirect('/admin/login').status(401)
-//     }
-// }
+module.exports.verifyUser = (req, res, next) => {
+  try {
+    if (req.cookies.token) {
+      const token = req.cookies.token;
+      const user = jwt.verify(token, process.env.JWT_SECRET);
+      //console.log(user);
+      next();
+    } else {
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

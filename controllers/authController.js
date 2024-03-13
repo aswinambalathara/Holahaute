@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const userSchema = require("../models/userModel");
 const adminSchema = require("../models/adminModel");
 const verificationController = require("../controllers/verificationController");
+const jwt = require('jsonwebtoken');
 
 module.exports.getUserSignup = (req, res) => {
   const locals = {
@@ -143,8 +144,13 @@ module.exports.doUserLogin = async (req, res) => {
         req.session.userIsBlocked = false;
         const checkPassword = await bcrypt.compare(password, userData.password);
         if (checkPassword) {
-          req.session.userAuthId = userData._id;
-          req.session.userAuth = userData.fullName;
+          const payLoad = {
+            userName : userData.fullName,
+            userId : userData._id
+          }
+        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '1h'})
+          res.cookie('token',token,{httpOnly:true,secure : true});
+          
           res.redirect("/home");
         } else {
           req.flash("error", "Incorrect Password");
@@ -158,6 +164,7 @@ module.exports.doUserLogin = async (req, res) => {
       req.flash("error", "User Not Found");
       res.redirect("/login");
     }
+  
   } catch (error) {
     console.log(error);
   }
@@ -215,8 +222,13 @@ module.exports.doOtpLogin = async (req, res) => {
     if (user) {
       if (!user.isBlocked) {
         if(user.isVerified){
-          req.session.userAuth = user.fullName;
-        req.session.userAuthId = user._id;
+
+          const payLoad = {
+            userName : user.fullName,
+            userId : user._id
+          }
+        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '1h'})
+          res.cookie('token',token,{httpOnly:true,secure : true});
         res.redirect("/home");
         }else{
           req.flash('error',"user not verified");
@@ -257,7 +269,8 @@ module.exports.doAdminLogin = async (req, res) => {
         req.flash("error", "Invalid Credentials");
         res.redirect("/admin/login");
       } else {
-        req.session.adminAuth = adminData._id;
+        const token = jwt.sign({adminId : adminData._id},process.env.JWT_SECRET,{expiresIn : '1hr'});
+        res.cookie('adminToken',token,{httpOnly : true, secure : true})
         res.redirect("/admin");
       }
     }
@@ -381,8 +394,7 @@ module.exports.doChangePassword = async (req, res) => {
 
 module.exports.userLogOut = (req,res)=>{
   try {
-    req.session.userAuthId = null;
-    req.session.userAuth = null;
+    res.clearCookie('token')
     res.redirect('/home');
   } catch (error) {
     console.log(error);
@@ -391,6 +403,7 @@ module.exports.userLogOut = (req,res)=>{
 
 module.exports.adminLogOut = (req,res)=>{
   try {
+    res.clearCookie('adminToken')
     req.session.adminAuth = null;
     res.redirect('/admin/login');
   } catch (error) {

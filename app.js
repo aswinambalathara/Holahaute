@@ -8,6 +8,7 @@ const path = require('path')
 const session = require('express-session')
 const flash = require('connect-flash');
 const app = express()
+const cookieParser = require('cookie-parser');
 const nocache = require('nocache');
 
 const authRouter = require('./routes/authRouter')
@@ -22,6 +23,11 @@ app.use(express.urlencoded({extended:false}));
 app.use(express.static(path.join(__dirname,'public')));
 app.use(flash())
 app.use(methodOverride('_method'));
+app.use(cookieParser())
+app.use((req, res, next) => {
+    res.header("Cache-Control", "no-store, no-cache, must-revalidate");
+    next();
+  });
 app.use( session ({
 
     resave : false,
@@ -29,7 +35,6 @@ app.use( session ({
     saveUninitialized: false
     
 }))
-app.use(nocache())
 
 // app.use(passport.initialize());
 // app.use(passport.session());
