@@ -3,7 +3,8 @@ const router = express.Router();
 const shopController = require('../controllers/shopController');
 const userController = require('../controllers/userController');
 const cartController = require('../controllers/cartController');
- const authMiddleware = require('../middlewares/authMiddleware');
+const orderController = require('../controllers/orderController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/home',shopController.getHomePage);
 router.get('/productdetail/:id',shopController.getProductDetailPage); 
@@ -26,7 +27,9 @@ router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.ve
 //cartRoutes
 
 router.get('/cart',authMiddleware.verifyUser,cartController.getCart);
-router.post('/add_to_cart/:id',authMiddleware.verifyUser,cartController.addToCart);
-router.patch('/cart/updatequantity',authMiddleware.verifyUser,cartController.updateQuantity);
-router.patch('/cart/removeitem/:id',authMiddleware.verifyUser,cartController.removeItem);
+router.post('/add_to_cart/:id',authMiddleware.verifyUser,cartController.doAddToCart);
+router.patch('/cart/updatequantity',authMiddleware.verifyUser,cartController.doUpdateQuantity);
+router.patch('/cart/removeitem/:id',authMiddleware.verifyUser,cartController.doRemoveItem);
+router.get('/checkout',authMiddleware.verifyUser,cartController.getCartCheckOut);
+router.post('/placeorder',authMiddleware.verifyUser,orderController.doCartPlaceOrder);
 module.exports = router 
