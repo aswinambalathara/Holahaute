@@ -27,4 +27,6 @@ router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.ve
 
 router.get('/cart',authMiddleware.verifyUser,cartController.getCart);
 router.post('/add_to_cart/:id',authMiddleware.verifyUser,cartController.addToCart);
+router.patch('/cart/updatequantity',authMiddleware.verifyUser,cartController.updateQuantity);
+router.patch('/cart/removeitem/:id',authMiddleware.verifyUser,cartController.removeItem);
 module.exports = router 

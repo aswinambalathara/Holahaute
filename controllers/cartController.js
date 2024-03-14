@@ -2,7 +2,8 @@ const { default: mongoose } = require("mongoose");
 const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const cartHelper = require('../helpers/cartHelper');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { ObjectId } = require("mongodb");
 
 module.exports.getCart = async (req, res) => {
   try {
@@ -31,7 +32,7 @@ module.exports.addToCart = async (req, res) => {
       { quantity: 1, _id: 0 }
     );
     const stockQuantity = quantity.quantity;
-
+    
     const { color, size } = req.body;
     const cart = await cartSchema.findOne({ userId: userId });
     if (cart) {
@@ -43,8 +44,9 @@ module.exports.addToCart = async (req, res) => {
           item.size === size
         );
       });
+     
       if (exist) {
-        const availableQuantity = stockQuantity - exist.quantity;
+        const availableQuantity = stockQuantity - exist.quantity; 
         if (availableQuantity > 0) {
           if (exist.quantity < 5) {
             await cartSchema.updateOne(
@@ -92,7 +94,8 @@ module.exports.addToCart = async (req, res) => {
           status: true,
           message: "Added to cart",
         });
-      }
+      
+    }
     } else {
       // if cart doesn't exist
       const newCart = new cartSchema({
@@ -110,3 +113,57 @@ module.exports.addToCart = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.updateQuantity = async (req,res)=>{
+  try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+  const {quantity,itemId} = req.body
+  const cart = await cartSchema.aggregate([
+    {$match:{userId : new ObjectId(authUser.userId)}},
+    {$unwind:"$cartItems"},
+    {$match : {"cartItems._id":new ObjectId(itemId)}},
+    {$lookup:{
+      from : 'products',
+      localField : 'cartItems.productId',
+      foreignField : "_id",
+      as : "product"
+    }},
+    {$unwind : '$product'}
+  ])
+  
+  const quantityCheck = cart[0].product.quantity - quantity;
+  if(quantityCheck > 0){
+   const update = await cartSchema.updateOne({userId : authUser.userId, "cartItems._id": new ObjectId(itemId)},{
+      $set : {"cartItems.$.quantity": quantity}
+    })
+    if(update){
+      res.json({
+        status : true
+      })
+    }
+  }else{
+    res.json({
+      status : false,
+      message : `Only ${cart[0].product.quantity} left`
+    })
+  }
+  //console.log(cart)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports.removeItem = async (req,res)=>{
+  try {
+    const itemId = req.params.id
+  const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+  const remove = await cartSchema.updateOne({userId: authUser.userId},{$pull:{cartItems : {_id: new ObjectId(itemId)}}})
+  if(remove){
+    res.json({
+      status : true
+    })
+  }
+  } catch (error) {
+    console.log(error)
+  }
+}

@@ -10,7 +10,7 @@ module.exports.isUserAuth = (req, res, next) => {
 
 module.exports.isUserLoggedOut = (req, res, next) => {
   //console.log(req.session.userAuth);
-  if (req.session.userAuth) {
+  if (req.cookies.token) {
     res.redirect("/home");
   } else {
     next();
@@ -58,15 +58,18 @@ module.exports.userStatus = (req, res, next) => {
 
 module.exports.verifyUser = (req, res, next) => {
   try {
-    if (req.cookies.token) {
+    
       const token = req.cookies.token;
-      const user = jwt.verify(token, process.env.JWT_SECRET);
-      //console.log(user);
-      next();
-    } else {
-      res.redirect("/login");
-    }
+      const user = jwt.verify(token, process.env.JWT_SECRET,(err)=>{
+        if(err){
+          res.redirect('/login')
+        }else{
+          next()
+        }
+      }); 
+
   } catch (error) {
     console.log(error);
+    //res.redirect('/home');
   }
 };

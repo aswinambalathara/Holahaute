@@ -3,9 +3,9 @@ const productSchema = require("../models/productModel");
 const jwt = require('jsonwebtoken')
 module.exports.getHomePage = async (req, res) => {
   try {
-    let user = ''
+    let user
     if(req.cookies.token){
-      user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+       user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     }
     const products = await productSchema.find({isDeleted:false});
     const categories = await categorySchema.find({status:true});
@@ -13,7 +13,7 @@ module.exports.getHomePage = async (req, res) => {
       title: "Home",
       categories,
       products,
-      user: user.userName
+      user: user? user.userName : undefined
     });
   } catch (error) {
     console.log(error)

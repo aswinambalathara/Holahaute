@@ -148,7 +148,7 @@ module.exports.doUserLogin = async (req, res) => {
             userName : userData.fullName,
             userId : userData._id
           }
-        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '1h'})
+        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '24h'})  
           res.cookie('token',token,{httpOnly:true,secure : true});
           
           res.redirect("/home");
