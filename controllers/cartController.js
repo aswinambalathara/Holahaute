@@ -166,7 +166,7 @@ try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId)
-  console.log(cart[0])
+  //console.log(cart[0])
   res.render("shop/checkout.ejs", {
     title: "Checkout",
     user: authUser.userName,

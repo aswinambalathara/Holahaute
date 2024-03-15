@@ -46,7 +46,7 @@
 
                                                 <!-- Modal -->
                                                 <div class="modal fade" id="changeAddress" tabindex="-1"
-                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 9999;">
                                                     <div class="modal-dialog modal-dialog-centered">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
@@ -66,8 +66,7 @@
                                                                                         class="form-check-input m-0 deliveryAddress"
                                                                                         style="position: relative"
                                                                                         value="<%=address._id%>" checked
-                                                                                        name="deliveryAddress"
-                                                                                         />
+                                                                                        name="deliveryAddress" />
                                                                                     <div class="d-flex ms-2">
                                                                                         <div
                                                                                             class="d-flex flex-column ms-3">
@@ -104,8 +103,7 @@
                                                                                             class="form-check-input m-0 deliveryAddress"
                                                                                             style="position: relative"
                                                                                             value="<%=address._id%>"
-                                                                                            name="deliveryAddress"
-                                                                                             />
+                                                                                            name="deliveryAddress" />
                                                                                         <div class="d-flex ms-2">
                                                                                             <div
                                                                                                 class="d-flex flex-column ms-3">
@@ -148,7 +146,8 @@
                                                                 <a href="/user/addaddress"
                                                                     class="btn btn-outline-primary btn-sm">Add New
                                                                     Address</a>
-                                                                <button type="button" class="btn btn-success btn-sm" id="changeAddressBtn">
+                                                                <button type="button" class="btn btn-success btn-sm"
+                                                                    id="changeAddressBtn">
                                                                     Change Address
                                                                 </button>
                                                             </div>
@@ -157,22 +156,23 @@
                                                 </div>
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card shadow " id="ancestor">
                             <div class="card-body">
                                 <h5>Payment Options</h5>
                                 <div class="vstack gap-3 mt-3">
                                     <div class="d-flex align-items-center border p-2 rounded">
-                                        <input type="radio" class="form-check-input m-0 paymentOption" style="position: relative"
-                                            name="paymentOption" value="COD" checked/>
+                                        <input type="radio" class="form-check-input m-0 paymentOption"
+                                            style="position: relative" name="paymentOption" value="COD" checked />
                                         <div class="ms-2">Cash On Delivery</div>
                                     </div>
                                     <div class="d-flex align-items-center border p-2 rounded bg-light">
-                                        <input type="radio" class="form-check-input m-0 paymentOption" style="position: relative"
-                                            name="paymentOption" value="Razerpay" disabled />
+                                        <input type="radio" class="form-check-input m-0 paymentOption"
+                                            style="position: relative" name="paymentOption" value="Razerpay" disabled />
                                         <div class="ms-2">Razorpay (Coming Soon)</div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="error ms-3 mb-2" style="color: red;  font-size: small; font-weight: 600;"></div>
                         </div>
 
                         <div class="card shadow mb-2">
@@ -232,47 +232,54 @@
             const placeOrderBtn = document.getElementById('placeOrder');
             const paymentOption = document.querySelectorAll('.paymentOption')
 
-            changeAddressBtn.addEventListener('click', ()=>{
-                addressInput.forEach(async (input)=>{
-                   if(input.checked){
-                    const addressId = input.value;
-                    const response = await fetch(`/user/userprofile/setprimary/${addressId}`,{
-                        method : "PATCH",
-                        headers:{
-                            "Content-Type":"application/json"
+            changeAddressBtn.addEventListener('click', () => {
+                addressInput.forEach(async (input) => {
+                    if (input.checked) {
+                        const addressId = input.value;
+                        const response = await fetch(`/user/userprofile/setprimary/${addressId}`, {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        });
+                        const data = await response.json()
+                        if (data.status === 'success') {
+                            location.reload()
                         }
-                    });
-                    const data = await response.json()
-                    if(data.status === 'success'){
-                        location.reload()
                     }
-                   }
                 })
             })
 
-            placeOrderBtn.addEventListener('click',()=>{
-                paymentOption.forEach((option)=>{
-                    if(option.checked){
-                        if(option.value !== ''){
+            placeOrderBtn.addEventListener('click', () => {
+                paymentOption.forEach((option) => {
+                    if (option.checked) { 
+                        if (option.value !== '') {
                             const paymentOptionVal = option.value;
                             const deliveryAddressVal = deliveryAddress.value
-                            console.log(paymentOptionVal," ",deliveryAddressVal)
+                            //console.log(paymentOptionVal," ",deliveryAddressVal)
+                            placeOrder(deliveryAddressVal, paymentOptionVal)
                         }
                     }
-            })
+                })
             })
 
-          async function placeOrder(addressId,paymentOption){
-             const response = await fetch('/placeorder',{
-                method : "POST",
-                headers :{
-                    "Content-Type":"application/json"
-                },
-                body : JSON.stringify({
-                    addressId : addressId,
-                    paymentOption : paymentOption
+            async function placeOrder(addressId, paymentOption) {
+                const response = await fetch('/placeorder', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        addressId: addressId,
+                        paymentOption: paymentOption
+                    })
                 })
-             })
+            }
+
+            function setError(btn, message) {
+                const errorParent = btn.closest('#ancestor');
+                const errorDiv = errorParent.querySelector('.error')
+                errorDiv.innerText = message
             }
         </script>
         <%- include('../includes/shop/shopFooter.ejs') %>

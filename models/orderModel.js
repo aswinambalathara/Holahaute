@@ -61,15 +61,15 @@ const orderSchema = Schema({
         type: Number,
         required: true,
       },
+
+      orderTotal: {
+        type: Number,
+        required: true,
+      },
     },
   ],
 
   grandTotal: {
-    type: Number,
-    required: true,
-  },
-
-  orderTotal: {
     type: Number,
     required: true,
   },
