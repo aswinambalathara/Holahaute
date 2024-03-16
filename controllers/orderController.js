@@ -65,8 +65,42 @@ module.exports.doCartPlaceOrder = async (req, res) => {
   }
 };
 
-module.exports.getOrderStatusPage = async (req, res) => {};
+module.exports.getOrderStatusPage = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    res.render("user/orderconfirm.ejs", {
+      title: "Order Status",
+      user: authUser.userName,
+    });
+  } catch (error) {
+    console.log(error)
+  }
+};
 
-module.exports.getMyorders = async (req, res) => {};
+module.exports.getMyorders = async (req, res) => {
+try {
+  const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    res.render("user/myorders.ejs", {
+      title: "My Orders",
+      user: authUser.userName,
+    });
+} catch (error) {
+  console.log(error)
+}
+};
 
-module.exports.doCancelOrder = async (req, res) => {};
+module.exports.doCancelOrder = async (req, res) => {
+try {
+  
+} catch (error) {
+  console.log(error)
+}
+};
+
+module.exports.getOrderDetail = async (req,res)=>{
+
+}
+
+module.exports.getOrderTracking = async (req,res)=>{
+
+}

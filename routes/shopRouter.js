@@ -32,4 +32,11 @@ router.patch('/cart/updatequantity',authMiddleware.verifyUser,cartController.doU
 router.patch('/cart/removeitem/:id',authMiddleware.verifyUser,cartController.doRemoveItem);
 router.get('/checkout',authMiddleware.verifyUser,cartController.getCartCheckOut);
 router.post('/placeorder',authMiddleware.verifyUser,orderController.doCartPlaceOrder);
-module.exports = router 
+
+//orders
+router.get('/orderstatus',authMiddleware.verifyUser,orderController.getOrderStatusPage);
+router.get('/myorders',authMiddleware.verifyUser,orderController.getMyorders);
+router.get('/orderdetail/:id',authMiddleware.verifyUser,orderController.getOrderDetail)
+
+
+module.exports = router;

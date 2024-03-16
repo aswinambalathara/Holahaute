@@ -60,3 +60,6 @@ productList.innerHTML = ''
         productList.innerHTML = "<div class='d-flex justify-content-center'><p>Nothing Found</p></div>"
     }
 })
+
+
+

@@ -11,7 +11,7 @@ module.exports.getCart = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
     const cart = await cartHelper.getCartHelper(userId);
-    //console.log(cart[0])
+    console.log(cart[0])
     //console.log(cart[0].cartItems[0])
     res.render("shop/cart.ejs", {
       title: "Cart",
@@ -120,7 +120,7 @@ module.exports.doUpdateQuantity = async (req, res) => {
     const { quantity, itemId } = req.body;
     const cart = await cartHelper.updateQuantityHelper(authUser.userId, itemId);
     const quantityCheck = cart[0].product.quantity - quantity;
-    if (quantityCheck > 0) {
+    if (quantityCheck >= 0) {
       const update = await cartSchema.updateOne(
         { userId: authUser.userId, "cartItems._id": new ObjectId(itemId) },
         {
@@ -167,7 +167,9 @@ try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId)
+  //console.log(cart.totalQuantityByProduct)
   const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
+  //console.log(stock)
   //console.log(quantityCheck)
   if(stock === true){
     res.render("shop/checkout.ejs", {
@@ -177,8 +179,7 @@ try {
       addresses
     });
   }else{
-    req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,
-    Try different Quantity`);
+    req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,Try different Quantity`);
    res.redirect('/cart')
   }
   

@@ -67,7 +67,7 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
       { _id: new ObjectId(item.productId) },
       { _id: 0, quantity: 1, productName: 1 }
     );
-    const check = product.quantity - item.quantity;
+    const check = await product.quantity - item.quantity;
     if (check > 0) {
       return true;
     } else {

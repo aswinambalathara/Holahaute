@@ -40,6 +40,7 @@ module.exports.getCartHelper = async (userId) => {
               _id: "$product._id",
               productName: "$product.productName",
               price: "$product.price",
+              quantity : "$product.quantity",
               images: "$product.images",
             },
           },
@@ -134,7 +135,7 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
       { _id: 0, quantity: 1, productName: 1 }
     );
     const check = product.quantity - item.quantity;
-    if (check > 0) {
+    if (check >= 0) {
       return true;
     } else {
       return product.productName;
