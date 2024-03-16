@@ -269,7 +269,7 @@ module.exports.doAdminLogin = async (req, res) => {
         req.flash("error", "Invalid Credentials");
         res.redirect("/admin/login");
       } else {
-        const token = jwt.sign({adminId : adminData._id},process.env.JWT_SECRET,{expiresIn : '1hr'});
+        const token = jwt.sign({adminId : adminData._id},process.env.JWT_SECRET,{expiresIn : '24hr'});
         res.cookie('adminToken',token,{httpOnly : true, secure : true})
         res.redirect("/admin");
       }
@@ -404,7 +404,7 @@ module.exports.userLogOut = (req,res)=>{
 module.exports.adminLogOut = (req,res)=>{
   try {
     res.clearCookie('adminToken')
-    req.session.adminAuth = null;
+    //req.session.adminAuth = null;
     res.redirect('/admin/login');
   } catch (error) {
     console.log(error)

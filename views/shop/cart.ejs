@@ -5,135 +5,145 @@
             <div class="container">
                 <div class="cart-container mt-5">
                     <h5>Your Cart</h5>
-                    <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
+                    <% if(cartData) {%>
+                        <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
+                            <div class="cart-items col-12 col-md-7 border border-2 rounded p-2 me-2">
 
+                                <div class="vstack gap-3">
+                                    <% if (cartData.cartItems.length) {%>
+                                        <% cartData.cartItems.forEach(function(item){%>
+                                            <div class="card shadow">
 
-                        <div class="cart-items col-12 col-md-7 border border-2 rounded p-2 me-2">
-
-                            <div class="vstack gap-3">
-                                <% if (cartData.cartItems.length> 0) {%>
-                                    <% cartData.cartItems.forEach(function(item){%>
-                                        <div class="card shadow">
-
-                                            <div class="card-body d-flex flex-column flex-md-row align-items-center align-items-md-start"
-                                                id="ancestor">
-                                                <div
-                                                    class="part-1 col-8 col-md-3 d-flex flex-column align-items-center">
-                                                    <div class="image-div"
-                                                        style="height: 8rem ; width: 8rem;  background-size: cover; background-image: url('/images/product-images/<%= item.Products.images[0]%>');">
-                                                    </div>
-                                                    <div class="d-flex mt-2 justify-content-center col-12">
-                                                        <button class="btn btn-secondary btn-sm downBtn "
-                                                            data-itemId="<%= item._id%>">-</button>
-                                                        <input type="text" min="1" style="width: 30px;"
-                                                            class="text-center qtyInput" value="<%=item.quantity%>"
-                                                            data-itemId="<%= item._id%>">
-                                                        <button class="btn btn-secondary btn-sm upBtn"
-                                                            data-itemId="<%= item._id%>">+</button>
-                                                    </div>
-                                                </div>
-
-
-                                                <div class="section-1 col-12">
-                                                    <div class="product-detail-wrapper d-flex flex-column ms-3 mt-3">
-                                                        <h6 class="fw-bold " style="text-transform: capitalize;">
-                                                            <%=item.Products.productName%>
-                                                        </h6>
-                                                        <small class="m-0">Size : <span
-                                                                style="text-transform: uppercase;">
-                                                                <%=item.size%>
-                                                            </span></small>
-                                                        <small class="m-0">Color : <span
-                                                                style="text-transform: capitalize;">
-                                                                <%=item.color%>
-                                                            </span></small>
-                                                    </div>
+                                                <div class="card-body d-flex flex-column flex-md-row align-items-center align-items-md-start"
+                                                    id="ancestor">
                                                     <div
-                                                        class="d-flex justify-content-between flex-column align-items-center mt-3 ms-3">
-                                                        <div class="d-flex align-self-start">
-                                                            <strong>Price : </strong>
-                                                            <p class="m-0"><span>₹ </span>
-                                                                <%= item.Products.price%>
-                                                            </p>
+                                                        class="part-1 col-8 col-md-3 d-flex flex-column align-items-center">
+                                                        <div class="image-div"
+                                                            style="height: 8rem ; width: 8rem;  background-size: cover; background-image: url('/images/product-images/<%= item.Products.images[0]%>');">
                                                         </div>
-                                                        <div class="d-flex mt-2">
-                                                            <button class="btn btn-outline-danger btn-sm me-2 removeBtn"
-                                                                data-itemId="<%= item._id%>">Remove</button>
-                                                            <button class="btn btn-outline-success btn-sm">Add to
-                                                                wishlist</button>
+                                                        <div class="d-flex mt-2 justify-content-center col-12">
+                                                            <button class="btn btn-secondary btn-sm downBtn "
+                                                                data-itemId="<%= item._id%>">-</button>
+                                                            <input type="text" min="1" style="width: 30px;"
+                                                                class="text-center qtyInput" value="<%=item.quantity%>"
+                                                                data-itemId="<%= item._id%>">
+                                                            <button class="btn btn-secondary btn-sm upBtn"
+                                                                data-itemId="<%= item._id%>">+</button>
                                                         </div>
                                                     </div>
-                                                    <div class="error ms-3 mt-2"
-                                                        style="color: red;  font-size: small; font-weight: 700;"
-                                                        data-itemId="<%=item._id%>"></div>
+
+
+                                                    <div class="section-1 col-12">
+                                                        <div
+                                                            class="product-detail-wrapper d-flex flex-column ms-3 mt-3">
+                                                            <h6 class="fw-bold " style="text-transform: capitalize;">
+                                                                <%=item.Products.productName%>
+                                                            </h6>
+                                                            <small class="m-0">Size : <span
+                                                                    style="text-transform: uppercase;">
+                                                                    <%=item.size%>
+                                                                </span></small>
+                                                            <small class="m-0">Color : <span
+                                                                    style="text-transform: capitalize;">
+                                                                    <%=item.color%>
+                                                                </span></small>
+                                                        </div>
+                                                        <div
+                                                            class="d-flex justify-content-between flex-column align-items-center mt-3 ms-3">
+                                                            <div class="d-flex align-self-start">
+                                                                <strong>Price : </strong>
+                                                                <p class="m-0"><span>₹ </span>
+                                                                    <%= item.Products.price%>
+                                                                </p>
+                                                            </div>
+                                                            <div class="d-flex mt-2">
+                                                                <button
+                                                                    class="btn btn-outline-danger btn-sm me-2 removeBtn"
+                                                                    data-itemId="<%= item._id%>">Remove</button>
+                                                                <button class="btn btn-outline-success btn-sm">Add to
+                                                                    wishlist</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="error ms-3 mt-2"
+                                                            style="color: red;  font-size: small; font-weight: 700;"
+                                                            data-itemId="<%=item._id%>"></div>
+                                                    </div>
+
                                                 </div>
 
                                             </div>
+                                            <%})%>
+                                                <%} %>
+                                </div>
 
-                                        </div>
-                                        <%})%>
-                                            <%} %>
                             </div>
 
-                        </div>
-
-
-                        <div class="cart-totals col-12 col-md-5 mt-3 mt-md-0">
-                            <div class="border rounded border-2 p-2">
-                                <div class="grand-total d-flex flex-column border rounded shadow px-2 py-4">
-                                    <div class="d-flex flex-column align-items-center">
-                                        <h4 class="fw-bolder text-success" style="text-transform: uppercase;">Grand
-                                            Total</h4>
-                                        <h5 class="fw-bolder text-dark mt-2"><span>₹ </span>
-                                            <%=cartData.grandTotal %>
-                                        </h5>
-                                        <small>Inclusive of all taxes</small>
-                                    </div>
-                                    <div class="justify-content-evenly align-items-center d-flex mt-3 flex-wrap">
-                                        <a href="/shop" class="btn btn-outline-dark fw-bold"
-                                            style="text-transform: capitalize;">Continue
-                                            Shopping</a>
-                                        <a href="/checkout" class="btn btn-primary fw-bold mt-2 mt-md-0"
-                                            style="text-transform: capitalize;">Proceed
-                                            to
-                                            checkout</a>
-                                    </div>
-                                </div>
-                                <div class="billing mt-3 border rounded shadow px-3 py-4">
-                                    <h6 class="fw-bold text-secondary">Billing Details :</h6>
-                                    <hr>
-                                    <% cartData.cartItems.forEach(function(item) {%>
-                                        <div class="product-card mt-3 border-bottom border-2 p-3">
-                                            <p class="fw-bold text-dark" style="text-transform: capitalize;">
-                                                <%= item.Products.productName%> (<%= item.size %>, <%= item.color%>)
-                                            </p>
-
-                                            <div class="d-flex justify-content-between mt-3">
-                                                <div class="d-flex flex-column ">
-                                                    <small class="fw-semibold">PRICE :</small>
-                                                    <small class="fw-semibold">QUANTITY :</small>
-                                                    <small class="fw-semibold">TOTAL :</small>
-                                                </div>
-                                                <div class="text-end d-flex flex-column">
-                                                    <small> <span>₹ </span>
-                                                        <%= item.Products.price%>
-                                                    </small>
-                                                    <small>
-                                                        <%= item.quantity%>
-                                                    </small>
-                                                    <small><span>₹ </span>
-                                                        <%=item.totalPrice %>
-                                                    </small>
-                                                </div>
+                            <%if(cartData) {%>
+                                <div class="cart-totals col-12 col-md-5 mt-3 mt-md-0">
+                                    <div class="border rounded border-2 p-2">
+                                        <div class="grand-total d-flex flex-column border rounded shadow px-2 py-4">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <h4 class="fw-bolder text-success" style="text-transform: uppercase;">
+                                                    Grand
+                                                    Total</h4>
+                                                <h5 class="fw-bolder text-dark mt-2"><span>₹ </span>
+                                                    <%=cartData.grandTotal %>
+                                                </h5>
+                                                <small>Inclusive of all taxes</small>
+                                            </div>
+                                            <div
+                                                class="justify-content-evenly align-items-center d-flex mt-3 flex-wrap">
+                                                <a href="/shop" class="btn btn-outline-dark fw-bold"
+                                                    style="text-transform: capitalize;">Continue
+                                                    Shopping</a>
+                                                <a href="/checkout" class="btn btn-primary fw-bold mt-2 mt-md-0"
+                                                    style="text-transform: capitalize;">Proceed
+                                                    to
+                                                    checkout</a>
                                             </div>
                                         </div>
-                                        <%} )%>
-                                </div>
-                            </div>
-                        </div>
+                                        <div class="billing mt-3 border rounded shadow px-3 py-4">
+                                            <h6 class="fw-bold text-secondary">Billing Details :</h6>
+                                            <hr>
+                                            <% cartData.cartItems.forEach(function(item) {%>
+                                                <div class="product-card mt-3 border-bottom border-2 p-3">
+                                                    <p class="fw-bold text-dark" style="text-transform: capitalize;">
+                                                        <%= item.Products.productName%> (<%= item.size %>, <%=
+                                                                    item.color%>)
+                                                    </p>
 
-                    </div>
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <div class="d-flex flex-column ">
+                                                            <small class="fw-semibold">PRICE :</small>
+                                                            <small class="fw-semibold">QUANTITY :</small>
+                                                            <small class="fw-semibold">TOTAL :</small>
+                                                        </div>
+                                                        <div class="text-end d-flex flex-column">
+                                                            <small> <span>₹ </span>
+                                                                <%= item.Products.price%>
+                                                            </small>
+                                                            <small>
+                                                                <%= item.quantity%>
+                                                            </small>
+                                                            <small><span>₹ </span>
+                                                                <%=item.totalPrice %>
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <%} )%>
+                                        </div>
+                                    </div>
+                                </div>
+                                <%} %>
+                        </div>
+                        <%} else {%>
+                            <div class="vh-100 d-flex justify-content-center align-items-center">
+                                <h3>Nothing Found</h3>
+                            </div>
+                            <%} %>
                 </div>
+                <%-include ('../includes/shop/orderModal.ejs') %>
             </div>
         </div>
 
@@ -142,8 +152,16 @@
             const qtyDownBtn = document.querySelectorAll('.downBtn');
             let qtyInput = document.querySelectorAll('.qtyInput');
             const removeBtn = document.querySelectorAll('.removeBtn');
-            //const errorDiv = document.querySelector('.error');
+            const serverError = `<%=error%>`
+            const error = serverError.split('*').join(" * ")
+            console.log(serverError)
 
+            // if (serverError) {
+            //     const errorDiv = document.querySelector('.error-modal')
+            //     errorDiv.querySelector('.errorProducts').innerText = data.product
+            //     errorDiv.querySelector('.errorMessage').innerText = data.message
+            //     document.getElementById('orderErrorModal').click()
+            // }
 
             function setError(btn, message) {
                 const errorParent = btn.closest('#ancestor');
@@ -239,6 +257,8 @@
                     }
                 });
             }
+
+
         </script>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

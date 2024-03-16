@@ -17,6 +17,7 @@ module.exports.getCart = async (req, res) => {
       title: "Cart",
       user: authUser.userName,
       cartData: cart[0],
+      error : req.flash('error')
     });
   } catch (error) {
     console.log(error);
@@ -166,14 +167,23 @@ try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId)
-  //console.log(cart[0])
-  res.render("shop/checkout.ejs", {
-    title: "Checkout",
-    user: authUser.userName,
-    cart,
-    addresses
-  });
+  const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
+  //console.log(quantityCheck)
+  if(stock === true){
+    res.render("shop/checkout.ejs", {
+      title: "Checkout",
+      user: authUser.userName,
+      grandTotal:cart.grandTotal,
+      addresses
+    });
+  }else{
+    req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,
+    Try different Quantity`);
+   res.redirect('/cart')
+  }
+  
 } catch (error) {
   console.log(error)
 }
 }
+
