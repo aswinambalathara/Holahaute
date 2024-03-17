@@ -29,6 +29,12 @@ const orderSchema = Schema({
     default: Date.now(),
   },
 
+  estimatedArrival:{
+    type : Date,
+    required : true,
+    default : Date.now() + (7 * 24 * 60 * 60 * 1000)
+  },
+
   orderStage: {
     type: String,
     required: true,
@@ -45,6 +51,7 @@ const orderSchema = Schema({
       productId: {
         type: mongoose.Types.ObjectId,
         required: true,
+        ref: "product"
       },
 
       size: {

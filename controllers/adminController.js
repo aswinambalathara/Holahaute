@@ -63,3 +63,19 @@ module.exports.toggleUserBlock = async (req,res)=>{
     console.log(error);  
   }
 }
+
+module.exports.getAdminOrders = async (req,res)=>{
+
+}
+
+module.exports.getAdminOrderInfo = async (req,res)=>{
+
+}
+
+module.exports.doChangeOrderStage = async (req,res)=>{
+
+}
+
+module.exports.doAdminCancelOrder = async (req,res)=>{
+  
+}

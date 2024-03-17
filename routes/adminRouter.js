@@ -27,5 +27,10 @@ router.get('/category/editcategory/:id',authMiddleware.verifyAdmin,categoryContr
 router.patch('/category/editcategory/:id',authMiddleware.verifyAdmin,uploadCatogory.single('image'),categoryController.doEditCategory)
 router.patch('/category/deletecategory/:id',authMiddleware.verifyAdmin,categoryController.doDeleteCategory)
 
+router.get('/orders',authMiddleware.verifyAdmin,adminController.getAdminOrders);
+router.get('/orders/orderinfo',authMiddleware.verifyAdmin, adminController.getAdminOrderInfo);
+router.patch('/orders/changestage',authMiddleware.verifyAdmin,adminController.doChangeOrderStage);
+router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.doAdminCancelOrder);
+
 
 module.exports = router;

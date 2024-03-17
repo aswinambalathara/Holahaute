@@ -36,7 +36,8 @@ router.post('/placeorder',authMiddleware.verifyUser,orderController.doCartPlaceO
 //orders
 router.get('/orderstatus',authMiddleware.verifyUser,orderController.getOrderStatusPage);
 router.get('/myorders',authMiddleware.verifyUser,orderController.getMyorders);
-router.get('/orderdetail/:id',authMiddleware.verifyUser,orderController.getOrderDetail)
+router.get('/myorders/order/:id',authMiddleware.verifyUser,orderController.getOrderDetail);
+router.get('/myorders/trackorder/:id',authMiddleware.verifyUser,orderController.getOrderTracking);
 
 
 module.exports = router;

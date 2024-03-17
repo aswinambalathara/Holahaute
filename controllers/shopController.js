@@ -68,3 +68,7 @@ module.exports.doSearch = async (req,res)=>{
  }
  
 }
+
+module.exports.doFilter = async (req,res)=>{
+  
+}

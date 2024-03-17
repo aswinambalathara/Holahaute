@@ -15,16 +15,16 @@ module.exports.doCartPlaceOrder = async (req, res) => {
     const orderId = uuidv4();
     // console.log(orderId)
     const order = await orderHelper.makeOrderHelper(userId);
-    console.log("break");
-    console.log(order);
+    //console.log("break");
+    //console.log(order);
     const product = order.orderInfo.map((item) => {
       return item.product;
     });
-    console.log(product);
+    //console.log(product);
     const stock = await orderHelper.checkProductQuantity(
       order.totalQuantityByProduct
     );
-    console.log(stock);
+    //console.log(stock);
     if (stock === true) {
       // decreasing quantity
       const decreaseQuantity = await orderHelper.decreaseProductQuantity(
@@ -35,18 +35,21 @@ module.exports.doCartPlaceOrder = async (req, res) => {
           userId: userId,
           address: addressId,
           orderId: orderId,
-          orderStatus: "Active",
+          orderStatus: "Confirmed",
           products: product,
           grandTotal: order.grandTotal,
           paymentMethod: paymentOption,
         });
         const ordered = await newOrder.save();
+        // console.log(ordered);
         if (ordered) {
           // clear cart
+          req.session.currentOrderId = ordered._id;
           await cartSchema.updateOne(
             { userId: userId },
             { $set: { cartItems: [] } }
           );
+
           res.json({
             status: true,
             message: "OrderSuccessfull",
@@ -68,39 +71,91 @@ module.exports.doCartPlaceOrder = async (req, res) => {
 module.exports.getOrderStatusPage = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const orderDocId =
+      req.session.currentOrderId || new ObjectId("65f59267420377fcef3ba215");
+    const order = await orderHelper.orderStatusHelper(
+      authUser.userId,
+      orderDocId
+    );
+    //console.log('orderstatus');
+    console.log(order);
+    //console.log(order.orderStatus[0].orderDate.toLocaleDateString())
+    req.session.currentOrderId = "";
     res.render("user/orderconfirm.ejs", {
       title: "Order Status",
       user: authUser.userName,
+      order: order,
+      orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
 module.exports.getMyorders = async (req, res) => {
-try {
-  const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const orders = await orderSchema
+      .find({ userId: new ObjectId(authUser.userId) })
+      .populate("products.productId");
+    console.log(orders);
+    const arrivals = orders.map((order) => {
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      return order.estimatedArrival.toLocaleDateString(undefined, options);
+    });
+    console.log(arrivals);
     res.render("user/myorders.ejs", {
       title: "My Orders",
       user: authUser.userName,
+      orders,
+      //arrivals
     });
-} catch (error) {
-  console.log(error)
-}
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getOrderDetail = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const order = await orderHelper.orderStatusHelper(authUser.userId, orderId);
+    console.log(order);
+    res.render("user/orderDetail.ejs", {
+      title: "Order",
+      user: authUser.userName,
+      order: order,
+      orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getOrderTracking = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const orderId = req.params.id;
+    const orderTrack = await orderSchema.findOne({userId: new ObjectId(authUser.userId), _id: new ObjectId(orderId)}).populate('products.productId')
+    console.log(orderTrack)
+    res.render("user/trackOrder.ejs", {
+      title: "Tracking Order",
+      user: authUser.userName,
+      orderTrack
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports.doCancelOrder = async (req, res) => {
-try {
-  
-} catch (error) {
-  console.log(error)
-}
+  try {
+  } catch (error) {
+    console.log(error);
+  }
 };
-
-module.exports.getOrderDetail = async (req,res)=>{
-
-}
-
-module.exports.getOrderTracking = async (req,res)=>{
-
-}
