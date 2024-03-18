@@ -35,7 +35,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
           userId: userId,
           address: addressId,
           orderId: orderId,
-          orderStatus: "Confirmed",
+          orderStatus: "CONFIRMED",
           products: product,
           grandTotal: order.grandTotal,
           paymentMethod: paymentOption,
@@ -78,7 +78,7 @@ module.exports.getOrderStatusPage = async (req, res) => {
       orderDocId
     );
     //console.log('orderstatus');
-    console.log(order);
+    //console.log(order);
     //console.log(order.orderStatus[0].orderDate.toLocaleDateString())
     req.session.currentOrderId = "";
     res.render("user/orderconfirm.ejs", {
@@ -108,7 +108,7 @@ module.exports.getMyorders = async (req, res) => {
       };
       return order.estimatedArrival.toLocaleDateString(undefined, options);
     });
-    console.log(arrivals);
+    //console.log(arrivals);
     res.render("user/myorders.ejs", {
       title: "My Orders",
       user: authUser.userName,
@@ -142,7 +142,7 @@ module.exports.getOrderTracking = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const orderId = req.params.id;
     const orderTrack = await orderSchema.findOne({userId: new ObjectId(authUser.userId), _id: new ObjectId(orderId)}).populate('products.productId')
-    console.log(orderTrack)
+    //console.log(orderTrack)
     res.render("user/trackOrder.ejs", {
       title: "Tracking Order",
       user: authUser.userName,

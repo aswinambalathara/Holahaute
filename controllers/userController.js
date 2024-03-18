@@ -70,6 +70,19 @@ module.exports.getEditUserProfile = async (req, res) => {
   }
 };
 
+module.exports.getNewEditProfile = async (req,res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    //const user = await userSchema.findOne({ _id: authUser.userId });
+    res.render("user/editProfileOld.ejs", {
+      title: "Edit Profile",
+      user : "None"
+    });
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports.DoEditUserProfile = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
@@ -119,6 +132,10 @@ module.exports.DoEditUserProfile = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+module.exports.DochangeUserPassword =  async (req,res) =>{
+
 };
 
 module.exports.sendOtp = async (req, res) => {

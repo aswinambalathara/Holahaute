@@ -67,7 +67,7 @@
                                                     <a href="/productdetail/<%=item.productId%>"
                                                         class="btn btn-primary btn-sm mb-2">View Product</a>
                                                     <%if (order.orderStatus[0].orderStatus==='SHIPPED' ||
-                                                        order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' )
+                                                        order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' || order.orderStatus[0].orderStatus==='CONFIRMED' )
                                                         {%>
                                                         <button class="btn btn-outline-dark btn-sm mb-2">Cancel
                                                             Product</button>
@@ -121,7 +121,7 @@
                                 <a href="/myorders/trackorder/<%=order._id%>"
                                     class="btn btn-primary px-5 border border-2 border-primary">Track Order</a>
                                 <%if (order.orderStatus[0].orderStatus==='SHIPPED' ||
-                                    order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' ) {%>
+                                    order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' || order.orderStatus[0].orderStatus==='CONFIRMED') {%>
                                     <button class="btn btn-outline-dark px-5 border border-dark border-2"
                                         id="cancelBtn">Cancel Order</button>
                                     <%} else {%>

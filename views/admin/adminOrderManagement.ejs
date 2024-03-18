@@ -1,10 +1,10 @@
 <%- include('../includes/admin/adminhead')%>
     <!-- Body Wrapper -->
-    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    <div class="page-wrapper bg-light" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
         data-sidebar-position="fixed" data-header-position="fixed">
         <%- include('../includes/admin/adminSidebar')%>
             <!-- Main wraapper -->
-            <div class="body-wrapper">
+            <div class="body-wrapper bg-light">
                 <%- include('../includes/admin/adminHeader')%>
                     <div class="container-fluid bg-light">
                         <div class="add-prd-form-container">
@@ -166,7 +166,7 @@
                                     </div>
                                 </div>
 
-                                <%if (order.orderStatus[0].orderStatus === 'ORDER CANCELLED') {%> 
+                                <%if (order.orderStatus[0].orderStatus === 'ORDER CANCELLED' || order.orderStatus[0].cancelReason) {%> 
                                 <div class="card cancel-request col-5">
                                     <div class="card-header">
                                         <h6>Cancel Request</h6>

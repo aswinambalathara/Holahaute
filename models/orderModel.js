@@ -68,8 +68,8 @@ const orderSchema = Schema({
         type: Number,
         required: true,
       },
-
-      orderTotal: {
+//orderTotal changed
+      orderTotal: { 
         type: Number,
         required: true,
       },

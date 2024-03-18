@@ -22,14 +22,17 @@ module.exports.getHomePage = async (req, res) => {
 
 module.exports.getProductDetailPage = async (req, res) => {
     try {
-      const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+      let user
+    if(req.cookies.token){
+       user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+    }
         const product = await productSchema.findOne({_id:req.params.id});
         const products = await productSchema.find({isDeleted:false,_id:{$ne:req.params.id}});
         res.render("shop/productDetail", {
             title: product.productName,
             product,
             products,
-            user: user.userName
+            user: user? user.userName : undefined
           });
     } catch (error) {
         console.log(error)
@@ -39,12 +42,15 @@ module.exports.getProductDetailPage = async (req, res) => {
 
 module.exports.getProductsPage = async (req, res) => {
     try {
-      const user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+      let user
+      if(req.cookies.token){
+         user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+      }
        const products = await productSchema.find({isDeleted:false})
         res.render("shop/allProducts", {
             title: "All Products",
             products,
-            user: user.userName
+            user: user? user.userName : undefined
           }); 
     } catch (error) {
         console.log(error)

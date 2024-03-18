@@ -14,10 +14,11 @@ router.post('/search',shopController.doSearch);
 
 router.get('/user/userprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getUserProfile);
 router.get('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getEditUserProfile);
+router.get('/user/editprofilenew',userController.getNewEditProfile);
 router.patch('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.DoEditUserProfile);
 router.patch('/user/userprofile/setprimary/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doSetPrimaryAddress);
 router.post('/user/sendotp',authMiddleware.userStatus,authMiddleware.verifyUser,userController.sendOtp);
-//router.post('/user/changepassword',userController.doChangePassword);
+router.post('/user/changepassword',authMiddleware.verifyUser,authMiddleware.userStatus,userController.DochangeUserPassword);
 
 router.get('/user/addaddress',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getAddAddress);
 router.post('/user/addaddress',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doAddAddress);
@@ -26,19 +27,19 @@ router.get('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.veri
 router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doEditAddress);
 //cartRoutes
 
-router.get('/cart',authMiddleware.verifyUser,cartController.getCart);
-router.post('/add_to_cart/:id',authMiddleware.verifyUser,cartController.doAddToCart);
-router.patch('/cart/updatequantity',authMiddleware.verifyUser,cartController.doUpdateQuantity);
-router.patch('/cart/removeitem/:id',authMiddleware.verifyUser,cartController.doRemoveItem);
-router.get('/checkout',authMiddleware.verifyUser,cartController.getCartCheckOut);
-router.post('/placeorder',authMiddleware.verifyUser,orderController.doCartPlaceOrder);
+router.get('/cart',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCart);
+router.post('/add_to_cart/:id',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doAddToCart);
+router.patch('/cart/updatequantity',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doUpdateQuantity);
+router.patch('/cart/removeitem/:id',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doRemoveItem);
+router.get('/checkout',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCartCheckOut);
+router.post('/placeorder',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCartPlaceOrder);
 
 //orders
-router.get('/orderstatus',authMiddleware.verifyUser,orderController.getOrderStatusPage);
-router.get('/myorders',authMiddleware.verifyUser,orderController.getMyorders);
-router.get('/myorders/order/:id',authMiddleware.verifyUser,orderController.getOrderDetail);
-router.get('/myorders/trackorder/:id',authMiddleware.verifyUser,orderController.getOrderTracking);
-router.patch('/myorder/cancelorder/:id',authMiddleware.verifyUser,orderController.doCancelOrder);
+router.get('/orderstatus',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderStatusPage);
+router.get('/myorders',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getMyorders);
+router.get('/myorders/order/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderDetail);
+router.get('/myorders/trackorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderTracking);
+router.patch('/myorder/cancelorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCancelOrder);
 
 
 module.exports = router;

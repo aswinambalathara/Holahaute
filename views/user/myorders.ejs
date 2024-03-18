@@ -14,7 +14,7 @@
                                     <img class="rounded border border-1 border-dark me-2" src="/images/product-images/<%=item.products[0].productId.images[0]%>" alt="product-images" style="height: 4rem; width: 4rem;">
                                 </div>
                                <div class="d-flex align-items-center justify-content-center">
-                                <%if (item.orderStage === ' ORDER CANCELLED' || item.orderStage === 'RETURN INTIATED' ){%>
+                                <%if (item.orderStage === 'ORDER CANCELLED' || item.orderStage === 'CANCELLATION REQUESTED' ){%>
                                 <div class="orderStage me-5 text-danger" style="text-transform: uppercase; font-weight: bold;"><%= item.orderStage%></div>
                                 <%} else {%>
                                 <div class="orderStage me-5 text-success" style="text-transform: uppercase; font-weight: bold;"><%= item.orderStage%></div> 
