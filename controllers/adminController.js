@@ -1,6 +1,7 @@
 const userSchema = require("../models/userModel");
 const orderSchema = require("../models/orderModel");
 const adminHelper = require('../helpers/adminHelper');
+const { ObjectId } = require("mongodb");
 module.exports.getAdminDashboard = (req, res) => {
   res.render("admin/dashboard", { title: "DashBoard" });
 };
@@ -113,6 +114,44 @@ module.exports.getAdminOrderInfo = async (req, res) => {
   }
 };
 
-module.exports.doChangeOrderStage = async (req, res) => {};
+module.exports.doChangeOrderStage = async (req, res) => {
+  try {
+    const id = req.params.id
+    const {changeStage} = req.body;
+    const order = await orderSchema.findOne({_id: id})
+    console.log(changeStage)
+    console.log(order);
+    if(changeStage !== order.orderStage){
+      
+      if(changeStage === 'CANCEL ORDER'){
+        const changed = await orderSchema.updateOne({_id:id,userId:order.userId},{$set:{
+          orderStage : 'ORDER CANCELLED',
+          orderStatus : 'ORDER CANCELLED',
+          updatedAt : Date.now(),
+        }});
+        if(changed){
+          res.status(200).json({
+            status : true,
+            message : "stage changed"
+          })
+        }
+      }else{
+        const changed = await orderSchema.updateOne({_id:id,userId:order.userId},{$set:{
+          orderStage : changeStage.toUpperCase(),
+          orderStatus : changeStage.toUpperCase(),
+          updatedAt : Date.now()
+        }});
+        if(changed){
+          res.status(200).json({
+            status : true,
+            message : "stage changed"
+          })
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error)
+  }
+};
 
 module.exports.doAdminCancelOrder = async (req, res) => {};

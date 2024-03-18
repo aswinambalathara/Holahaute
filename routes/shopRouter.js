@@ -38,6 +38,7 @@ router.get('/orderstatus',authMiddleware.verifyUser,orderController.getOrderStat
 router.get('/myorders',authMiddleware.verifyUser,orderController.getMyorders);
 router.get('/myorders/order/:id',authMiddleware.verifyUser,orderController.getOrderDetail);
 router.get('/myorders/trackorder/:id',authMiddleware.verifyUser,orderController.getOrderTracking);
+router.patch('/myorder/cancelorder/:id',authMiddleware.verifyUser,orderController.doCancelOrder);
 
 
 module.exports = router;

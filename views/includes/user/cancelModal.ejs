@@ -1,0 +1,98 @@
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cancelOrderModal" id="cancelModal"
+    hidden>
+    Cancel Order Modal
+</button>
+
+<div class="modal fade font-poppins" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Cancel Order</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="cancelReason" class="form-label fw-bolder"
+                        style="text-transform: uppercase;">Cancellation Reason</label>
+                    <textarea class="form-control" id="cancelReason" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="cancelOrderBtn"
+                    onclick="cancelOrder('<%= order._id%>')" disabled>Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fullScreen" id="fullScreenModal"
+    hidden>
+    Full Screen
+</button>
+
+<div class="modal fade font-poppins" id="fullScreen" tabindex="-1" aria-labelledby="cancelOrderModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen ">
+        <div class="modal-content">
+
+            <div class="modal-body d-flex justify-content-center align-items-center"
+                style="background-color: transparent;">
+                <div class="spinner-grow" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h4 class="ms-2 text-primary">Making Request. . . </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+    const cancelReason = document.getElementById('cancelReason');
+
+    cancelReason.addEventListener('input', () => {
+        //console.log(cancelReason)
+        if (cancelReason.value !== '') {
+            cancelOrderBtn.disabled = false;
+        } else {
+            cancelOrderBtn.disabled = true;
+        }
+    });
+
+    async function cancelOrder(orderDocId) {
+        document.getElementById('fullScreenModal').click()
+        const cancelReasonVal = cancelReason.value;
+        const response = await fetch(`/myorder/cancelorder/${orderDocId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cancelReason: cancelReasonVal
+            })
+        })
+        const data = await response.json()
+        if (data.status === true) {
+            setTimeout(() => {
+                Swal.fire({
+                    title: data.stage,
+                    text: data.message,
+                    icon: "success"
+                }).then(() => {
+                    location.reload()
+                })
+            }, 2000);
+        }else{
+           setTimeout(() => {
+                Swal.fire({
+                    title: data.stage,
+                    text: data.message,
+                    icon: "error"
+                }).then(() => {
+                    location.reload()
+                })
+            }, 2000); 
+        }
+    }
+
+</script>

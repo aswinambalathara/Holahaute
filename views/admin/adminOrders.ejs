@@ -43,9 +43,16 @@
                                             <td>
                                                 <%=order.grandTotal%>
                                             </td>
-                                            <td style="overflow: hidden">
-                                            <%=order.orderStatus%>
-                                            </td>
+                                            
+                                            <%if (order.orderStatus === 'CANCELLATION REQUESTED'){%>
+                                            <td style="overflow: hidden; color: red;">
+                                                <%=order.orderStatus%>
+                                                </td>
+                                                <%} else {%> 
+                                                    <td style="overflow: hidden; color: green;">
+                                                        <%=order.orderStatus%>
+                                                        </td>
+                                                    <%} %>
                                             <td>
                                                 <div class="d-flex justify-content-center">
                                                     <a href="/admin/orders/orderinfo/<%=order._id%>">

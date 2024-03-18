@@ -29,7 +29,7 @@ router.patch('/category/deletecategory/:id',authMiddleware.verifyAdmin,categoryC
 
 router.get('/orders',authMiddleware.verifyAdmin,adminController.getAdminOrders);
 router.get('/orders/orderinfo/:id',authMiddleware.verifyAdmin, adminController.getAdminOrderInfo);
-router.patch('/orders/changestage',authMiddleware.verifyAdmin,adminController.doChangeOrderStage);
+router.patch('/orders/changestage/:id',authMiddleware.verifyAdmin,adminController.doChangeOrderStage);
 router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.doAdminCancelOrder);
 
 

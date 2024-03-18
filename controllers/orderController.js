@@ -98,7 +98,7 @@ module.exports.getMyorders = async (req, res) => {
     const orders = await orderSchema
       .find({ userId: new ObjectId(authUser.userId) })
       .populate("products.productId");
-    console.log(orders);
+    //console.log(orders);
     const arrivals = orders.map((order) => {
       const options = {
         weekday: "long",
@@ -125,14 +125,14 @@ module.exports.getOrderDetail = async (req, res) => {
     const orderId = req.params.id;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const order = await orderHelper.orderStatusHelper(authUser.userId, orderId);
-    console.log(order);
+    //console.log(order);
     res.render("user/orderDetail.ejs", {
       title: "Order",
       user: authUser.userName,
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
     });
-  } catch (error) {
+  } catch (error) { 
     console.log(error);
   }
 };
@@ -155,6 +155,39 @@ module.exports.getOrderTracking = async (req, res) => {
 
 module.exports.doCancelOrder = async (req, res) => {
   try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const id = req.params.id
+    const {cancelReason} = req.body;
+    //console.log(id,"  ",cancelReason);
+    const order = await orderSchema.findOne({_id:id, userId : authUser.userId});
+    if(order.orderStage === 'PREPARING FOR DISPATCH' || order.orderStage === 'SHIPPED'){
+      const updateorder = await orderSchema.updateOne({_id: id, userId : authUser.userId},{$set:{
+        cancelReason : cancelReason,
+        orderStatus : "CANCELLATION REQUESTED",
+        orderStage : "CANCELLATION REQUESTED"
+      }});
+      if(updateorder){
+        res.json({
+          status : true,
+          stage : "Cancellation Requested",
+          message : "Your request is on review"
+        });
+      }else{
+        res.json({
+          status : false,
+          message : "Something went Wrong"
+        })
+      }
+    }else{
+      res.json({
+        status : false,
+        message : "Cannot Cancel at this stage"
+      })
+    }
+    const updateorder = await orderSchema.updateOne({_id: id, userId : authUser.userId},{$set:{
+      cancelReason : cancelReason,
+      orderStatus : "CANCELLATION REQUESTED"
+    }});
   } catch (error) {
     console.log(error);
   }

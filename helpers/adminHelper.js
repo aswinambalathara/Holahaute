@@ -47,11 +47,13 @@ module.exports.orderInfoHelper = async (orderDocId) => {
             $push: {
               orderId: "$orderId",
               orderDate: "$orderedAt",
+              updateDate: "$updatedAt",
               orderTotal: "$grandTotal",
               orderStatus: "$orderStatus",
               orderStage: "$orderStage",
               shippingAddress: "$address",
               paymentMethod: "$paymentMethod",
+              cancelReason : "$cancelReason"
             },
           },
           products: {
