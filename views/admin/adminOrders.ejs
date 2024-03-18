@@ -1,0 +1,84 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- body wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+                    <div class="container-fluid vh-100 bg-light">
+                        <!-- <div class="row mt-5">
+                            <div class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between">
+                                
+                                <a href="/admin/products/addproduct" class=" btn add-product col-12 mt-3 mt-md-0 col-md-2 ">Add Product</a>
+                            </div>
+                            
+                        </div> -->
+
+                        <div class="mt-5">
+                            <table class="table display border border-2 rounded" id="product-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">OrderId</th>
+                                        <th scope="col">User Name</th>
+                                        <th scope="col">OrderDate</th>
+                                        <th scope="col">Order Total</th>
+                                        <th scope="col">Order Status</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   <%if(orders.length > 0) {%>
+                                    <%orders.forEach(function(order){%>
+                                        <tr class="mt-3 border border-rounded">
+                                            <th scope="row">
+                                               <%= order.orderId%>
+                                            </th>
+                                            <td>
+                                               <%=order.user[0].fullName%>
+                                            </td>
+                                            <td>
+                                                <%=order.orderedAt%>
+                                            </td>
+                                            <td>
+                                                <%=order.grandTotal%>
+                                            </td>
+                                            <td style="overflow: hidden">
+                                            <%=order.orderStatus%>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex justify-content-center">
+                                                    <a href="/admin/orders/orderinfo/<%=order._id%>">
+                                                        <i class="fa-solid fa-circle-info"></i>
+                                                    </a>
+                                                </div>
+                                                
+                                            </td>
+                                        </tr>
+                                        <%} )%>
+                                        <%} else {%>
+                                            <tr>
+                                                <td>No orders Found</td>
+                                            </tr>
+                                            <%} %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>
+    </div>
+    <!-- DATA Tables Script -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        new DataTable("#product-table", {
+            responsive: true,
+        });
+
+
+    </script>
+    <%- include('../includes/admin/adminEnd')%>
