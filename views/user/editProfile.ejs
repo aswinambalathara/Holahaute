@@ -9,10 +9,12 @@
                     <div class="card mt-5 shadow-sm">
                         <div class="card-body p-4">
                             <div class="image-div d-flex">
-                                <img src="/images/sampleImages/product-02.jpg" alt="profile-Image"
+                                <img src="/images/sampleImages/product-02.jpg"
+                                    class="border border-2 border-dark rounded" alt="profile-Image"
                                     style="width: 6rem; height: 6rem;" id="image" />
-                                <div class="d-flex flex-column justify-content-center">
-                                    <label for="addPhoto" class=" ms-4 text-primary" style="cursor: pointer;">Add Photo</label>
+                                <div class="d-flex flex-column justify-content-center parent">
+                                    <label for="addPhoto" class=" ms-4 text-primary" style="cursor: pointer;">Add
+                                        Photo</label>
                                     <input type="file" name="image" id="addPhoto" class="form-control" hidden />
                                     <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
                                 </div>
@@ -21,40 +23,45 @@
                             <div class="user-detail-div mt-3 border rounded p-2">
                                 <h6 class="ms-2 mt-2">Edit Details</h6>
                                 <div class="d-flex mt-3 col-12 flex-column flex-md-row p-0">
-                                    <div class="col-12 col-md-6 p-1 p-md-2">
+                                    <div class="col-12 col-md-6 p-1 p-md-2 parent">
                                         <label for="fullName" class="form-label">Full Name</label>
-                                        <input type="text" name="fullName" value="<%=userdetail.fullName%>" id="fullName"
-                                            class="form-control" />
+                                        <input type="text" name="fullName" value="<%=userdetail.fullName%>"
+                                            id="fullName" class="form-control" />
                                         <div class="error mt-1" style="color: red; font-size: small"></div>
                                     </div>
-                                    <div class="col-12 col-md-6 p-1 p-md-2">
+                                    <div class="col-12 col-md-6 p-1 p-md-2 parent">
                                         <label for="email" class="form-label">Email</label>
-                                        <input type="text" name="email" value="<%=userdetail.email%>" id="email" class="form-control" />
+                                        <input type="text" name="email" value="<%=userdetail.email%>" id="email"
+                                            class="form-control" />
                                         <div class="error mt-1" style="color: red; font-size: small"></div>
                                     </div>
                                 </div>
                                 <div class="d-flex mt-2">
 
-                                    <div class="col-12 col-md-6 p-1 p-md-2">
-                                        <label for="email" class="form-label">Mobile</label>
-                                        <div class="input-group mb-3">
+                                    <div class="col-12 col-md-6 p-1 p-md-2 parent">
+                                        <label for="mobile" class="form-label">Mobile</label>
+                                        <div class="input-group mb-1">
                                             <div class="input-group-text">
                                                 <select name="countrycode" class="form-select bg-light border-0" id="">
                                                     <option value="+91" selected>+91</option>
                                                 </select>
                                             </div>
-                                            <input type="text" value="<%=userdetail.phone%>" class="form-control"
-                                                aria-label="Text input with checkbox">
+                                            <input type="text" name="phone" id="mobile" value="<%=userdetail.phone%>"
+                                                class="form-control rounded-end" aria-label="Text input with checkbox">
                                         </div>
+                                        <div class="error ms-2" style="color: red; font-size: small"></div>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-center py-3">
-                                    <button class="btn btn-primary">Update Profile</button>
+                                    <button class="btn btn-primary" id="updateProfileBtn">Update Profile</button>
                                 </div>
+                                <div class="error mt-1 ms-2" style="color: red; font-size: small"></div>
+
                                 <div class="accordion col-12 px-2 align-self-center mt-2 mb-3" id="accordionExample">
                                     <div class="accordion-item">
                                         <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed bg-danger-subtle" type="button"
+                                            <button id="changePasswordTrigger"
+                                                class="accordion-button collapsed bg-danger-subtle" type="button"
                                                 data-bs-toggle="collapse" data-bs-target="#collapseOne"
                                                 aria-expanded="true" aria-controls="collapseOne">
                                                 Change Password
@@ -73,22 +80,24 @@
                                                     </div>
                                                     <div class="col-12 p-0 mb-3">
                                                         <label for="newPassword" class="form-label">New Password</label>
-                                                        <input type="password" name="newPassword" value="" id="newPassword"
-                                                            class="form-control" />
+                                                        <input type="password" name="newPassword" value=""
+                                                            id="newPassword" class="form-control" />
                                                         <div class="error mt-1" style="color: red; font-size: small">
                                                         </div>
                                                     </div>
                                                     <div class="col-12 p-0 mb-3">
-                                                        <label for="newPassword" class="form-label">Confirm Password</label>
-                                                        <input type="password" id="newPassword"
-                                                            class="form-control" />
+                                                        <label for="newPassword" class="form-label">Confirm
+                                                            Password</label>
+                                                        <input type="password" id="newPassword" class="form-control" />
                                                         <div class="error mt-1" style="color: red; font-size: small">
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="d-flex flex-column-reverse flex-md-row justify-content-between mt-4">
+                                                <div
+                                                    class="d-flex flex-column-reverse flex-md-row justify-content-between mt-4">
                                                     <small class="mt-2 mt-md-0">Don't remember old password ? <span
-                                                            class="text-primary " style="cursor: pointer;"><u>Click here</u></span></small>
+                                                            class="text-primary " style="cursor: pointer;"><u>Click
+                                                                here</u></span></small>
                                                     <button class="btn btn-primary btn-sm">Change Password</button>
                                                 </div>
                                             </div>
@@ -100,6 +109,178 @@
                     </div>
                 </div>
             </div>
+            <%- include('../includes/user/otpVerifyModal.ejs') %>
         </div>
         <%- include('../includes/shop/shopFooter.ejs') %>
+
+            <script>
+                const oldEmail = "<%=userdetail.email%>";
+                const userId = "<%= userdetail._id%>";
+                const oldMobile = "<%=userdetail.phone%>";
+                const fullName = document.getElementById("fullName");
+                const email = document.getElementById("email");
+                const mobile = document.getElementById("mobile");
+                const updateBtn = document.getElementById('updateProfileBtn');
+                const verificationModalTrigger = document.getElementById('modalBtn');
+                const verificationModalMessage = document.querySelector('.modalMessage')
+                const otp = document.getElementById('otp');
+                const submitBtn = document.querySelector('.submit-otp-btn');
+
+                fullName.addEventListener("blur", () => {
+                    const fullNameValue = fullName.value.trim();
+                    console.log(fullNameValue);
+                    let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+                    if (!lettersOnlyRegex.test(fullNameValue)) {
+                        setError(fullName, "Only Letters Allowed");
+                    } else {
+                        setError(fullName, "");
+                    }
+                });
+
+                mobile.addEventListener("blur", () => {
+                    const mobileValue = mobile.value.trim();
+                    let mobileRegex = /^\d{10}$/;
+                    if (!mobileRegex.test(mobileValue)) {
+                        setError(mobile, "Invalid Mobile Number");
+                    } else {
+                        setError(mobile, "");
+                    }
+                });
+
+                email.addEventListener("blur", () => {
+                    const emailValue = email.value.trim();
+                    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(emailValue)) {
+                        setError(email, "Invalid Email Address");
+                    } else {
+                        setError(email, "");
+                    }
+                });
+
+                updateBtn.addEventListener('click', async () => {
+                    const fullNameValue = fullName.value.trim();
+                    const mobileValue = mobile.value.trim();
+                    const emailValue = email.value.trim();
+                    let hasError = false;
+
+
+                    let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+                    if (!lettersOnlyRegex.test(fullNameValue)) {
+                        setError(fullName, "Only Letters Allowed");
+                        hasError = true;
+                    } else {
+                        setError(fullName, "");
+                    }
+
+
+
+                    let mobileRegex = /^\d{10}$/;
+                    if (!mobileRegex.test(mobileValue)) {
+                        setError(mobile, "Invalid Mobile Number");
+                        hasError = true;
+                    } else {
+                        setError(mobile, "");
+                    }
+
+
+                    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(emailValue)) {
+                        setError(email, "Invalid Email Address");
+                        hasError = true;
+                    } else {
+                        setError(email, "");
+                    }
+
+                    if (!hasError) {
+                        if (oldEmail !== emailValue || oldMobile !== mobileValue) {
+                            sendOtp(emailValue);
+                        } else {
+                            const url = '/user/editprofile'
+                            const method = "PATCH"
+                            const body = {
+                                fullName: fullNameValue
+                            }
+                            const data = await fetchFunction(url, method, body);
+                            if (data.status === true) {
+                                Swal.fire({
+                                    title: "Update Successfull",
+                                    text: data.message,
+                                    icon: "success"
+                                }).then(() => {
+                                    location.assign('/user/userprofile')
+                                })
+                            }else if(data.status === 'nochange') {
+                                location.assign('/user/userprofile') 
+                            }else{
+                                console.log(data)
+                            }
+                        }
+                    }
+
+                })
+
+                async function sendOtp(email) {
+                    const url = '/user/sendotp';
+                    const method = "POST";
+                    const body = {
+                        email: email
+                    }
+                    const data = await fetchFunction(url, method, body)
+                    if (data.status === true) {
+                        verificationModalTrigger.click()
+                        verificationModalMessage.innerText = data.message;
+                    } else {
+                        console.log(data)
+                    }
+                }
+
+                submitBtn.addEventListener('click', async () => {
+                    const otpValue = otp.value.trim()
+                    if (otpValue !== '' && otpValue.length === 6) {
+                        const url = '/user/editprofile'
+                        const method = "PATCH"
+                        const body = {
+                            otp: otpValue,
+                            email: email.value.trim(),
+                            phone: mobile.value.trim(),
+                            fullName : fullName.value.trim()
+                        }
+                        console.log(body)
+                        const data = await fetchFunction(url, method, body);
+                        if (data.status === true) {
+                            Swal.fire({
+                                title: "Update Successfull",
+                                text: data.message,
+                                icon: "success"
+                            }).then(() => {
+                                location.assign('/user/userprofile')
+                            })
+                        } else {
+                            setError(otp,data.message)
+                        }
+                    }
+                });
+
+                async function fetchFunction(url, method, body) {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(body)
+                    })
+
+                    const data = await response.json()
+
+                    return data;
+                }
+
+                const setError = (element, message) => {
+                    const inputParent = element.closest('.parent');
+                    const errorDisplay = inputParent.querySelector(".error");
+
+                    errorDisplay.innerText = message;
+                };
+
+            </script>
             <%- include('../includes/shop/shopEnd.ejs') %>

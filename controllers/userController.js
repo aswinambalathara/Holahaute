@@ -70,7 +70,7 @@ module.exports.getEditUserProfile = async (req, res) => {
   }
 };
 
-module.exports.getNewEditProfile = async (req,res) => {
+module.exports.getOldEditProfile = async (req,res) => {
   try {
     const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     //const user = await userSchema.findOne({ _id: authUser.userId });
@@ -88,46 +88,50 @@ module.exports.DoEditUserProfile = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     const id = authUser.userId;
     console.log('entered');
-    const { fullNameFt,fullName, password, email, phone, otp } = req.body;
+    const {fullName} = req.body
+    const {email,phone,otp} = req.body
     const user = await userSchema.findOne({ _id: id });
     if(fullName){
       user.fullName = fullName !== ''? fullName : undefined;
-      await user.save()
-      req.flash('success',"Updates Successfull");
-        res.redirect('/user/userprofile')
-    }else if (fullNameFt && email && phone && otp) {
-      if (otp === user.token.otp) {
-        user.fullName = fullNameFt !== " " ? fullNameFt : undefined;
-        user.email = email !== "" ? email : undefined;
-        user.phone = phone !== "" ? phone : undefined;
-        await user.save();
+      const updated = await user.save()
+      if(updated){
         res.json({
-          status: "success",
-          message :"Profile Updated"
-        });
+          status : true,
+          message : "Updates Successfull"
+        })
+       }else{
+        res.json({
+          status : false,
+          message : "Something went wrong"
+        })
+       }
+    }else if (fullName || email || phone && otp) {
+      if (otp === user.token.otp) {
+        user.fullName = fullName !== ''? fullName : undefined;
+        user.email = email !== " "? email : undefined;
+        user.phone = phone !== " "? phone : undefined;
+        const updated = await user.save();
+        if(updated){
+          res.json({
+            status : true,
+            message : "Updates Successfull"
+          })
+         }else{
+          res.json({
+            status : false,
+            message : "Something went wrong"
+          })
+         }
       }else{
         res.json({
-          status : 'error',
+          status : false,
           message : "Incorrect OTP"
         });
       }
-    } else if (password && otp) {
-      if (user.token.otp === otp) {
-        const hashPassword = await bcrypt.hash(password,12)
-        user.password = hashPassword;
-        await user.save();
-        res.json({
-          status: "success",
-          message :"Password Changed Successfully"
-        });
-      }else{
-        res.json({
-          status : 'error',
-          message : 'Incorrect OTP'
-        })
-      }
-    }else{
-      res.redirect('/user/userprofile')
+    } else{
+      res.json({
+        status : "nochange"
+      })
     }
   } catch (error) {
     console.log(error);
@@ -138,54 +142,30 @@ module.exports.DochangeUserPassword =  async (req,res) =>{
 
 };
 
+
 module.exports.sendOtp = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
     const id = authUser.userId;
-    const { newPassword, oldPassword } = req.body;
     const { email } = req.body;
     const user = await userSchema.findOne({ _id: id });
-    if (newPassword && oldPassword) {
-      const oldPasswordCheck = await bcrypt.compare(oldPassword, user.password);
-      const newPasswordCheck = await bcrypt.compare(newPassword, user.password);
-
-      if (!oldPasswordCheck) {
-        //console.log(oldPassword)
-        res.json({
-          status: "error",
-          message: "Incorrect Old Password",
-        });
-      } else if (newPasswordCheck) {
-        res.json({
-          status: "error",
-          message: "Cannot set old password as new password",
-        });
-      } else {
-        const otp = verficationController.sendEmail(user.email);
+    if(email){
+      const otp = verficationController.sendEmail(email);
+      if(otp){
         user.token.otp = otp;
-        user.token.generatedTime = Date.now();
-        await user.save();
+        user.token.generatedTime = Date.now()
+       const updated = await user.save()
+       if(updated){
         res.json({
-          status: "success",
-        });
-      }
-    } else {
-      if (email) {
-        const emailCheck = await userSchema.findOne({email:email,_id:{$ne:id}})
-        if(emailCheck){
-          res.json({
-            status : 'error',
-            message : "Email exist with another account"
-          })
-        }else{
-          const otp = verficationController.sendEmail(email);
-          user.token.otp = otp;
-          user.token.generatedTime = Date.now();
-          await user.save();
-          res.json({
-            status: "success",
-          });
-        }
+          status : true,
+          message : `OTP send to ${email}`
+        })
+       }else{
+        res.json({
+          status : false,
+          message : "Something went wrong"
+        })
+       }
       }
     }
   } catch (error) {
