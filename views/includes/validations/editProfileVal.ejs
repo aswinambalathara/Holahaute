@@ -1,124 +1,408 @@
 <script>
-    //console.log(password.value)
+  const oldEmail = "<%=userdetail.email%>";
+  const userId = "<%= userdetail._id%>";
+  const oldMobile = "<%=userdetail.phone%>";
+  const fullName = document.getElementById("fullName");
+  const email = document.getElementById("email");
+  const mobile = document.getElementById("mobile");
+  const updateBtn = document.getElementById('updateProfileBtn');
+  const verificationModalTrigger = document.getElementById('modalBtn');
+  const verificationModalMessage = document.querySelector('.modalMessage')
+  const otp = document.getElementById('otp');
 
-    icons.forEach((icon) => {
-      icon.addEventListener("click", () => {
-        const parent = icon.parentElement;
-        const input = parent.querySelector('input');
-        input.disabled =
-          !input.disabled;
-          if(input.id === 'password'){
-            input.disabled = true;
-            passwordModal.click()
-            validatePasswordForm()
-          }
-      });
-    });
+  const submitBtn = document.querySelector('.submit-otp-btn');
 
-    fullName.addEventListener("blur", () => {
+  const oldPassword = document.getElementById('oldPassword');
+  const newPassword = document.getElementById('newPassword');
+  const confirmPassword = document.getElementById('confirmPassword')
+
+  //change password with otp variables
+  const passwordmodalTrigger = document.getElementById('passwordmodalBtn');
+  const otpNewPassword = document.getElementById('otpNewPassword');
+  const otpConfirmPassword = document.getElementById('otpConfirmPassword');
+  const passwordOtp = document.getElementById('passwordOtp');
+
+
+
+  fullName.addEventListener("blur", () => {
       const fullNameValue = fullName.value.trim();
       console.log(fullNameValue);
       let lettersOnlyRegex = /^[A-Za-z\s]*$/;
       if (!lettersOnlyRegex.test(fullNameValue)) {
-        setError(fullName, "Only Letters Allowed");
+          setError(fullName, "Only Letters Allowed");
       } else {
-        setError(fullName, "");
+          setError(fullName, "");
       }
-    });
+  });
 
-    mobile.addEventListener("blur", () => {
+  mobile.addEventListener("blur", () => {
       const mobileValue = mobile.value.trim();
       let mobileRegex = /^\d{10}$/;
       if (!mobileRegex.test(mobileValue)) {
-        setError(mobile, "Invalid Mobile Number");
+          setError(mobile, "Invalid Mobile Number");
       } else {
-        setError(mobile, "");
+          setError(mobile, "");
       }
-    });
+  });
 
-    email.addEventListener("blur", () => {
+  email.addEventListener("blur", () => {
       const emailValue = email.value.trim();
       let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(emailValue)) {
-        setError(email, "Invalid Email Address");
+          setError(email, "Invalid Email Address");
       } else {
-        setError(email, "");
+          setError(email, "");
       }
-    });
+  });
 
-    const setError = (element, message) => {
-      const inputParent = element.parentElement;
+  updateBtn.addEventListener('click', async () => {
+      const fullNameValue = fullName.value.trim();
+      const mobileValue = mobile.value.trim();
+      const emailValue = email.value.trim();
+      let hasError = false;
+
+
+      let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+      if (!lettersOnlyRegex.test(fullNameValue)) {
+          setError(fullName, "Only Letters Allowed");
+          hasError = true;
+      } else {
+          setError(fullName, "");
+      }
+
+
+
+      let mobileRegex = /^\d{10}$/;
+      if (!mobileRegex.test(mobileValue)) {
+          setError(mobile, "Invalid Mobile Number");
+          hasError = true;
+      } else {
+          setError(mobile, "");
+      }
+
+
+      let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailValue)) {
+          setError(email, "Invalid Email Address");
+          hasError = true;
+      } else {
+          setError(email, "");
+      }
+      if (!hasError) {
+          const url = '/user/editprofile'
+          const method = "PATCH"
+          const body = {
+              email: emailValue,
+              phone: mobileValue,
+              fullName: fullNameValue,
+              otp: ''
+          }
+          const data = await fetchFunction(url, method, body);
+          if (data.status === 'OTP send') {
+              verificationModalTrigger.click()
+              verificationModalMessage.innerText = data.message;
+          } else if (data.status === true) {
+              Swal.fire({
+                  title: "Update Successfull",
+                  text: data.message,
+                  icon: "success"
+              }).then(() => {
+                  location.assign('/user/userprofile')
+              })
+          } else {
+              Swal.fire({
+                  title: "Update Error",
+                  text: data.message,
+                  icon: "error"
+              }).then(() => {
+                  location.assign('/user/editprofile')
+              })
+          }
+
+      }
+
+  })
+
+  submitBtn.addEventListener('click', async () => {
+      const otpValue = otp.value.trim()
+      if (otpValue !== '' && otpValue.length === 6) {
+          const url = '/user/editprofile'
+          const method = "PATCH"
+          const body = {
+              otp: otpValue,
+              email: email.value.trim(),
+              phone: mobile.value.trim(),
+              fullName: fullName.value.trim()
+          }
+          //console.log(body)
+          const data = await fetchFunction(url, method, body);
+          if (data.status === true) {
+              Swal.fire({
+                  title: "Update Successfull",
+                  text: data.message,
+                  icon: "success"
+              }).then(() => {
+                  location.assign('/user/userprofile')
+              })
+          } else {
+              setError(otp, data.message)
+          }
+      }
+  });
+
+  oldPassword.addEventListener('blur', () => {
+      if (oldPassword.value.trim() === '') {
+          setError(oldPassword, "This field is required");
+      } else {
+          setError(oldPassword, '')
+      }
+  });
+
+  newPassword.addEventListener('blur', () => {
+      if (newPassword.value.trim() === '') {
+          setError(newPassword, "This field is required");
+      } else if (newPassword.value.trim() === oldPassword.value.trim()) {
+          setError(newPassword, "Cannot set old password as new password")
+      } else {
+          let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordRegex.test(newPassword.value.trim())) {
+              setError(newPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+          } else {
+              setError(newPassword, '');
+          }
+      }
+  });
+
+  confirmPassword.addEventListener('blur', () => {
+      if (confirmPassword.value.trim() === '') {
+          setError(confirmPassword, "This field is required")
+      } else if (confirmPassword.value.trim() !== newPassword.value.trim()) {
+          setError(confirmPassword, "Password doesn't match")
+      } else {
+          setError(confirmPassword, '');
+      }
+  })
+
+  otpNewPassword.addEventListener('blur', () => {
+      const newPasswordValue = otpNewPassword.value.trim()
+      if (newPasswordValue === '') {
+          setError(otpNewPassword, "This field is required");
+      } else {
+          let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordRegex.test(newPasswordValue)) {
+              setError(otpNewPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+          } else {
+              setError(otpNewPassword, '');
+          }
+      }
+  })
+
+  otpConfirmPassword.addEventListener('blur', () => {
+      const newPasswordValue = otpNewPassword.value.trim()
+      const confirmPasswordValue = otpConfirmPassword.value.trim()
+
+      if (confirmPasswordValue === '') {
+          setError(otpConfirmPassword, "This field is required")
+      } else if (confirmPasswordValue !== newPasswordValue) {
+          setError(otpConfirmPassword, "Password doesn't match")
+      } else {
+          setError(otpConfirmPassword, '');
+      }
+  })
+
+  async function changePassword() {
+
+      const oldPasswordValue = oldPassword.value.trim()
+      const newPasswordValue = newPassword.value.trim()
+      const confirmPasswordValue = confirmPassword.value.trim()
+      let hasError = false;
+
+      if (oldPasswordValue === '') {
+          setError(oldPassword, "This field is required");
+          hasError = true;
+      } else {
+          setError(oldPassword, '')
+      }
+
+      if (newPasswordValue === '') {
+          setError(newPassword, "This field is required");
+          hasError = true;
+      } else if (newPasswordValue === oldPasswordValue) {
+          setError(newPassword, "Cannot set old password as new password");
+          hasError = true;
+      } else {
+          let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordRegex.test(newPasswordValue)) {
+              setError(newPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+              hasError = true;
+          } else {
+              setError(newPassword, '');
+          }
+      }
+
+      if (confirmPasswordValue === '') {
+          setError(confirmPassword, "This field is required")
+          hasError = true;
+      } else if (confirmPasswordValue !== newPasswordValue) {
+          setError(confirmPassword, "Password doesn't match")
+          hasError = true;
+      } else {
+          setError(confirmPassword, '');
+      }
+
+      if (!hasError) {
+          Swal.fire({
+              title: "Are you sure?",
+              text: "You wish to continue change password",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, i wish to continue",
+              cancelButtonText: "No, Go Back"
+          }).then(async (result) => {
+              if (result.isConfirmed) {
+                  document.querySelector('.loaderText').innerText = "Please Wait. . ."
+                  document.getElementById('fullScreenModal').click()
+                  const url = '/user/changepassword'
+                  const method = "PATCH"
+                  const body = {
+                      oldPassword: oldPasswordValue,
+                      newPassword: newPasswordValue
+                  }
+                  const data = await fetchFunction(url, method, body);
+                  if (data.status === true) {
+                      document.querySelector('#close-modal').click()
+                      Swal.fire({
+                          title: "Update Successfull",
+                          text: data.message,
+                          icon: "success"
+                      }).then(() => {
+                          location.assign('/user/userprofile')
+                      })
+                  } else {
+                      document.querySelector('#close-modal').click()
+                      Swal.fire({
+                          title: "Update Error",
+                          text: data.message,
+                          icon: "error"
+                      })
+                  }
+              }
+          });
+
+      }
+
+  }
+
+  async function requestPasswordOtp(email) {
+
+      Swal.fire({
+          title: "Are you sure?",
+          text: "You wish to continue change password",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, i wish to continue",
+          cancelButtonText: "No, Go Back"
+      }).then(async (result) => {
+          if (result.isConfirmed) {
+              const url = '/user/otp_changepassword'
+              const method = 'PATCH'
+              const body = {
+                  email: email
+              }
+              const data = await fetchFunction(url, method, body);
+              if (data.status === true) {
+                  passwordmodalTrigger.click()
+                  document.querySelector('.modalMessage').innerText = data.message
+              }
+          }
+      })
+
+
+  }
+
+  async function changePasswordwithOtp() {
+      const newPasswordValue = otpNewPassword.value.trim()
+      const confirmPasswordValue = otpConfirmPassword.value.trim()
+      const otpValue = passwordOtp.value.trim()
+      let hasError = false;
+
+      if (newPasswordValue === '') {
+          setError(otpNewPassword, "This field is required");
+          hasError = true
+      } else {
+          let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!passwordRegex.test(newPasswordValue)) {
+              setError(otpNewPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+              hasError = true
+          } else {
+              setError(otpNewPassword, '');
+          }
+      }
+
+      if (confirmPasswordValue === '') {
+          setError(otpConfirmPassword, "This field is required")
+          hasError = true
+      } else if (confirmPasswordValue !== newPasswordValue) {
+          setError(otpConfirmPassword, "Password doesn't match")
+          hasError = true
+      } else {
+          setError(otpConfirmPassword, '');
+      }
+
+      if (!hasError) {
+          document.querySelector('.loaderText').innerText = "Please Wait. . ."
+          document.getElementById('fullScreenModal').click()
+          const url = '/user/otp_changepassword'
+          const method = 'PATCH'
+          const body = {
+              newPassword: newPasswordValue,
+              otp: otpValue
+          }
+          const data = await fetchFunction(url, method, body);
+          if (data.status === true) {
+              document.querySelector('#close-modal').click()
+              Swal.fire({
+                  title: "Update Successfull",
+                  text: data.message,
+                  icon: "success"
+              }).then(() => {
+                  location.assign('/user/userprofile')
+              })
+          } else {
+              document.querySelector('#close-modal').click()
+              Swal.fire({
+                  title: "Update Error",
+                  text: data.message,
+                  icon: "error"
+              })
+          }
+      }
+
+  }
+
+  async function fetchFunction(url, method, body) {
+      const response = await fetch(url, {
+          method: method,
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+      })
+
+      const data = await response.json()
+
+      return data;
+  }
+
+  const setError = (element, message) => {
+      const inputParent = element.closest('.parent');
       const errorDisplay = inputParent.querySelector(".error");
 
       errorDisplay.innerText = message;
-    };
+  };
 
-
-    const validateAll = () => {
-      let hasError = false;
-
-      if (fullName.disabled === false) {
-        const fullNameValue = fullName.value.trim();
-        // console.log(fullNameValue);
-        let lettersOnlyRegex = /^[A-Za-z\s]*$/;
-        if (!lettersOnlyRegex.test(fullNameValue)) {
-          setError(fullName, "Only Letters Allowed");
-          hasError = true;
-        } else {
-          setError(fullName, "");
-        }
-      }
-
-      if (mobile.disabled === false) {
-        const mobileValue = mobile.value.trim();
-        let mobileRegex = /^\d{10}$/;
-        if (!mobileRegex.test(mobileValue)) {
-          setError(mobile, "Invalid Mobile Number");
-          hasError = true;
-        } else {
-          setError(mobile, "");
-        }
-      }
-      if (email.disabled === false) {
-        const emailValue = email.value.trim();
-        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailValue)) {
-          setError(email, "Invalid Email Address");
-          hasError = true;
-        } else {
-          setError(email, "");
-        }
-      }
-      return hasError;
-    }
-    
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!validateAll()) {
-        if (
-          oldEmail !== email.value.trim() ||
-          oldMobile !== mobile.value.trim()
-        ) { 
-            fetch('/user/sendotp',{
-              method : "POST",
-              headers :{
-                "Content-Type":"application/json"
-              },
-              body : JSON.stringify({
-                email : email.value.trim()
-              })
-            }).then((res)=>res.json())
-            .then((data)=>{
-              if(data.status === 'success'){
-                modalBtn.click();
-                document.querySelector('.email-not').innerText = `An otp has send to ${email.value.trim()}`
-              }else{
-                document.getElementById('server-error').innerText = data.message
-              }
-            })
-        } else {
-          form.submit();
-        }
-      }
-    });
-  </script>
+</script>

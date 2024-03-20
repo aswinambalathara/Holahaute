@@ -172,36 +172,79 @@ module.exports.DoEditUserProfile = async (req, res) => {
 };
 
 module.exports.DochangeUserPassword = async (req, res) => {
-try {
-  const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-const user = await userSchema.findOne({_id : authUser.userId});
-const {password} = user
-let {oldPassword,newPassword} = req.body;
-const oldPasswordCheck = await bcrypt.compare(oldPassword,password);
-if(oldPasswordCheck !== true){
-  res.json({
-    status : false,
-    message : "Incorrect Current Password"
-  })
-}else{
- newPassword = await bcrypt.hash(newPassword,12);
- user.password = newPassword;
- const updated = await user.save()
- if(updated){
-  res.json({
-    status : true,
-    message : "Password Updated Successfully"
-  })
- }
-}
-} catch (error) {
-  console.log(error)
-}
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const user = await userSchema.findOne({ _id: authUser.userId });
+    const { password } = user;
+    let { oldPassword, newPassword } = req.body;
+    const oldPasswordCheck = await bcrypt.compare(oldPassword, password);
+    if (oldPasswordCheck !== true) {
+      res.json({
+        status: false,
+        message: "Incorrect Current Password",
+      });
+    } else {
+      newPassword = await bcrypt.hash(newPassword, 12);
+      user.password = newPassword;
+      const updated = await user.save();
+      if (updated) {
+        res.json({
+          status: true,
+          message: "Password Updated Successfully",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-module.exports.DochangePasswordWithOtp = async (req,res) =>{
+module.exports.DochangePasswordWithOtp = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    let { email, newPassword, otp } = req.body;
+    console.log(req.body);
+    const user = await userSchema.findOne({ _id: authUser.userId });
+    const { password } = user;
+    if (email !== undefined) {
+      const updated = await userHelper.sendOtp(authUser.userId, email);
+      if (updated) {
+        res.json({
+          status: true,
+          message: `An otp send to ${email}`,
+        });
+      }
+    } else if (otp && newPassword) {
+      if (user.token?.otp !== otp) {
+        res.json({
+          status: false,
+          message: "Incorrect OTP",
+        });
+      } else {
+        const passwordCheck = await bcrypt.compare(newPassword, password);
+        if (passwordCheck === true) {
+          res.json({
+            status : false,
+            message : "Cannot set current password as new password"
+          })
+        }else{
+          newPassword = await bcrypt.hash(newPassword,12);
+          user.password = newPassword;
+          const updated = await user.save()
+          if(updated){
+            res.json({
+              status : true,
+              message : "Password updated succefully"
+            })
+          }
+        }
+      }
+    }
 
-}
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports.getAddAddress = (req, res) => {
   try {
