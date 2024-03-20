@@ -17,8 +17,8 @@ router.get('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUs
 router.get('/user/editprofileold',userController.getOldEditProfile);
 router.patch('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.DoEditUserProfile);
 router.patch('/user/userprofile/setprimary/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doSetPrimaryAddress);
-router.post('/user/sendotp',authMiddleware.userStatus,authMiddleware.verifyUser,userController.sendOtp);
-router.post('/user/changepassword',authMiddleware.verifyUser,authMiddleware.userStatus,userController.DochangeUserPassword);
+router.patch('/user/changepassword',authMiddleware.verifyUser,authMiddleware.userStatus,userController.DochangeUserPassword);
+router.patch('/user/otp_changepassword',authMiddleware.verifyUser,authMiddleware.userStatus,userController.DochangePasswordWithOtp);
 
 router.get('/user/addaddress',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getAddAddress);
 router.post('/user/addaddress',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doAddAddress);

@@ -71,24 +71,25 @@
                                             data-bs-parent="#accordionExample">
                                             <div class="accordion-body">
                                                 <div class="change-password-container">
-                                                    <div class="col-12 p-0 mb-3">
+                                                    <div class="col-12 p-0 mb-3 parent">
                                                         <label for="oldPassword" class="form-label">Old Password</label>
                                                         <input type="text" name="oldPassword" value="" id="oldPassword"
                                                             class="form-control" />
                                                         <div class="error mt-1" style="color: red; font-size: small">
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 p-0 mb-3">
+                                                    <div class="col-12 p-0 mb-3 parent">
                                                         <label for="newPassword" class="form-label">New Password</label>
                                                         <input type="password" name="newPassword" value=""
                                                             id="newPassword" class="form-control" />
                                                         <div class="error mt-1" style="color: red; font-size: small">
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 p-0 mb-3">
-                                                        <label for="newPassword" class="form-label">Confirm
+                                                    <div class="col-12 p-0 mb-3 parent">
+                                                        <label for="confirmPassword" class="form-label">Confirm
                                                             Password</label>
-                                                        <input type="password" id="newPassword" class="form-control" />
+                                                        <input type="password" id="confirmPassword"
+                                                            class="form-control" />
                                                         <div class="error mt-1" style="color: red; font-size: small">
                                                         </div>
                                                     </div>
@@ -96,9 +97,11 @@
                                                 <div
                                                     class="d-flex flex-column-reverse flex-md-row justify-content-between mt-4">
                                                     <small class="mt-2 mt-md-0">Don't remember old password ? <span
-                                                            class="text-primary " style="cursor: pointer;"><u>Click
+                                                            class="text-primary " style="cursor: pointer;"
+                                                            onclick="requestPasswordOtp('<%=userdetail.email%>')"><u>Click
                                                                 here</u></span></small>
-                                                    <button class="btn btn-primary btn-sm">Change Password</button>
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="changePassword()">Change Password</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -110,6 +113,8 @@
                 </div>
             </div>
             <%- include('../includes/user/otpVerifyModal.ejs') %>
+                <%- include('../includes/user/changePasswordModel.ejs') %>
+                <%- include('../includes/user/loaderModel.ejs') %> 
         </div>
         <%- include('../includes/shop/shopFooter.ejs') %>
 
@@ -124,7 +129,13 @@
                 const verificationModalTrigger = document.getElementById('modalBtn');
                 const verificationModalMessage = document.querySelector('.modalMessage')
                 const otp = document.getElementById('otp');
+                const passwordOtp = document.getElementById('passwordOtp');
                 const submitBtn = document.querySelector('.submit-otp-btn');
+                const oldPassword = document.getElementById('oldPassword');
+                const newPassword = document.getElementById('newPassword');
+                const confirmPassword = document.getElementById('confirmPassword')
+                const otpNewPassword = document.getElementById('oldPassword');
+                const otpConfirmPassword = document.getElementById('oldPassword');
 
                 fullName.addEventListener("blur", () => {
                     const fullNameValue = fullName.value.trim();
@@ -190,49 +201,40 @@
                     } else {
                         setError(email, "");
                     }
-
                     if (!hasError) {
-                        if (oldEmail !== emailValue || oldMobile !== mobileValue) {
-                            sendOtp(emailValue);
-                        } else {
-                            const url = '/user/editprofile'
-                            const method = "PATCH"
-                            const body = {
-                                fullName: fullNameValue
-                            }
-                            const data = await fetchFunction(url, method, body);
-                            if (data.status === true) {
-                                Swal.fire({
-                                    title: "Update Successfull",
-                                    text: data.message,
-                                    icon: "success"
-                                }).then(() => {
-                                    location.assign('/user/userprofile')
-                                })
-                            }else if(data.status === 'nochange') {
-                                location.assign('/user/userprofile') 
-                            }else{
-                                console.log(data)
-                            }
+                        const url = '/user/editprofile'
+                        const method = "PATCH"
+                        const body = {
+                            email: emailValue,
+                            phone: mobileValue,
+                            fullName: fullNameValue,
+                            otp: ''
                         }
+                        const data = await fetchFunction(url, method, body);
+                        if (data.status === 'OTP send') {
+                            verificationModalTrigger.click()
+                            verificationModalMessage.innerText = data.message;
+                        } else if (data.status === true) {
+                            Swal.fire({
+                                title: "Update Successfull",
+                                text: data.message,
+                                icon: "success"
+                            }).then(() => {
+                                location.assign('/user/userprofile')
+                            })
+                        } else {
+                            Swal.fire({
+                                title: "Update Error",
+                                text: data.message,
+                                icon: "error"
+                            }).then(() => {
+                                location.assign('/user/editprofile')
+                            })
+                        }
+
                     }
 
                 })
-
-                async function sendOtp(email) {
-                    const url = '/user/sendotp';
-                    const method = "POST";
-                    const body = {
-                        email: email
-                    }
-                    const data = await fetchFunction(url, method, body)
-                    if (data.status === true) {
-                        verificationModalTrigger.click()
-                        verificationModalMessage.innerText = data.message;
-                    } else {
-                        console.log(data)
-                    }
-                }
 
                 submitBtn.addEventListener('click', async () => {
                     const otpValue = otp.value.trim()
@@ -243,9 +245,9 @@
                             otp: otpValue,
                             email: email.value.trim(),
                             phone: mobile.value.trim(),
-                            fullName : fullName.value.trim()
+                            fullName: fullName.value.trim()
                         }
-                        console.log(body)
+                        //console.log(body)
                         const data = await fetchFunction(url, method, body);
                         if (data.status === true) {
                             Swal.fire({
@@ -256,10 +258,114 @@
                                 location.assign('/user/userprofile')
                             })
                         } else {
-                            setError(otp,data.message)
+                            setError(otp, data.message)
                         }
                     }
                 });
+
+                oldPassword.addEventListener('blur', () => {
+                    if (oldPassword.value.trim() === '') {
+                        setError(oldPassword, "This field is required");
+                    } else {
+                        setError(oldPassword, '')
+                    }
+                });
+
+                newPassword.addEventListener('blur', () => {
+                    if (newPassword.value.trim() === '') {
+                        setError(newPassword, "This field is required");
+                    } else if (newPassword.value.trim() === oldPassword.value.trim()) {
+                        setError(newPassword, "Cannot set old password as new password")
+                    } else {
+                        let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                        if (!passwordRegex.test(newPassword.value.trim())) {
+                            setError(newPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+                        } else {
+                            setError(newPassword, '');
+                        }
+                    }
+                });
+
+                confirmPassword.addEventListener('blur', () => {
+                    if (confirmPassword.value.trim() === '') {
+                        setError(confirmPassword, "This field is required")
+                    } else if (confirmPassword.value.trim() !== newPassword.value.trim()) {
+                        setError(confirmPassword, "Password doesn't match")
+                    } else {
+                        setError(confirmPassword, '');
+                    }
+                })
+
+                async function changePassword() {
+
+                    const oldPasswordValue = oldPassword.value.trim()
+                    const newPasswordValue = newPassword.value.trim()
+                    const confirmPasswordValue = confirmPassword.value.trim()
+                    let hasError = false;
+
+                    if (oldPasswordValue === '') {
+                        setError(oldPassword, "This field is required");
+                        hasError = true;
+                    } else {
+                        setError(oldPassword, '')
+                    }
+
+                    if (newPasswordValue === '') {
+                        setError(newPassword, "This field is required");
+                        hasError = true;
+                    } else if (newPasswordValue === oldPasswordValue) {
+                        setError(newPassword, "Cannot set old password as new password");
+                        hasError = true;
+                    } else {
+                        let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                        if (!passwordRegex.test(newPasswordValue)) {
+                            setError(newPassword, "Make strong password, Min. 8 chars, 1 upper, 1 lower, 1 special");
+                            hasError = true;
+                        } else {
+                            setError(newPassword, '');
+                        }
+                    }
+
+                    if (confirmPasswordValue === '') {
+                        setError(confirmPassword, "This field is required")
+                        hasError = true;
+                    } else if (confirmPasswordValue !== newPasswordValue) {
+                        setError(confirmPassword, "Password doesn't match")
+                        hasError = true;
+                    } else {
+                        setError(confirmPassword, '');
+                    }
+
+                    if(!hasError){
+                        document.querySelector('.loaderText').innerText = "Please Wait. . ."
+                        document.getElementById('fullScreenModal').click()
+                        const url = '/user/changepassword'
+                        const method = "PATCH"
+                        const body = {
+                            oldPassword : oldPasswordValue,
+                            newPassword : newPasswordValue
+                        }
+                        const data = await fetchFunction(url,method,body);
+                        if(data.status=== true){
+                            document.querySelector('#close-modal').click()
+                            Swal.fire({
+                                title: "Update Successfull",
+                                text: data.message,
+                                icon: "success"
+                            }).then(() => {
+                                location.assign('/user/userprofile')
+                            })
+                        }else{
+                            document.querySelector('#close-modal').click()
+                            Swal.fire({
+                                title: "Update Error",
+                                text: data.message,
+                                icon: "error"
+                            }) 
+                        }
+                    }
+
+                }
 
                 async function fetchFunction(url, method, body) {
                     const response = await fetch(url, {

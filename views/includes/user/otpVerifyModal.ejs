@@ -1,4 +1,4 @@
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verificationModal" id="modalBtn">
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verificationModal" id="modalBtn" hidden>
     verification Modal Trigger
 </button>
 
@@ -10,7 +10,7 @@
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Verification</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body parent">
                 <label for="otpverification" class="form-label mb-0">Enter OTP</label>
                 <small class="text-success modalMessage">An otp has send to <%=userdetail.email%></small>
                 <input type="text" class="form-control mt-2" id="otp" minlength="6" />
@@ -25,56 +25,3 @@
         </div>
     </div>
 </div>
-
-<!-- <script>
-    const oldEmail = "<%=userdetail.email%>";
-    const userId = "<%= userdetail._id%>";
-    const oldMobile = "<%=userdetail.phone%>";
-    const fullName = document.getElementById("fullName");
-    const email = document.getElementById("email");
-    const mobile = document.getElementById("mobile");
-    const updateBtn = document.getElementById('updateProfileBtn');
-    const verificationModalTrigger = document.getElementById('modalBtn');
-    const verificationModalMessage = document.querySelector('.modalMessage')
-    const otp = document.getElementById('otp').value.trim();
-    const submitBtn = document.querySelector('.submit-otp-btn');
-
-   submitBtn.addEventListener('click', async () => {
-        if (otp !== '' && otp.length === 6) {
-            const url = '/user/editprofile'
-            const method = "PATCH"
-            const body = {
-                otp: otp,
-                email: email.vaue.trim(),
-                phone: mobile.value.trim()
-            }
-            const data = await fetchFunction(url, method, body);
-            if (data.status === true) {
-                Swal.fire({
-                    title: "Update Successfull",
-                    text: data.message,
-                    icon: "success"
-                }).then(()=>{
-                    location.assign('/user/userprofile')
-                })
-            }else{
-                console.log(data)
-            }
-        }
-    });
-
-    async function fetchFunction(url, method, body) {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-        })
-
-        const data = await response.json()
-
-        return data;
-    }
-
-</script> -->
