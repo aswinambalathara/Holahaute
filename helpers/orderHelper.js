@@ -112,7 +112,7 @@ module.exports.orderStatusHelper = async (userId, orderDocId) => {
       {
         $lookup: {
           from: "addresses",
-          localField: "address",
+          localField: "addressId",
           foreignField: "_id",
           as: "address",
         },

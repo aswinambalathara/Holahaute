@@ -33,7 +33,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
       if (decreaseQuantity) {
         const newOrder = new orderSchema({
           userId: userId,
-          address: addressId,
+          addressId: addressId,
           orderId: orderId,
           orderStatus: "CONFIRMED",
           products: product,
@@ -125,7 +125,7 @@ module.exports.getOrderDetail = async (req, res) => {
     const orderId = req.params.id;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const order = await orderHelper.orderStatusHelper(authUser.userId, orderId);
-    //console.log(order);
+    console.log(order);
     res.render("user/orderDetail.ejs", {
       title: "Order",
       user: authUser.userName,

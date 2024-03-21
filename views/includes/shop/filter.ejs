@@ -29,7 +29,7 @@
         <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
             <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
             <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-             Filter
+            Filter
         </div>
 
         <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
@@ -38,20 +38,21 @@
             Search
         </div>
     </div>
-    
+
     <!-- Search product -->
     <div class="dis-none panel-search w-full p-t-10 p-b-15">
         <div class="bor8 dis-flex p-l-15">
             <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
                 <i class="zmdi zmdi-search"></i>
             </button>
-            <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search" id="search-bar">
-        </div>	
-       
+            <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search"
+                id="search-bar">
+        </div>
+
     </div>
 
     <!-- Filter -->
-    <div class="dis-none panel-filter w-full p-t-10">
+    <div class="dis-none panel-filter w-full p-t-10 font-poppins">
         <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
             <div class="filter-col1 p-r-15 p-b-27">
                 <div class="mtext-102 cl2 p-b-15">
@@ -59,39 +60,71 @@
                 </div>
                 <ul>
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Default
-                        </a>
+                        <label for="ascendingOrder" style="cursor: pointer;">
+                            <input type="radio" value="ascendingOrder" name="sortFilter"
+                                class="form-check-input default sortFilter" id="ascendingOrder" checked>
+                            <span class="filter-link stext-106 trans-04 filter-link-active">aA - zZ</span>
+                        </label>
+
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Popularity
-                        </a>
+                        <label for="descendingOrder" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input sortFilter" id="descendingOrder"
+                                value="descendingOrder">
+                            <span class="filter-link stext-106 trans-04 ">zZ - aA</span>
+                        </label>
+
+                    </li>
+
+                    <!-- <li class="p-b-6">
+                        <label for="popularity" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input" id="popularity">
+                            <span class="filter-link stext-106 trans-04">Popularity</span>
+                        </label>
+                    </li> -->
+
+                    <!-- <li class="p-b-6">
+                        <label for="averageRating" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input" id="averageRating">
+                            <span class="filter-link stext-106 trans-04">Average rating</span>
+                        </label>
+                    </li> -->
+
+                    <li class="p-b-6">
+                        <label for="newArrivals" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input sortFilter" id="newArrivals"
+                                value="newArrivals">
+                            <span class="filter-link stext-106 trans-04">New Arrivals</span>
+                        </label>
+
+                        <!-- <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
+                            New Arrivals
+                        </a> -->
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Average rating
-                        </a>
-                    </li>
+                        <label for="lowToHigh" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input sortFilter" id="lowToHigh"
+                                value="lowToHigh">
+                            <span class="filter-link stext-106 trans-04">Price: Low to High</span>
+                        </label>
 
-                    <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                            Newness
-                        </a>
-                    </li>
-
-                    <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
+                        <!-- <a href="#" class="filter-link stext-106 trans-04">
                             Price: Low to High
-                        </a>
+                        </a> -->
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
+                        <label for="highToLow" style="cursor: pointer;">
+                            <input type="radio" name="sortFilter" class="form-check-input sortFilter" id="highToLow"
+                                value="highToLow">
+                            <span class="filter-link stext-106 trans-04">Price: High to Low</span>
+                        </label>
+
+                        <!-- <a href="#" class="filter-link stext-106 trans-04">
                             Price: High to Low
-                        </a>
+                        </a> -->
                     </li>
                 </ul>
             </div>
@@ -103,39 +136,55 @@
 
                 <ul>
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                            All
-                        </a>
+                        <label for="allPrices">
+                            <input type="radio" value="allPrices" name="priceFilter" class="form-check-input default priceFilter"
+                                id="allPrices" checked>
+                            <span class="filter-link stext-106 trans-04 filter-link-active">All</span>
+                        </label>
+
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            $0.00 - $50.00
-                        </a>
+                        <label for="priceBelow500">
+                            <input type="radio" value="priceBelow500" name="priceFilter" class="priceFilter form-check-input"
+                                id="priceBelow500">
+                            <span class="filter-link stext-106 trans-04">₹0 - ₹500</span>
+                        </label>
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            $50.00 - $100.00
-                        </a>
+                        <label for="priceRange500_2000">
+                            <input type="radio" value="priceRange500_2000" name="priceFilter" class="priceFilter form-check-input"
+                                id="priceRange500_2000">
+                            <span class="filter-link stext-106 trans-04">₹500 - ₹2000</span>
+                        </label>
+                        <!-- <a href="#" class="filter-link stext-106 trans-04">
+                            ₹500 - ₹2000
+                        </a> -->
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            $100.00 - $150.00
-                        </a>
+                        <label for="priceRange2000_5000">
+                            <input type="radio" name="priceFilter" value="priceRange2000_5000" class="priceFilter form-check-input"
+                                id="priceRange2000_5000">
+                            <span class="filter-link stext-106 trans-04">₹2000 - ₹5000</span>
+                        </label>
+
+                        <!-- <a href="#" class="filter-link stext-106 trans-04">
+                            ₹2000 - ₹5000
+                        </a> -->
                     </li>
 
                     <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            $150.00 - $200.00
-                        </a>
-                    </li>
+                        <label for="priceAbove5000">
+                            <input type="radio" name="priceFilter" value="priceAbove5000" class="priceFilter form-check-input"
+                                id="priceAbove5000">
+                            <span class="filter-link stext-106 trans-04">₹5000 and Above</span>
+                        </label>
 
-                    <li class="p-b-6">
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            $200.00+
-                        </a>
+                        <!-- <a href="#" class="filter-link stext-106 trans-04">
+                            ₹5000 and Above
+                        </a> -->
                     </li>
                 </ul>
             </div>
@@ -145,97 +194,258 @@
                     Color
                 </div>
 
-                <ul>
-                    <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #222;">
-                            <i class="zmdi zmdi-circle"></i>
-                        </span>
-
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Black
-                        </a>
+                <ul class="ps-2">
+                    <li>
+                        <input class="form-check-input default colorsFilter" type="checkbox" value="null" id="null"
+                            name="colorsFilter" hidden>
                     </li>
 
                     <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
-                            <i class="zmdi zmdi-circle"></i>
-                        </span>
-
-                        <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                            Blue
-                        </a>
+                        <label for="black">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="black" id="black"
+                                name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #222;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>black</span>
+                        </label>
                     </li>
 
                     <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
-                            <i class="zmdi zmdi-circle"></i>
-                        </span>
-
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Grey
-                        </a>
+                        <label for="blue">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="blue" id="blue" name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #4272d7;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>blue</span>
+                        </label>
                     </li>
 
                     <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #00ad5f;">
-                            <i class="zmdi zmdi-circle"></i>
-                        </span>
-
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Green
-                        </a>
+                        <label for="grey">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="grey" id="grey" name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #b3b3b3;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>grey</span>
+                        </label>
                     </li>
 
                     <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #fa4251;">
-                            <i class="zmdi zmdi-circle"></i>
-                        </span>
-
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            Red
-                        </a>
+                        <label for="green">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="green" id="green"
+                                name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #00ad5f;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>green</span>
+                        </label>
                     </li>
 
                     <li class="p-b-6">
-                        <span class="fs-15 lh-12 m-r-6" style="color: #aaa;">
-                            <i class="zmdi zmdi-circle-o"></i>
-                        </span>
+                        <label for="red">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="red" id="red" name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #fa4251;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>red</span>
+                        </label>
+                    </li>
 
-                        <a href="#" class="filter-link stext-106 trans-04">
-                            White
-                        </a>
+                    <li class="p-b-6">
+                        <label for="white">
+                            <input class="form-check-input colorsFilter" type="checkbox" value="white" id="white"
+                                name="colorsFilter">
+                            <span class="filter-link stext-106 trans-04"
+                                style="cursor: pointer; text-transform: capitalize;"><span class="fs-15 lh-12 m-r-6"
+                                    style="color: #aaa;">
+                                    <i class="zmdi zmdi-circle"></i>
+                                </span>white</span>
+                        </label>
                     </li>
                 </ul>
             </div>
 
             <div class="filter-col4 p-b-27">
                 <div class="mtext-102 cl2 p-b-15">
-                    Tags
+                    User Type
                 </div>
 
-                <div class="flex-w p-t-4 m-r--5">
-                    <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-                        Fashion
-                    </a>
+                <div class="flex-w p-t-4 m-r--5 flex-column">
+                    <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check default userOptions" id="null" autocomplete="off" name="userOptions"
+                            value="null" hidden>
+                    </div>
+                    <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check userOptions" id="men" autocomplete="off" name="userOptions"
+                            value="men">
+                        <label for="men" class="btn btn-outline-primary rounded-pill btn-sm"
+                            style="text-transform: capitalize;">men</label>
+                    </div>
 
-                    <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-                        Lifestyle
-                    </a>
-
-                    <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-                        Denim
-                    </a>
-
-                    <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-                        Streetstyle
-                    </a>
-
-                    <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-                        Crafts
-                    </a>
+                    <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check userOptions" id="women" autocomplete="off" name="userOptions"
+                            value="women">
+                        <label for="women" class="btn btn-outline-primary rounded-pill btn-sm"
+                            style="text-transform: capitalize;">women</label>
+                    </div>
+                    <div class="ms-1 mb-md-0">
+                        <input type="checkbox" class="btn-check userOptions" id="unisex" autocomplete="off" name="userOptions"
+                            value="unisex">
+                        <label for="unisex" class="btn btn-outline-primary rounded-pill btn-sm"
+                            style="text-transform: capitalize;">unisex</label>
+                    </div>
                 </div>
             </div>
+            <div class="self-align-end mb-3">
+                <button type="button" id="resetBtn" class="btn btn-outline-primary btn-sm">Reset</button>
+                <!-- <button type="button" id="submitFiltersBtn" class="btn btn-outline-success btn-sm">Submit</button> -->
+            </div>
         </div>
+
     </div>
 </div>
 
+<script>
+    const sortFilter = document.getElementsByName('sortFilter');
+    const priceFilter = document.getElementsByName('priceFilter');
+    const colorsFilter = document.getElementsByName('colorsFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const submitFiltersBtn = document.getElementById('submitFiltersBtn');
+    const userOptions = document.getElementsByName('userOptions');
+    const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions');
+
+    colorsFilter.forEach((elem) => {
+        elem.addEventListener('change', () => {
+            const parent = elem.parentElement;
+            const filterLink = parent.querySelector('.filter-link');
+            if (elem.checked === true) {
+                filterLink.classList.add('filter-link-active');
+            } else {
+                filterLink.classList.remove('filter-link-active');
+            }
+        })
+    })
+
+    resetBtn.addEventListener('click', () => {
+        uncheckFilters(sortFilter);
+        uncheckFilters(priceFilter);
+        uncheckFilters(colorsFilter);
+        uncheckFilters(userOptions);
+    })
+
+    function uncheckFilters(filter) {
+        filter.forEach((elem) => {
+            const parent = elem.parentElement;
+            const filterLink = parent.querySelector('.filter-link');
+            elem.checked = false;
+            if (filterLink) {
+                filterLink.classList.remove('filter-link-active');
+            }
+            const defaultSibling = parent.querySelector(
+                elem.type === 'checkbox'
+                    ? 'input[type="checkbox"].default'
+                    : 'input[type="radio"].default'
+            );
+            if (defaultSibling) {
+                defaultSibling.checked = true;
+            }
+        })
+    }
+
+    sortFilter.forEach((elem) => {
+        elem.addEventListener('change', () => {
+            checkedSort = elem.value;
+            //console.log(elem.value);
+            changeActiveFilter(sortFilter, elem);
+        });
+    });
+
+    priceFilter.forEach((elem) => {
+        elem.addEventListener('change', () => {
+            checkedPrice = elem.value;
+            changeActiveFilter(priceFilter, elem);
+        })
+    })
+
+    userOptions.forEach((elem) => {
+        elem.addEventListener('click', () => {
+            if (elem.checked === true) {
+                checkedUserOptions.push(elem.value);
+            }
+        })
+    })
+
+    function changeActiveFilter(filter, elem) {
+        const parent = elem.parentElement;
+        const filterLink = parent.querySelector('.filter-link');
+        filter.forEach((otherElem) => {
+            if (otherElem !== elem) {
+                const otherLink = otherElem.parentElement.querySelector('.filter-link');
+                otherLink.classList.remove('filter-link-active');
+            }
+        });
+        if (elem.checked) {
+            filterLink.classList.add('filter-link-active');
+        }
+    }
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+
+        const data = await response.json()
+
+        return data;
+    }
+
+    allInputs.forEach((input)=>{
+        input.addEventListener('click',()=> fetchFilterProducts(input))
+    })
+
+    async function fetchFilterProducts(element){
+        let checkedSort,checkedPrice;
+        let checkedUserOptions = [];
+        let checkedColors = [];
+
+        if(element.classList.contains('sortFilter')){
+                checkedSort = element.value
+        }else if(element.classList.contains('priceFilter')){
+            checkedPrice = element.value;
+        }else if(element.classList.contains('colorsFilter')){
+            if(element.checked === true){
+                checkedColors.push(element.value)
+            }else{
+                checkedColors.filter((val)=> val !== element.value); 
+            }
+        }else if(element.classList.contains('userOptions')){
+            if(element.checked){
+                checkedUserOptions.push(element.value);
+            }else{
+                checkedUserOptions.filter((val) => val !== element.value)
+            }
+        }
+
+        const url = '/shop/filter'
+        const method = 'POST'
+        const body = {
+            sort : checkedSort,
+            price : checkedPrice,
+            colors : checkedColors,
+            userType : checkedUserOptions
+        }
+
+        const data = await fetchFunction(url,method,body);
+    }
+    
+</script>

@@ -14,7 +14,6 @@ router.post('/search',shopController.doSearch);
 
 router.get('/user/userprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getUserProfile);
 router.get('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getEditUserProfile);
-router.get('/user/editprofileold',userController.getOldEditProfile);
 router.patch('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.DoEditUserProfile);
 router.patch('/user/userprofile/setprimary/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doSetPrimaryAddress);
 router.patch('/user/changepassword',authMiddleware.verifyUser,authMiddleware.userStatus,userController.DochangeUserPassword);

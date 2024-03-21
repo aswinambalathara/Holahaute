@@ -7,7 +7,7 @@ const orderSchema = Schema({
     default: true,
   },
 
-  address: {
+  addressId: {
     type: mongoose.Schema.Types.ObjectId,
     default: true,
   },
