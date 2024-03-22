@@ -1,5 +1,6 @@
 const categorySchema = require("../models/categoryModel");
 const productSchema = require("../models/productModel");
+const shopHelper = require('../helpers/shopHelper');
 const jwt = require('jsonwebtoken')
 module.exports.getHomePage = async (req, res) => {
   try {
@@ -46,7 +47,7 @@ module.exports.getProductsPage = async (req, res) => {
       if(req.cookies.token){
          user = jwt.verify(req.cookies.token,process.env.JWT_SECRET)
       }
-       const products = await productSchema.find({isDeleted:false})
+       const products = await productSchema.find({isDeleted:false}).sort({productName:1})
         res.render("shop/allProducts", {
             title: "All Products",
             products,
@@ -56,7 +57,7 @@ module.exports.getProductsPage = async (req, res) => {
         console.log(error)
     }
   
-};
+}; 
 
 module.exports.doSearch = async (req,res)=>{
  try {
@@ -74,7 +75,27 @@ module.exports.doSearch = async (req,res)=>{
  }
  
 }
-
-module.exports.doFilter = async (req,res)=>{
-  
+ 
+module.exports.doFilter = async (req,res)=>{ 
+  try { 
+    const {colors,userType,sort,price} = req.body; 
+    console.log(colors,userType,sort,price);
+    if(colors.length > 0 || userType.length > 0){
+      const results = await shopHelper.filterHelp(userType,colors,sort,price);
+      console.log(results);
+      res.json({
+        status : true,
+        results : results
+      })
+    }else {
+      const results = await shopHelper.defaultFilterHelp(sort,price);
+      //console.log(results);
+      res.json({
+        status : true,
+        results : results
+      })
+    }
+  } catch (error) {
+    console.log(error)   
+  }
 }

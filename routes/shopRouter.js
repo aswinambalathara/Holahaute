@@ -10,6 +10,7 @@ router.get('/home',shopController.getHomePage);
 router.get('/productdetail/:id',shopController.getProductDetailPage); 
 router.get('/shop',shopController.getProductsPage); 
 router.post('/search',shopController.doSearch);
+router.post('/shop/filter',shopController.doFilter);
 //userRoutes
 
 router.get('/user/userprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getUserProfile);
