@@ -1,8 +1,7 @@
+const { ObjectId } = require("mongodb");
 const productSchema = require("../models/productModel");
-const priceFilter = {$gt:0 , $lte: 5000}
-  console.log(priceFilter)
 
-module.exports.filterHelp = async (userTypes,colors,sort,price) => {
+module.exports.filterHelp = async (userTypes,colors,sort,price,category) => {
     let sortFilter;
     let priceFilter;
     if(sort === 'ascendingOrder'){
@@ -30,12 +29,21 @@ module.exports.filterHelp = async (userTypes,colors,sort,price) => {
     }
 
   const products = await productSchema.aggregate([
+    {$lookup:{
+        from : "categories",
+        localField : "category",
+        foreignField : "_id",
+        as : "category"
+    }},
     {
       $match: {
-        price : priceFilter,
+        $and: [
+            {"category.categoryName":category? category:{$exists:true}},
+            {price: priceFilter}
+        ],
         $or: [ 
             {userType : {$in : userTypes}},
-            {color : {$in : colors }} 
+            {color : {$in : colors }},
         ],
       },
     },
@@ -45,14 +53,14 @@ module.exports.filterHelp = async (userTypes,colors,sort,price) => {
   return products;
 };
 
-module.exports.defaultFilterHelp = async (sort,price) =>{
+module.exports.defaultFilterHelp = async (sort,price,category) =>{
 
     let sortFilter;
     let priceFilter;
     if(sort === 'ascendingOrder'){
       sortFilter = { productName : 1}
     }else if(sort === 'descendingOrder'){
-      sortFilter = { productName : -1}
+      sortFilter = { productName : -1} 
     }else if(sort === 'newArrivals'){
       sortFilter = { createdAt : -1}
     }else if(sort ==='lowToHigh'){
@@ -74,12 +82,24 @@ module.exports.defaultFilterHelp = async (sort,price) =>{
     } 
 
     const products = await productSchema.aggregate([
-        {
-          $match: {
-            price : priceFilter},
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
         },
-        {$sort:sortFilter}
-      ]);
+      },
+      {
+        $match: {
+          $and: [
+            {"category.categoryName":category? category:{$exists:true}},
+            {price: priceFilter}
+        ],
+        },
+      },
+      { $sort: sortFilter },
+    ]);
 
       return products;
 }

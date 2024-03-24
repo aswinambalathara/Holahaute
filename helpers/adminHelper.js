@@ -10,7 +10,7 @@ module.exports.orderInfoHelper = async (orderDocId) => {
       {
         $lookup: {
           from: "addresses",
-          localField: "address",
+          localField: "addressId",
           foreignField: "_id",
           as: "address",
         },

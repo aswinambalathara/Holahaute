@@ -1,28 +1,17 @@
 <div class="flex-w flex-sb-m p-b-52">
-    <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+    <div class="flex-w flex-l-m m-tb-10">
         <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
-            All Products
+            <input type="radio" value="" id="allProducts" name="categories" hidden class="categoryFilter">
+            <label class="m-0 pointer" for="allProducts">All Products</label>
         </button>
-
-        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-            Travel Joggers
+<%categories.forEach(function(category){%>
+    
+        <button  class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" style="text-transform: capitalize;">
+            <input type="radio" value="<%=category.categoryName%>" id="<%=category._id%>" name="categories" hidden class="categoryFilter">
+            <label class="m-0 pointer" for="<%=category._id%>"> <%= category.categoryName%> </label>
         </button>
-
-        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-            Sunscreen Jackets
-        </button>
-
-        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-            Ice Tees
-        </button>
-
-        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-            Office Joggers
-        </button>
-
-        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".watches">
-            Travel Jackets
-        </button>
+    
+        <%})%>
     </div>
 
     <div class="flex-w flex-c-m m-tb-10">
@@ -53,7 +42,7 @@
 
     <!-- Filter -->
     <div class="dis-none panel-filter w-full p-t-10 font-poppins">
-        <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+        <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm simple-trans">
             <div class="filter-col1 p-r-15 p-b-27">
                 <div class="mtext-102 cl2 p-b-15">
                     Sort By
@@ -136,7 +125,7 @@
 
                 <ul>
                     <li class="p-b-6">
-                        <label for="allPrices">
+                        <label for="allPrices" class="pointer">
                             <input type="radio" value="allPrices" name="priceFilter"
                                 class="form-check-input default priceFilter" id="allPrices" checked>
                             <span class="filter-link stext-106 trans-04 filter-link-active">All</span>
@@ -145,7 +134,7 @@
                     </li>
 
                     <li class="p-b-6">
-                        <label for="priceBelow500">
+                        <label for="priceBelow500" class="pointer">
                             <input type="radio" value="priceBelow500" name="priceFilter"
                                 class="priceFilter form-check-input" id="priceBelow500">
                             <span class="filter-link stext-106 trans-04">₹0 - ₹500</span>
@@ -153,7 +142,7 @@
                     </li>
 
                     <li class="p-b-6">
-                        <label for="priceRange500_2000">
+                        <label for="priceRange500_2000" class="pointer">
                             <input type="radio" value="priceRange500_2000" name="priceFilter"
                                 class="priceFilter form-check-input" id="priceRange500_2000">
                             <span class="filter-link stext-106 trans-04">₹500 - ₹2000</span>
@@ -164,7 +153,7 @@
                     </li>
 
                     <li class="p-b-6">
-                        <label for="priceRange2000_5000">
+                        <label for="priceRange2000_5000" class="pointer">
                             <input type="radio" name="priceFilter" value="priceRange2000_5000"
                                 class="priceFilter form-check-input" id="priceRange2000_5000">
                             <span class="filter-link stext-106 trans-04">₹2000 - ₹5000</span>
@@ -176,7 +165,7 @@
                     </li>
 
                     <li class="p-b-6">
-                        <label for="priceAbove5000">
+                        <label for="priceAbove5000" class="pointer">
                             <input type="radio" name="priceFilter" value="priceAbove5000"
                                 class="priceFilter form-check-input" id="priceAbove5000">
                             <span class="filter-link stext-106 trans-04">₹5000 and Above</span>
@@ -313,3 +302,4 @@
 
     </div>
 </div>
+

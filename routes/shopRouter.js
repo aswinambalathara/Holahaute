@@ -33,6 +33,7 @@ router.patch('/cart/updatequantity',authMiddleware.userStatus,authMiddleware.ver
 router.patch('/cart/removeitem/:id',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doRemoveItem);
 router.get('/checkout',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCartCheckOut);
 router.post('/placeorder',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCartPlaceOrder);
+router.post('/verifypayment',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doverifyPayment);
 
 //orders
 router.get('/orderstatus',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderStatusPage);

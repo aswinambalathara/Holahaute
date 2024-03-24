@@ -3424,3 +3424,11 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 input{
   overflow: hidden;
 }
+
+.simple-trans {
+  transition: 1s ease;
+}
+
+.pointer{
+  cursor: pointer;
+}

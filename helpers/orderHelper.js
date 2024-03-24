@@ -3,6 +3,7 @@ const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 const productSchema = require("../models/productModel");
 const orderSchema = require("../models/orderModel");
+
 module.exports.makeOrderHelper = async (userId) => {
   try {
     const order = await cartSchema.aggregate([
@@ -49,7 +50,6 @@ module.exports.makeOrderHelper = async (userId) => {
                 productId: "$cartItems.productId",
                 size: "$cartItems.size",
                 quantity: "$cartItems.quantity",
-                orderTotal: "$orderTotal",
                 color: "$cartItems.color",
               },
             },

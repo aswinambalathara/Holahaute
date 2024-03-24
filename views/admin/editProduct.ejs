@@ -153,17 +153,29 @@
 
             <div class="mt-5">
               <label for="" class="form-label">Images</label>
-              <div class="images-container d-flex flex-column p-3 ">
-                <div class="border-1 border-info border rounded btn mb-2 ">
-                  <div class="d-flex mb-2 align-items-center flex-wrap" id="preview-image">
+              <div class="images-container d-flex flex-column p-2 ">
+                <div class="border-1 border-info border rounded px-3 py-2 mb-2 ">
+                  <div class="d-flex flex-column">
+                    <div class="mb-2 exist-image-container">
+                    <h6 class="text-start">Existed Images</h6>
+                  <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded" id="preview-image" >
+                  </div>
+                </div>
+                <div>
+                  <h6 class="text-start">New Images</h6>
+                
+                  <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded" id="InputImagesPreview">
                     <!-- <div class="img-frame">
                       <img src="/images/sampleImages/gallery-02.jpg" alt="" class="me-2 border rounded"
-                        style="width: 150px; height: 150px;"> -->
-                    <!-- <i class="fa-regular fa-rectangle-xmark img-close"></i> -->
-                    <!-- </div> -->
-                    <!-- <label class="form-label text-dark m-1 image-label" for="images"><i
-                        class="fa-solid fa-upload me-3"></i>Upload Image</label> -->
+                        style="width: 150px; height: 150px;">
+                    <i class="fa-regular fa-rectangle-xmark img-close"></i>
+                   </div> -->
+
+                    <label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label>
                   </div>
+                </div>
+                </div>
                   <input type="file" class="form-control" multiple id="images" name="images"
                     accept=".jpg, .jpeg, .webp, .png" />
                   <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>

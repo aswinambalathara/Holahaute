@@ -29,10 +29,10 @@ const orderSchema = Schema({
     default: Date.now(),
   },
 
-  estimatedArrival:{
-    type : Date,
-    required : true,
-    default : Date.now() + (7 * 24 * 60 * 60 * 1000)
+  estimatedArrival: {
+    type: Date,
+    required: true,
+    default: Date.now() + 7 * 24 * 60 * 60 * 1000,
   },
 
   orderStage: {
@@ -51,7 +51,7 @@ const orderSchema = Schema({
       productId: {
         type: mongoose.Types.ObjectId,
         required: true,
-        ref: "product"
+        ref: "product",
       },
 
       size: {
@@ -68,11 +68,6 @@ const orderSchema = Schema({
         type: Number,
         required: true,
       },
-//orderTotal changed
-      orderTotal: { 
-        type: Number,
-        required: true,
-      },
     },
   ],
 
@@ -82,8 +77,13 @@ const orderSchema = Schema({
   },
 
   paymentMethod: {
-    type: String,
-    required: true,
+    method: {
+      type: String,
+      required: true,
+    },
+    paymentId: {
+      type: String,
+    }
   },
 
   cancelReason: {

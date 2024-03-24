@@ -11,10 +11,12 @@
   const checkBoxes = document.getElementsByName('sizeOptions');
   const selectedUserType = "<%=product.userType%>"
   const includedImages = "<%= product.images%>";
-  const includedImagesNames = includedImages.split(',')
+  let includedImagesNames = includedImages.split(',')
+  console.log(includedImagesNames);
   const images = document.getElementById("images");
   const imageInput = document.getElementById("images");
   const previewImg = document.getElementById("preview-image");
+  const InputImagesPreview = document.getElementById('InputImagesPreview')
 
   let existedColors = "<%=product.color%>"
   const addColorBtn = document.getElementById('addbtn');
@@ -22,7 +24,7 @@
   const colorsInput = document.getElementById('colors-input');
 
   existedColors = Array.from(existedColors.split(','));
-  console.log(existedColors)
+  //console.log(existedColors)
 
   existedColors.forEach((color) => {
     const colorList = document.createElement('div')
@@ -82,13 +84,15 @@
 
 
 
-  
+
   // Image Preview and Validation
   imageInput.addEventListener("change", (e) => {
     const files = e.target.files;
-    previewImg.innerHTML = "";
+    InputImagesPreview.innerHTML = "";
 
     if (files.length > 4) {
+      InputImagesPreview.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label>`
       return setError(images, "Maximum 4 files can be uploaded");
     } else {
       setError(images, "");
@@ -100,6 +104,8 @@
       for (let image of files) {
         //console.log(image);
         if (!allowedExtensions.exec(image.name)) {
+          InputImagesPreview.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label>`
           return setError(images, "Check the file type");
         }
 
@@ -110,26 +116,68 @@
           const imgframe = document.createElement("div");
           imgframe.classList.add("img-frame");
           const img = document.createElement("img");
+          const closeBtn = document.createElement('i');
+          closeBtn.classList.add('fa-regular', 'fa-rectangle-xmark', 'img-close');
           img.src = event.target.result;
           img.classList.add("me-2", "border", "rounded");
           img.style.cssText = "width : 150px; height: 150px";
           imgframe.appendChild(img);
-          previewImg.appendChild(imgframe);
+          imgframe.appendChild(closeBtn);
+          InputImagesPreview.appendChild(imgframe);
+
+          closeBtn.addEventListener('click',()=>{
+            clearSelectedImages(image,imgframe)
+          })
         };
         reader.readAsDataURL(image);
       }
     }
   });
 
+
+  function clearSelectedImages(file,imgframe){
+    const files = Array.from(imageInput.files);
+    const index = files.indexOf(file);
+    if(index !== -1){
+      const dataTransfer = new DataTransfer();
+      files.splice(index,1)
+      for(let file of files){
+        dataTransfer.items.add(file);
+      }
+      imageInput.files = dataTransfer.files
+      imgframe.style.display = 'none';
+      if(imageInput.files.length === 0){
+        InputImagesPreview.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
+                        class="fa-solid fa-upload me-3"></i>Upload Image</label>`
+      }
+      
+    }
+  }
+
   includedImagesNames.forEach((image) => {
     const imageFrame = document.createElement('div');
     imageFrame.classList.add('img-frame');
     const img = document.createElement('img');
+    const closeBtn = document.createElement('i');
+    closeBtn.classList.add('fa-regular', 'fa-rectangle-xmark', 'img-close');
     img.src = `/images/product-images/${image}`
     img.classList.add("me-2", "border", "rounded");
     img.style.cssText = "width : 150px; height: 150px";
     imageFrame.appendChild(img);
+    imageFrame.append(closeBtn);
     previewImg.appendChild(imageFrame);
+
+    closeBtn.addEventListener('click', () => {
+      const removeImage = image
+      const removeImageFrame = imageFrame
+      includedImagesNames = includedImagesNames.filter((img) => {
+        return img !== removeImage
+      });
+      previewImg.removeChild(removeImageFrame);
+      if(includedImagesNames.length === 0){
+        document.querySelector('.exist-image-container').hidden = true
+      }
+    })
   })
 
   //console.log(includedImagesNames)

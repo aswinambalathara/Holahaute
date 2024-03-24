@@ -245,3 +245,7 @@ h4 {
     opacity: 1;
   }
 }
+
+.simple-trans{
+  transition: 2s ease;
+}

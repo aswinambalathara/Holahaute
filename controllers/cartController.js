@@ -11,7 +11,7 @@ module.exports.getCart = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
     const cart = await cartHelper.getCartHelper(userId);
-    console.log(cart[0])
+    //console.log(cart[0])
     //console.log(cart[0].cartItems[0])
     res.render("shop/cart.ejs", {
       title: "Cart",
@@ -115,29 +115,30 @@ module.exports.doAddToCart = async (req, res) => {
 };
 
 module.exports.doUpdateQuantity = async (req, res) => {
-  try {
+  try { 
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { quantity, itemId } = req.body;
     const cart = await cartHelper.updateQuantityHelper(authUser.userId, itemId);
+    console.log(cart);
     const quantityCheck = cart[0].product.quantity - quantity;
-    if (quantityCheck >= 0) {
-      const update = await cartSchema.updateOne(
-        { userId: authUser.userId, "cartItems._id": new ObjectId(itemId) },
-        {
-          $set: { "cartItems.$.quantity": quantity },
-        }
-      );
-      if (update) {
-        res.json({
-          status: true,
-        });
-      }
-    } else {
-      res.json({
-        status: false,
-        message: `Only ${cart[0].product.quantity} left`,
-      });
-    }
+    // if (quantityCheck >= 0) {
+    //   const update = await cartSchema.updateOne(
+    //     { userId: authUser.userId, "cartItems._id": new ObjectId(itemId) },
+    //     {
+    //       $set: { "cartItems.$.quantity": quantity },
+    //     }
+    //   ); 
+    //   if (update) {
+    //     res.json({
+    //       status: true,
+    //     });
+    //   }
+    // } else {
+    //   res.json({
+    //     status: false,
+    //     message: `Only ${cart[0].product.quantity} left`,
+    //   });
+    // }
     //console.log(cart)
   } catch (error) {
     console.log(error);
@@ -167,10 +168,10 @@ try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId)
-  //console.log(cart.totalQuantityByProduct)
+  console.log(cart.totalQuantityByProduct)
   const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
   //console.log(stock)
-  //console.log(quantityCheck)
+  console.log(stock)
   if(stock === true){
     res.render("shop/checkout.ejs", {
       title: "Checkout",

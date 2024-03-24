@@ -56,7 +56,6 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
   const cart = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
-    { $match: { "cartItems._id": new ObjectId(itemId) } },
     {
       $lookup: {
         from: "products",
@@ -66,8 +65,14 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
       },
     },
     { $unwind: "$product" },
+    {$addFields : 
+      {total : {$multiply : ["$product.price","$cartItems.quantity"]}}
+    },
+    {$group:{_id:"$_id",grandTotal:{$sum:'$total'},product:{$push:{
+      quantity : "$cartItems.quantity",
+      price : ""
+    }}}}
   ]);
-
   return cart;
 };
 

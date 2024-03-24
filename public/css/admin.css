@@ -103,6 +103,7 @@
 
 .img-frame{
     position: relative;
+    transition:  2s ease;
 }
 
 .img-close{
@@ -113,6 +114,7 @@
     background-color: rgb(255, 255, 255);
     top: 5px;
     left: 125px;
+    cursor: pointer;
 }
 
 .vh-130{

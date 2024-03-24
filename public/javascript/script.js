@@ -7,11 +7,25 @@ const sortFilter = document.getElementsByName('sortFilter');
     const resetBtn = document.getElementById('resetBtn');
     const submitFiltersBtn = document.getElementById('submitFiltersBtn');
     const userOptions = document.getElementsByName('userOptions');
-    const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions');
+    const categories = document.getElementsByName('categories');
+    const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions,.categoryFilter');
     let checkedSort;
     let checkedPrice;
-    let checkedUserOptions = [];
+    let checkedUserOptions = []; 
     let checkedColors = [];
+    let checkedCategory = '' ;
+
+    categories.forEach((elem)=>{
+        const parent = elem.parentElement;
+        elem.addEventListener('click',()=>{
+            categories.forEach((otherElem)=>{
+                if(otherElem !== elem){
+                     otherElem.parentElement.classList.remove('how-active1')
+                }
+            })
+            parent.classList.add('how-active1')
+        })
+    })
 
 search.addEventListener('input',async (e)=>{
     const searchTerm = search.value.trim()
@@ -99,6 +113,7 @@ resetBtn.addEventListener('click', () => {
     userOptions.forEach((elem) => {
         elem.checked = elem.checked ? !elem.checked : elem.checked
     })
+
     sortFilter.forEach((elem) => {
         const parent = elem.parentElement;
         const filterLink = parent.querySelector('.filter-link');
@@ -115,6 +130,7 @@ resetBtn.addEventListener('click', () => {
             defaultSibling.checked = true;
         }
     })
+
     priceFilter.forEach((elem) => {
         const parent = elem.parentElement;
         const filterLink = parent.querySelector('.filter-link');
@@ -213,17 +229,21 @@ async function fetchFilterProducts(element) {
         } else {
             checkedUserOptions = checkedUserOptions.filter((val) => val !== element.value)
         }
+    }else if(element.classList.contains('categoryFilter')){
+        checkedCategory = element.value
     }
 
-    console.log(checkedUserOptions)
-    console.log(checkedColors)
+    // console.log(checkedUserOptions)
+    // console.log(checkedColors)
+    console.log(checkedCategory);
     const url = '/shop/filter'
     const method = 'POST'
     const body = {
         colors: checkedColors,
         userType: checkedUserOptions,
         sort: checkedSort,
-        price: checkedPrice
+        price: checkedPrice,
+        category : checkedCategory
     }
 
     const data = await fetchFunction(url, method, body);
@@ -231,7 +251,7 @@ async function fetchFilterProducts(element) {
     productList.innerHTML = ''
 if(data.status === true && data.results.length > 0){
     data.results.forEach((item)=>{
-        const product = ` <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item ">
+        const product = ` <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item simple-trans">
             <!-- Block2 -->
             <div class="block2">
                 <div class="block2-pic hov-img0">

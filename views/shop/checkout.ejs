@@ -166,10 +166,10 @@
                                     name="paymentOption" value="COD" checked/>
                                 <div class="ms-2">Cash On Delivery</div>
                             </div>
-                            <div class="d-flex align-items-center border p-2 rounded bg-light">
+                            <div class="d-flex align-items-center border p-2 rounded">
                                 <input type="radio" class="form-check-input m-0 paymentOption" style="position: relative"
-                                    name="paymentOption" value="Razerpay" disabled />
-                                <div class="ms-2">Razorpay (Coming Soon)</div>
+                                    name="paymentOption" value="razorpay"  />
+                                <div class="ms-2">Razorpay</div>
                             </div>
                         </div>
                     </div>
@@ -222,6 +222,7 @@
     </div>
     <%-include ('../includes/shop/orderModal.ejs') %>
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
         <script>
             const addressInput = document.querySelectorAll('.deliveryAddress');
@@ -234,19 +235,26 @@
                 addressInput.forEach(async (input) => {
                     if (input.checked) {
                         const addressId = input.value;
-                        const response = await fetch(`/user/userprofile/setprimary/${addressId}`, {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json"
-                            }
-                        });
-                        const data = await response.json()
+                        const url = `/user/userprofile/setprimary/${addressId}` ;
+                        const method = 'PATCH'
+                        const body = {}
+                        const data = await fetchFunction(url,method,body);
                         if (data.status === 'success') {
                             location.reload()
                         }
                     }
                 })
             })
+
+paymentOption.forEach((option)=>{
+    option.addEventListener('click',()=>{
+        if(option.value !== "COD"){
+           return placeOrderBtn.innerText = 'Pay Now'
+        }else{
+            placeOrderBtn.innerText = 'Place Order'
+        }
+    })
+})
 
             placeOrderBtn.addEventListener('click', () => {
                 paymentOption.forEach((option) => {
@@ -262,22 +270,23 @@
             })
 
             async function placeOrder(addressId, paymentOption) {
-                const response = await fetch('/placeorder', {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        addressId: addressId,
-                        paymentOption: paymentOption
-                    })
-                })
-                const data = await response.json()
+                const url = '/placeorder';
+                const method = 'POST' ;
+                const body = {
+                    addressId : addressId,
+                    paymentOption : paymentOption
+                }
+                const data = await fetchFunction(url,method,body)
                 if(data.status === false){
-                  const errorDiv =  document.querySelector('.error-modal')
+                  if(data.payment !== ''){
+                    console.log(data.payment);
+                    razorpayPayment(data.payment)
+                  }else{
+                    const errorDiv =  document.querySelector('.error-modal')
                   errorDiv.querySelector('.errorProducts').innerText = data.product
                   errorDiv.querySelector('.errorMessage').innerText = data.message
                     document.getElementById('orderErrorModal').click()
+                  }
                 }else{
                 document.getElementById('orderSuccessModal').click()
                 setTimeout(() => {
@@ -292,6 +301,62 @@
                 errorDiv.innerText = message
             }
 
-        </script>
+function razorpayPayment(paymentData){
+    const RZY_KEY = "<%=process.env.RAZORPAY_KEY_ID%>"
+    let options = {
+    "key": RZY_KEY, // Enter the Key ID generated from the Dashboard
+    "amount": paymentData.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Hola Haute", 
+    "description": "Test Transaction",
+    "image": "/images/logo/logo_1.png",
+    "order_id": paymentData.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        verifyPayment(response,paymentData)
+    },
+    "notes": {
+        "address": "Hola Haute Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+let rzp1 = new Razorpay(options);
+rzp1.open()
+}
+
+async function verifyPayment(response,order){
+    const url = '/verifypayment'
+    const method = 'POST'
+    const body = {
+        response,
+        order
+    }
+const data = await fetchFunction(url,method,body);
+ if(data.paid === true){
+    document.getElementById('orderSuccessModal').click()
+                setTimeout(() => {
+                    location.assign('/orderstatus');
+                }, 3000);
+ }else{
+    location.assign('/myorders');
+ }
+}
+
+async function fetchFunction(url, method, body) {
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(body)
+                    })
+
+                    const data = await response.json()
+
+                    return data;
+                }
+       
+       </script>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

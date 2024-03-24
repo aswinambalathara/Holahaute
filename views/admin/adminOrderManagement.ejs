@@ -124,9 +124,10 @@
                                     <h6>Payment Method</h6>
                                 </div>
                                 <div class="card-body">
-                                    <h6 class="py-3 fw-bolder">
-                                        <%=order.orderStatus[0].paymentMethod%>
+                                    <h6 class="py-3 fw-bolder" style="text-transform: capitalize;">
+                                        <%=order.orderStatus[0].paymentMethod.method%>
                                     </h6>
+                                    <Strong>Payment Id : <span class="text-success"><%=order.orderStatus[0].paymentMethod.paymentId%></span></Strong>
                                 </div>
                             </div>
                             <div class="bottom-div d-flex justify-content-between">

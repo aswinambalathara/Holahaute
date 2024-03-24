@@ -2,9 +2,12 @@ const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const addressSchema = require("../models/addressModel");
 const orderHelper = require("../helpers/orderHelper");
+const paymentHelper = require("../helpers/paymentHelper");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = require("mongodb");
+const {RAZORPAY_KEY_SECRET } = process.env;
+const crypto = require('crypto')
 const orderSchema = require("../models/orderModel");
 
 module.exports.doCartPlaceOrder = async (req, res) => {
@@ -13,47 +16,56 @@ module.exports.doCartPlaceOrder = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
     const orderId = uuidv4();
-    // console.log(orderId)
     const order = await orderHelper.makeOrderHelper(userId);
-    //console.log("break");
-    //console.log(order);
+    console.log(order);
     const product = order.orderInfo.map((item) => {
       return item.product;
     });
-    //console.log(product);
+
     const stock = await orderHelper.checkProductQuantity(
       order.totalQuantityByProduct
     );
-    //console.log(stock);
+
     if (stock === true) {
-      // decreasing quantity
       const decreaseQuantity = await orderHelper.decreaseProductQuantity(
         order.totalQuantityByProduct
       );
+
       if (decreaseQuantity) {
+        const orderStatus = paymentOption === "COD" ? "CONFIRMED" : "PENDING";
         const newOrder = new orderSchema({
           userId: userId,
           addressId: addressId,
           orderId: orderId,
-          orderStatus: "CONFIRMED",
+          orderStatus: orderStatus,
           products: product,
           grandTotal: order.grandTotal,
-          paymentMethod: paymentOption,
+          "paymentMethod.method": paymentOption,
         });
         const ordered = await newOrder.save();
-        // console.log(ordered);
         if (ordered) {
-          // clear cart
           req.session.currentOrderId = ordered._id;
+          //CLEAR CART
           await cartSchema.updateOne(
             { userId: userId },
             { $set: { cartItems: [] } }
           );
 
-          res.json({
-            status: true,
-            message: "OrderSuccessfull",
-          });
+          if (paymentOption === "COD") {
+            res.json({
+              status: true,
+              message: "OrderSuccessfull",
+            });
+          } else if (paymentOption === "razorpay") {
+            const payment = await paymentHelper.createPayment(
+              orderId,
+              order.grandTotal
+            );
+            res.json({
+              status: false,
+              payment: payment,
+            });
+          }
         }
       }
     } else {
@@ -62,6 +74,36 @@ module.exports.doCartPlaceOrder = async (req, res) => {
         product: `${stock.toUpperCase()},`,
         message: "is not available at this quantity",
       });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doverifyPayment = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const {userId} = authUser;
+    const { response, order } = req.body;
+    console.log(req.body);
+  const {razorpay_payment_id,razorpay_order_id,razorpay_signature} = response
+    let sign = crypto.createHmac('sha256',RAZORPAY_KEY_SECRET);
+    sign.update(razorpay_order_id + '|' + razorpay_payment_id);
+    sign = sign.digest('hex');
+    if(sign === razorpay_signature){ 
+      const orderUpdate = await orderSchema.updateOne({orderId : order.notes.order_Id},{
+        $set : {orderStatus : "CONFIRMED","paymentMethod.paymentId":razorpay_payment_id}
+      })
+
+      if(orderUpdate){
+        res.json({
+          paid : true
+        })
+      }
+    }else{
+      res.json({
+        paid : false
+      })
     }
   } catch (error) {
     console.log(error);
@@ -79,7 +121,6 @@ module.exports.getOrderStatusPage = async (req, res) => {
     );
     //console.log('orderstatus');
     //console.log(order);
-    //console.log(order.orderStatus[0].orderDate.toLocaleDateString())
     req.session.currentOrderId = "";
     res.render("user/orderconfirm.ejs", {
       title: "Order Status",
@@ -132,7 +173,7 @@ module.exports.getOrderDetail = async (req, res) => {
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
     });
-  } catch (error) { 
+  } catch (error) {
     console.log(error);
   }
 };
@@ -141,12 +182,17 @@ module.exports.getOrderTracking = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const orderId = req.params.id;
-    const orderTrack = await orderSchema.findOne({userId: new ObjectId(authUser.userId), _id: new ObjectId(orderId)}).populate('products.productId')
+    const orderTrack = await orderSchema
+      .findOne({
+        userId: new ObjectId(authUser.userId),
+        _id: new ObjectId(orderId),
+      })
+      .populate("products.productId");
     //console.log(orderTrack)
     res.render("user/trackOrder.ejs", {
       title: "Tracking Order",
       user: authUser.userName,
-      orderTrack
+      orderTrack,
     });
   } catch (error) {
     console.log(error);
@@ -156,38 +202,54 @@ module.exports.getOrderTracking = async (req, res) => {
 module.exports.doCancelOrder = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const id = req.params.id
-    const {cancelReason} = req.body;
+    const id = req.params.id;
+    const { cancelReason } = req.body;
     //console.log(id,"  ",cancelReason);
-    const order = await orderSchema.findOne({_id:id, userId : authUser.userId});
-    if(order.orderStage === 'PREPARING FOR DISPATCH' || order.orderStage === 'SHIPPED'){
-      const updateorder = await orderSchema.updateOne({_id: id, userId : authUser.userId},{$set:{
-        cancelReason : cancelReason,
-        orderStatus : "CANCELLATION REQUESTED",
-        orderStage : "CANCELLATION REQUESTED"
-      }});
-      if(updateorder){
+    const order = await orderSchema.findOne({
+      _id: id,
+      userId: authUser.userId,
+    });
+    if (
+      order.orderStage === "PREPARING FOR DISPATCH" ||
+      order.orderStage === "SHIPPED"
+    ) {
+      const updateorder = await orderSchema.updateOne(
+        { _id: id, userId: authUser.userId },
+        {
+          $set: {
+            cancelReason: cancelReason,
+            orderStatus: "CANCELLATION REQUESTED",
+            orderStage: "CANCELLATION REQUESTED",
+          },
+        }
+      );
+      if (updateorder) {
         res.json({
-          status : true,
-          stage : "Cancellation Requested",
-          message : "Your request is on review"
+          status: true,
+          stage: "Cancellation Requested",
+          message: "Your request is on review",
         });
-      }else{
+      } else {
         res.json({
-          status : false,
-          message : "Something went Wrong"
-        })
+          status: false,
+          message: "Something went Wrong",
+        });
       }
-    }else{
+    } else {
       res.json({
-        status : false,
-        message : "Cannot Cancel at this stage"
-      })
+        status: false,
+        message: "Cannot Cancel at this stage",
+      });
     }
-    const updateorder = await orderSchema.updateOne({_id: id, userId : authUser.userId},{$set:{
-      cancelReason : cancelReason,
-      orderStatus : "CANCELLATION REQUESTED"
-    }});
+    const updateorder = await orderSchema.updateOne(
+      { _id: id, userId: authUser.userId },
+      {
+        $set: {
+          cancelReason: cancelReason,
+          orderStatus: "CANCELLATION REQUESTED",
+        },
+      }
+    );
   } catch (error) {
     console.log(error);
   }
