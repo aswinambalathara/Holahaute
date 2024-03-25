@@ -1,7 +1,9 @@
 const categorySchema = require("../models/categoryModel");
 const productSchema = require("../models/productModel");
-const { imageNameArray } = require("../helpers/productImageHelper");
+const productHelper = require("../helpers/productHelper");
 const fs = require("fs");
+const { json } = require("express");
+const { error } = require("console");
 
 module.exports.getAdminProducts = async (req, res) => {
   try {
@@ -29,7 +31,7 @@ module.exports.getAddProducts = async (req, res) => {
 
 module.exports.doAddProducts = async (req, res) => {
   try {
-    const images = imageNameArray(req.files);
+    const images = productHelper.imageNameArray(req.files);
     //console.log(images);
     const newProductName = req.body.productName.toLowerCase();
     const colors = JSON.parse(req.body.colors) ;
@@ -124,28 +126,29 @@ module.exports.getEditProducts = async (req, res) => {
 module.exports.doEditProducts = async (req, res) => {
   try {
     const newProductName = req.body.productName.toLowerCase();
-
-    //console.log(req.body);
+    const existedImages = JSON.parse(req.body.existedImages);
     const colors = JSON.parse(req.body.colors);
-   // console.log(req.body.colors,"   ",colors);
-   // console.log(newProductName);
+
+
     const productCheck = await productSchema.findOne({
       productName: newProductName,
     });
+
     const product = await productSchema.findOne({ _id: req.params.id });
-    let images = [];
-    if (req.files) {
-      images = imageNameArray(req.files);
-    }
+    const files = req.files.length > 0 ? req.files : undefined
+    let images = await productHelper.editImagesArray(files,existedImages)
+
+    console.log(images);
+
     if (productCheck && product.productName !== newProductName) {
       if (productCheck.isDeleted === false) {
         req.flash("error", "This Product with product name already exist");
-        for (let image of images) {
+        for (let image of files.filename) {
           fs.unlink(`public/images/product-images/${image}`, (error) => {
             if (error) {
               console.log(error);
             } else {
-              console.log(`${image} is deleted`);
+              console.log(`${image} is deleted part a`);
             }
           });
         }
@@ -156,22 +159,24 @@ module.exports.doEditProducts = async (req, res) => {
             if (error) {
               console.log(error);
             } else {
-              console.log(`${image} is deleted`);
+              console.log(`${image} is deleted part b`);
             }
           });
         }
-        await productSchema.deleteOne({ productName: newProductName });
-        if (images.length !== 0) {
+        await productSchema.deleteOne({ productName: newProductName ,isDeleted : true });
+
           for (let image of product.images) {
-            fs.unlink(`public/images/product-images/${image}`, (error) => {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log(`${image} is deleted`);
-              }
-            });
+            if(!existedImages.includes(image)){
+              fs.unlink(`public/images/product-images/${image}`,(error)=>{
+                if(error){
+                  console.log(error)
+                }else{
+                  console.log(`${image} is deleted part c`)
+                }
+              })
+            }
           }
-        }
+
         await productSchema.updateOne(
           { _id: req.params.id },
           {
@@ -192,15 +197,15 @@ module.exports.doEditProducts = async (req, res) => {
         res.redirect("/admin/products");
       }
     } else {
-      if (images.length !== 0) {
-        for (let image of product.images) {
-          fs.unlink(`public/images/product-images/${image}`, (error) => {
-            if (error) {
-              console.log(error);
-            } else {
-              console.log(`${image} is deleted`);
+      for (let image of product.images) {
+        if(!existedImages.includes(image)){
+          fs.unlink(`public/images/product-images/${image}`,(error)=>{
+            if(error){
+              console.log(error)
+            }else{
+              console.log(`${image} is deleted part c`)
             }
-          });
+          })
         }
       }
       await productSchema.updateOne(

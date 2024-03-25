@@ -6,13 +6,14 @@
   const userTypes = document.getElementById("userTypes");
   const colorInput = document.getElementById("colorinput");
   const sizeOptions = document.querySelectorAll(".btn-check");
+  let existedImages = document.getElementById('existedImages');
 
   const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
   const checkBoxes = document.getElementsByName('sizeOptions');
   const selectedUserType = "<%=product.userType%>"
   const includedImages = "<%= product.images%>";
-  let includedImagesNames = includedImages.split(',')
-  console.log(includedImagesNames);
+  let includedImagesNames = Array.from(includedImages.split(','))
+  existedImages.value = JSON.stringify(includedImagesNames);
   const images = document.getElementById("images");
   const imageInput = document.getElementById("images");
   const previewImg = document.getElementById("preview-image");
@@ -173,6 +174,7 @@
       includedImagesNames = includedImagesNames.filter((img) => {
         return img !== removeImage
       });
+      existedImages.value = JSON.stringify(includedImagesNames);
       previewImg.removeChild(removeImageFrame);
       if(includedImagesNames.length === 0){
         document.querySelector('.exist-image-container').hidden = true
@@ -228,6 +230,15 @@
       setError(priceParent, ""); // Clear error message if input is valid
     }
 
+    if((includedImagesNames.length + imageInput.files.length) === 0){
+      hasError = true
+      setError(images,"This field cannot be empty");
+    }else if((includedImagesNames.length + imageInput.files.length) > 4 ){
+      hasError = true
+      setError(images,"Maximum 4 images is allowed");
+    }else{
+      setError(images,'');
+    }
     // const lettersOnlyRegex = /^[A-Za-z\s]*$/;
     // if (!lettersOnlyRegex.test(colorValue)) {
     //   setError(colorInput, "Only letters are allowed");

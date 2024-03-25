@@ -38,27 +38,27 @@ module.exports.doAddToCart = async (req, res) => {
     const cart = await cartSchema.findOne({ userId: userId });
     if (cart) {
       //if cart exists
-      const exist = cart.cartItems.find((item) => {
+      const itemExist = cart.cartItems.find((item) => {
         return (
           item.productId.equals(productId) &&
           item.color === color &&
           item.size === size
         );
       });
-
-      if (exist) {
-        const availableQuantity = stockQuantity - exist.quantity;
+      const totalcartQuantity = cartHelper.addCartQuantityCheck(cart,productId)
+      if (itemExist) {
+        const availableQuantity = stockQuantity - totalcartQuantity;
         if (availableQuantity > 0) {
-          if (exist.quantity < 5) {
+          if (itemExist.quantity < 5) {
             await cartSchema.updateOne(
               {
                 userId: userId,
-                "cartItems.productId": exist.productId,
-                "cartItems.color": exist.color,
-                "cartItems.size": exist.size,
+                "cartItems.productId": itemExist.productId,
+                "cartItems.color": itemExist.color,
+                "cartItems.size": itemExist.size,
               },
               { $inc: { "cartItems.$[itemRef].quantity": 1 } },
-              { arrayFilters: [{ "itemRef._id": exist._id }] }
+              { arrayFilters: [{ "itemRef._id": itemExist._id }] }
             );
             res.json({
               status: true,
@@ -74,28 +74,32 @@ module.exports.doAddToCart = async (req, res) => {
           res.json({
             status: false,
             stock: false,
+            message : ` Only ${stockQuantity} left`
           });
         }
       } else {
-        // if product doesn't exist
-        await cartSchema.updateOne(
-          { userId: userId },
-          {
-            $push: {
-              cartItems: {
-                productId: productId,
-                color: color,
-                size: size,
+        // if product doesn't exist in cart
+        const availableQuantity = stockQuantity - (totalcartQuantity + 1);
+        if(availableQuantity > 0){
+          await cartSchema.updateOne(
+            { userId: userId },
+            {
+              $push: {
+                cartItems: {
+                  productId: productId,
+                  color: color,
+                  size: size,
+                },
               },
-            },
-          }
-        );
-        req.session.productCount++;
-        res.json({
-          status: true,
-          message: "Added to cart",
-        });
-      }
+            }
+          );
+          req.session.productCount++;
+          res.json({
+            status: true,
+            message: "Added to cart",
+          });
+        }
+        }  
     } else {
       // if cart doesn't exist
       const newCart = new cartSchema({

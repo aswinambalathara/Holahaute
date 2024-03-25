@@ -1,5 +1,5 @@
 const cartSchema = require("../models/cartModel");
-const productSchema = require('../models/productModel');
+const productSchema = require("../models/productModel");
 const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
@@ -40,7 +40,7 @@ module.exports.getCartHelper = async (userId) => {
               _id: "$product._id",
               productName: "$product.productName",
               price: "$product.price",
-              quantity : "$product.quantity",
+              quantity: "$product.quantity",
               images: "$product.images",
             },
           },
@@ -65,18 +65,28 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
       },
     },
     { $unwind: "$product" },
-    {$addFields : 
-      {total : {$multiply : ["$product.price","$cartItems.quantity"]}}
+    {
+      $addFields: {
+        total: { $multiply: ["$product.price", "$cartItems.quantity"] },
+      },
     },
-    {$group:{_id:"$_id",grandTotal:{$sum:'$total'},product:{$push:{
-      quantity : "$cartItems.quantity",
-      price : ""
-    }}}}
+    {
+      $group: {
+        _id: "$_id",
+        grandTotal: { $sum: "$total" },
+        product: {
+          $push: {
+            quantity: "$cartItems.quantity",
+            price: "",
+          },
+        },
+      },
+    },
   ]);
   return cart;
 };
 
-module.exports.getCheckoutHelper = async (userId) =>{
+module.exports.getCheckoutHelper = async (userId) => {
   const cart = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
@@ -130,8 +140,8 @@ module.exports.getCheckoutHelper = async (userId) =>{
       },
     },
   ]);
-  return cart[0]
-}
+  return cart[0];
+};
 
 module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
   for (let item of totalQuantityByProduct) {
@@ -146,4 +156,17 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
       return product.productName;
     }
   }
+};
+
+module.exports.addCartQuantityCheck = (cart,productId) => {
+  const matchingProducts = cart.cartItems.filter((item) =>
+    item.productId.equals(productId)
+  );
+
+  const totalQuantity = matchingProducts.reduce((acc, item) => {
+    return acc + item.quantity;
+  }, 0);
+  console.log(totalQuantity);
+
+  return totalQuantity;
 };

@@ -322,7 +322,7 @@
                                     icon: "success"
                                 });
                             }else if(data.stock === false){
-                                document.querySelector('.stock').innerText = "Only 1 Left"
+                                document.querySelector('.stock').innerText = data.message
                                 //location.reload()
                             }else{
                                 Swal.fire({
