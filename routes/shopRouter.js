@@ -42,5 +42,9 @@ router.get('/myorders/order/:id',authMiddleware.userStatus,authMiddleware.verify
 router.get('/myorders/trackorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderTracking);
 router.patch('/myorder/cancelorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCancelOrder);
 
-
+//wishlist
+router.get('/wishlist',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.getWishlist);
+router.post('/wishlist/add',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.addToWishlist);
+router.patch('/wishlist/remove',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.removeFromWishList);
+router.get('/wishlist/fetchproductoptions/:id',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.fetchProductOptions);
 module.exports = router;

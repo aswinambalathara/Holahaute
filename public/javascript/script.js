@@ -8,7 +8,8 @@ const sortFilter = document.getElementsByName('sortFilter');
     const submitFiltersBtn = document.getElementById('submitFiltersBtn');
     const userOptions = document.getElementsByName('userOptions');
     const categories = document.getElementsByName('categories');
-    const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions,.categoryFilter');
+    const addWishlistBtns = document.querySelectorAll('.addWishlistBtn');
+     const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions,.categoryFilter');
     let checkedSort;
     let checkedPrice;
     let checkedUserOptions = []; 
@@ -290,5 +291,46 @@ if(data.status === true && data.results.length > 0){
     productList.innerHTML = "<div class='d-flex justify-content-center'><p>Nothing Found</p></div>"
 }
 }
+
+addWishlistBtns.forEach((btn)=>{
+    btn.addEventListener('click',async ()=>{
+       const productId = btn.getAttribute('data-productid')
+       console.log(productId)
+       const url = '/wishlist/add'
+       const method = "POST"
+       const body = {
+        productId : productId
+       }
+       const data = await fetchFunction(url,method,body);
+       if(data.status === true){
+        const animatedHeart = document.createElement('i');
+        animatedHeart.classList.add('fa-solid', 'fa-heart');
+        animatedHeart.style.color = '#f50000';
+        animatedHeart.style.position = 'absolute'; // Ensure absolute positioning
+        animatedHeart.style.top = btn.offsetTop + 'px'; // Align with button top
+        animatedHeart.style.left = btn.offsetLeft + 'px'; // Align with button left
+  
+        // Append the animated heart to the button's parent element
+        btn.parentElement.appendChild(animatedHeart);
+  
+        // Animate the heart icon using CSS transitions
+        animatedHeart.style.transition = 'opacity 0.5s ease-in-out';
+        animatedHeart.style.opacity = 1; 
+        setTimeout(() => {
+          animatedHeart.style.opacity = 0; 
+  
+          setTimeout(() => {
+            animatedHeart.remove();
+            btn.innerHTML = `<i class="fa-regular fa-heart"></i>`; 
+          }, 1000);
+        }, 2000); 
+       }else{
+        Swal.fire({
+            text: data.message,
+            icon: "error"
+          });
+       }
+    })
+})
 
 

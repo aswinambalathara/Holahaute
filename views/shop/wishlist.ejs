@@ -1,0 +1,181 @@
+<%- include('../includes/shop/shopHead.ejs') %>
+    <%- include('../includes/shop/shopHeader.ejs') %>
+
+        <div class="p-0 p-md-5">
+            <div class="container-fluid">
+                <div class="wishlist-container mt-5 font-poppins">
+                    <h5 class="mx-5">WishList</h5>
+                    <div class="mx-5 mt-5 mb-3 flex-wrap px-md-5 row">
+                        <%if (wishlist) {%>
+                            <% wishlist.products.forEach(function(product){%>
+                                <div class="card col-12 p-0 col-md-3 mx-md-2 my-2" style="width: 18rem;">
+                                    <div class="image-div"
+                                        style="background-image: url('/images/product-images/<%=product.images[0]%>'); height: 18rem ; background-size: cover; position: relative;">
+                                        <button type="button" class="removeitemBtn" data-productId="<%=product._id%>"><i
+                                                class="fa-regular fa-trash-can"
+                                                style="position: absolute; right: 10px; top: 10px; color: red;"></i></button>
+                                    </div>
+                                    <!-- <img class="card-img-top" src="/images/product-images/1710179061194-1_3c9d436a-48e3-4fc4-9f97-23dba70ec632.webp" alt="Card image cap"> -->
+                                    <div class="card-body d-flex flex-column justify-content-between">
+                                        <div class="product-details d-flex">
+                                            <h6 class="card-title">
+                                                <%=product.productName%>
+                                            </h6>
+                                        </div>
+                                        <div>
+                                            <p class="card-text">
+                                                <%=product.description%>
+                                            </p>
+                                            <strong class="text-danger-emphasis"><span>₹</span>
+                                                <%=product.price%>
+                                            </strong>
+                                        </div>
+                                        <div class="d-flex justify-content-evenly align-items-center mt-5">
+                                            <button class="btn btn-primary btn-sm">Buy Now</button>
+                                            <button class="btn btn-outline-primary btn-sm addToCart"
+                                                data-productId="<%=product._id%>">Add to cart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <%} )%>
+                                    <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../includes/wishlist/modal.ejs') %>
+            <%- include('../includes/shop/shopFooter.ejs') %>
+                <script>
+                    const removeBtns = document.querySelectorAll('.removeitemBtn');
+                    const addToCartBtns = document.querySelectorAll('.addToCart');
+                    const sizeOption = document.querySelector('input[name="sizeOption"]:checked');
+                    const colorOption = document.querySelector('input[name="color"]:checked');
+
+
+                    addToCartBtns.forEach((btn) => {
+                        btn.addEventListener('click', async () => {
+                            const productId = btn.getAttribute('data-productId');
+                            if (productId) {
+                                const url = `/wishlist/fetchproductoptions/${productId}`
+                                const method = 'GET'
+                                const body = {}
+                                const response = await fetch(url, {
+                                    method: method,
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+                                const productData = await response.json()
+
+                                if (productData.status === true) {
+                                    const sizeOptionsPreview = document.querySelector('.size-options-preview');
+                                    const colorOptionsPreview = document.querySelector('.colorOptionsPreview');
+                                    const productNamePreview = document.querySelector('.productName');
+                                    sizeOptionsPreview.innerHTML = ''
+                                    colorOptionsPreview.innerHTML = ''
+                                    productNamePreview.innerText = productData.product.productName
+                                    productData.product.sizeOptions.forEach((size) => {
+                                        const sizeOption = `<div class="ms-1 mb-1 mb-lg-0 ">
+                            <input type="radio" class="btn-check " id="${size}" autocomplete="off"
+                                name="sizeOption" value="${size}">
+                            <label for="${size}" class="btn btn-outline-primary btn-sm"
+                                style="text-transform: capitalize;">
+                                ${size}
+                            </label>
+                        </div>`
+
+                                        sizeOptionsPreview.innerHTML += sizeOption;
+                                    })
+
+                                    productData.product.color.forEach((colr) => {
+                                        const colorOption = `<div class="ms-1 mb-1 mb-lg-0">
+                            <input type="radio" class="btn-check" id="${colr}"
+                                autocomplete="off" name="color" value="${colr}">
+                            <label for="${colr}" class="btn btn-outline-primary btn-sm"
+                                style="text-transform: capitalize;">
+                                ${colr}
+                            </label>
+                        </div>`
+
+                                        colorOptionsPreview.innerHTML += colorOption;
+                                    });
+
+                                    document.getElementById('optionModalTrigger').click()
+                                }
+                            }
+                        })
+                    })
+
+                    removeBtns.forEach((btn) => {
+                        btn.addEventListener('click', async () => {
+                            Swal.fire({
+                                title: "Are you sure?",
+                                text: "You want to remove product from wishlist",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                cancelButtonText: "No, Cancel",
+                                confirmButtonText: "Yes, Remove!"
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+                                    const productId = btn.getAttribute('data-productId');
+                                    console.log(productId);
+                                    const url = '/wishlist/remove'
+                                    const method = 'PATCH'
+                                    const body = {
+                                        productId: productId
+                                    }
+                                    const data = await fetchFunction(url, method, body);
+                                    if (data.status === true) {
+                                        Swal.fire({
+                                            text: data.message,
+                                            icon: "success"
+                                        }).then(() => {
+                                            location.reload()
+                                        })
+                                    }
+                                }
+                            });
+
+                        })
+                    })
+
+                    async function fetchFunction(url, method, body) {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(body)
+                        })
+
+                        const data = await response.json()
+
+                        return data;
+                    }
+
+                    function addToCart() {
+                        let hasError = false
+                        console.log(sizeOption.value)
+                        // if(sizeOption.checked === false){
+                        //     hasError = true;
+                        //     setError(sizeOption,"Select a size");
+                        // }else if(colorOption.checked === false){
+                        //     hasError = true;
+                        //     setError(colorOption,"Select a color");
+                        // }else{
+                        //     hasError = false;
+                        //     setError(sizeOption,'');
+                        // }
+                    }
+
+                    function setError(element, message) {
+                    const inputParent = element.closest('.parent');
+                    const errorDisplay = inputParent.querySelector('.error');
+
+                    errorDisplay.innerText = message;
+                }
+                </script>
+                <%- include('../includes/shop/shopEnd.ejs') %>

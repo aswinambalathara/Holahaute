@@ -80,7 +80,7 @@ module.exports.doAddToCart = async (req, res) => {
       } else {
         // if product doesn't exist in cart
         const availableQuantity = stockQuantity - (totalcartQuantity + 1);
-        if(availableQuantity > 0){
+        if(availableQuantity >= 0){
           await cartSchema.updateOne(
             { userId: userId },
             {
@@ -98,6 +98,12 @@ module.exports.doAddToCart = async (req, res) => {
             status: true,
             message: "Added to cart",
           });
+        }else{
+          res.json({
+            status : false,
+            stock : false,
+            message : `Only ${stockQuantity} left`
+          })
         }
         }  
     } else {
