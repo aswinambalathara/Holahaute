@@ -51,6 +51,7 @@
                     const addToCartBtns = document.querySelectorAll('.addToCart');
                     const sizeOption = document.querySelector('input[name="sizeOption"]:checked');
                     const colorOption = document.querySelector('input[name="color"]:checked');
+                    const optionModalTrigger = document.getElementById('optionModalTrigger');
 
 
                     addToCartBtns.forEach((btn) => {
@@ -72,9 +73,11 @@
                                     const sizeOptionsPreview = document.querySelector('.size-options-preview');
                                     const colorOptionsPreview = document.querySelector('.colorOptionsPreview');
                                     const productNamePreview = document.querySelector('.productName');
+                                    const addToCartBtn = document.getElementById('addToCartBtn');
                                     sizeOptionsPreview.innerHTML = ''
                                     colorOptionsPreview.innerHTML = ''
                                     productNamePreview.innerText = productData.product.productName
+                                    addToCartBtn.setAttribute('data-productId',productId)
                                     productData.product.sizeOptions.forEach((size) => {
                                         const sizeOption = `<div class="ms-1 mb-1 mb-lg-0 ">
                             <input type="radio" class="btn-check " id="${size}" autocomplete="off"
@@ -100,11 +103,41 @@
 
                                         colorOptionsPreview.innerHTML += colorOption;
                                     });
-
-                                    document.getElementById('optionModalTrigger').click()
+                                    optionModalTrigger.click()
                                 }
                             }
                         })
+                    })
+
+
+                    optionModalTrigger.addEventListener('click',()=>{
+                        const sizeOption = document.querySelector('input[name="sizeOption"]:checked');
+                    const colorOption = document.querySelector('input[name="color"]:checked');
+                    const addToCartBtn = document.getElementById('addToCartBtn');
+
+                    addToCartBtn.addEventListener('click',()=>{
+                        const productId = addToCartBtn.getAttribute('data-productId');
+                        let hasError = false
+                        // if(!sizeOption.checked){
+                        //     console.log(sizeOption.checked)
+                        //     hasError = true
+                        //     setError(sizeOption,"Select a size");
+                        // }else if(!colorOption.checked){
+                        //     hasError = true
+                        //     setError(colorOption,"Select a color");
+                        // }else{
+                        //     hasError = false
+                        //     setError(colorOption,'')
+                        // }
+
+                        if(!hasError){
+                            const colorOptionValue = colorOption.value
+                            const sizeOptionValue = sizeOption.value
+
+                            addToCart(colorOptionValue,sizeOptionValue,productId);
+                        }
+                    })
+
                     })
 
                     removeBtns.forEach((btn) => {
@@ -156,19 +189,9 @@
                         return data;
                     }
 
-                    function addToCart() {
+                    function addToCart(colorOptionValue,sizeOptionValue,productId) {
                         let hasError = false
-                        console.log(sizeOption.value)
-                        // if(sizeOption.checked === false){
-                        //     hasError = true;
-                        //     setError(sizeOption,"Select a size");
-                        // }else if(colorOption.checked === false){
-                        //     hasError = true;
-                        //     setError(colorOption,"Select a color");
-                        // }else{
-                        //     hasError = false;
-                        //     setError(sizeOption,'');
-                        // }
+                        console.log(colorOptionValue,sizeOptionValue,productId);
                     }
 
                     function setError(element, message) {

@@ -4,7 +4,10 @@
     let qtyInput = document.querySelectorAll('.qtyInput');
     const removeBtn = document.querySelectorAll('.removeBtn');
     const serverError = `<%=error%>`
-    const modal = document.getElementById('orderErrorModal')
+    const modal = document.getElementById('orderErrorModal');
+    const grandTotal = document.querySelector('.grandTotalPreview');
+    const billingPreview = document.querySelector('.billing-preview');
+
     addEventListener('DOMContentLoaded',()=>{
         if (serverError.length > 0) {
      const error = serverError.split('*')
@@ -30,16 +33,47 @@
     qtyUpBtn.forEach((btn) => {
         btn.addEventListener('click', async () => {
             const itemId = btn.getAttribute('data-itemId');
-            //console.log(itemId)
+            const productId = btn.getAttribute('data-productId');
+            //console.log(itemId,productId);
             const btnParent = btn.parentElement;
             let qtyInput = btnParent.querySelector('.qtyInput')
             let quantity = qtyInput.value;
             if (quantity < 5) {
                 quantity++
-                const data = await updateCartQuantity(itemId, quantity,)
+                const data = await updateCartQuantity(itemId, quantity,productId)
                 if (data.status === true) {
-                    //qtyInput.value = quantity
-                    location.reload()
+                    qtyInput.value = quantity
+                    grandTotal.innerHTML = `<span>₹ </span> ${data.cart.grandTotal}`
+                    console.log(data.cart)
+                    billingPreview.innerHTML = ''
+                    data.cart.cartItems.forEach((cartItem)=>{
+                        const item = ` <div class="product-card mt-3 border-bottom border-2 p-3">
+                                                    <p class="fw-bold text-dark" style="text-transform: capitalize;">
+                                                        ${cartItem.Products.productName} (${cartItem.size}, ${cartItem.color})
+                                                    </p>
+
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <div class="d-flex flex-column ">
+                                                            <small class="fw-semibold">PRICE :</small>
+                                                            <small class="fw-semibold">QUANTITY :</small>
+                                                            <small class="fw-semibold">TOTAL :</small>
+                                                        </div>
+                                                        <div class="text-end d-flex flex-column">
+                                                            <small> <span>₹ </span>
+                                                                ${cartItem.Products.price}
+                                                            </small>
+                                                            <small>
+                                                                ${cartItem.quantity}
+                                                            </small>
+                                                            <small><span>₹ </span>
+                                                                ${cartItem.totalPrice}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+
+                    billingPreview.innerHTML += item;
+                    })
                 } else {
                     setError(btn, data.message)
                 }
@@ -52,14 +86,16 @@
     qtyDownBtn.forEach((btn) => {
         btn.addEventListener("click", async () => {
             const itemId = btn.getAttribute('data-itemId');
+            const productId = btn.getAttribute('data-productId');
             const btnParent = btn.parentElement;
             let qtyInput = btnParent.querySelector('.qtyInput');
             let quantity = qtyInput.value;
             if (quantity > 1) {
                 setError(btn, '')
                 quantity--
-                const data = await updateCartQuantity(itemId, quantity);
+                const data = await updateCartQuantity(itemId, quantity,productId);
                 if (data.status === true) {
+                    qtyInput.value = quantity
                     //qtyInput.value = quantity;
                     location.reload()
                 }
@@ -67,7 +103,7 @@
         })
     })
 
-    async function updateCartQuantity(itemId, quantity) {
+    async function updateCartQuantity(itemId, quantity,productId) {
         //console.log(itemId," ",quantity)
         const response = await fetch('/cart/updatequantity', {
             method: 'PATCH',
@@ -76,7 +112,8 @@
             },
             body: JSON.stringify({
                 itemId: itemId,
-                quantity: Number(quantity)
+                quantity: Number(quantity),
+                productId:productId
             })
         })
 

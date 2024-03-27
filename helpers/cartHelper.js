@@ -5,7 +5,7 @@ const { ObjectId } = require("mongodb");
 
 module.exports.getCartHelper = async (userId) => {
   const cart = await cartSchema.aggregate([
-    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+    { $match: { userId: new ObjectId (userId) } },
     { $unwind: "$cartItems" },
     {
       $lookup: {
@@ -48,7 +48,6 @@ module.exports.getCartHelper = async (userId) => {
       },
     },
   ]);
-
   return cart;
 };
 
@@ -56,6 +55,7 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
   const cart = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
+    { $match: { "cartItems._id": new ObjectId(itemId) } },
     {
       $lookup: {
         from: "products",
@@ -65,23 +65,6 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
       },
     },
     { $unwind: "$product" },
-    {
-      $addFields: {
-        total: { $multiply: ["$product.price", "$cartItems.quantity"] },
-      },
-    },
-    {
-      $group: {
-        _id: "$_id",
-        grandTotal: { $sum: "$total" },
-        product: {
-          $push: {
-            quantity: "$cartItems.quantity",
-            price: "",
-          },
-        },
-      },
-    },
   ]);
   return cart;
 };
@@ -150,7 +133,7 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
       { _id: 0, quantity: 1, productName: 1 }
     );
     const check = product.quantity - item.quantity;
-    if (check >= 0) {
+    if (check >=0 ) {
       return true;
     } else {
       return product.productName;
@@ -170,3 +153,38 @@ module.exports.addCartQuantityCheck = (cart,productId) => {
 
   return totalQuantity;
 };
+
+
+// module.exports.updateQuantityHelper = async (userId, itemId) => {
+//   const cart = await cartSchema.aggregate([
+//     { $match: { userId: new ObjectId(userId) } },
+//     { $unwind: "$cartItems" },
+//     {
+//       $lookup: {
+//         from: "products",
+//         localField: "cartItems.productId",
+//         foreignField: "_id",
+//         as: "product",
+//       },
+//     },
+//     { $unwind: "$product" },
+//     {
+//       $addFields: {
+//         total: { $multiply: ["$product.price", "$cartItems.quantity"] },
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: "$_id",
+//         grandTotal: { $sum: "$total" },
+//         product: {
+//           $push: {
+//             quantity: "$cartItems.quantity",
+//             price: "",
+//           },
+//         },
+//       },
+//     },
+//   ]);
+//   console.log(cart)
+// };

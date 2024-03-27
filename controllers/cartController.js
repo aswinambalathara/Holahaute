@@ -4,12 +4,13 @@ const productSchema = require("../models/productModel");
 const addressSchema = require('../models/addressModel');
 const cartHelper = require("../helpers/cartHelper");
 const jwt = require("jsonwebtoken");
-const { ObjectId } = require("mongodb");
+const { ObjectId } = require("mongodb"); 
 
 module.exports.getCart = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
+    console.log(userId)
     const cart = await cartHelper.getCartHelper(userId);
     //console.log(cart[0])
     //console.log(cart[0].cartItems[0])
@@ -127,29 +128,29 @@ module.exports.doAddToCart = async (req, res) => {
 module.exports.doUpdateQuantity = async (req, res) => {
   try { 
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const { quantity, itemId } = req.body;
-    const cart = await cartHelper.updateQuantityHelper(authUser.userId, itemId);
-    console.log(cart);
-    const quantityCheck = cart[0].product.quantity - quantity;
-    // if (quantityCheck >= 0) {
-    //   const update = await cartSchema.updateOne(
-    //     { userId: authUser.userId, "cartItems._id": new ObjectId(itemId) },
-    //     {
-    //       $set: { "cartItems.$.quantity": quantity },
-    //     }
-    //   ); 
-    //   if (update) {
-    //     res.json({
-    //       status: true,
-    //     });
-    //   }
-    // } else {
-    //   res.json({
-    //     status: false,
-    //     message: `Only ${cart[0].product.quantity} left`,
-    //   });
-    // }
-    //console.log(cart)
+    const { quantity, itemId, productId } = req.body;
+    const stockQuantity = await productSchema.findOne({_id:productId});
+     const quantityCheck = stockQuantity.quantity - quantity;
+     if(quantityCheck < 0){
+     return res.json({
+            status: false,
+            message: `Only ${stockQuantity.quantity} left`,
+          });
+     }
+      const update = await cartSchema.updateOne(
+            { userId: authUser.userId, "cartItems._id": new ObjectId(itemId) },
+            {
+              $set: { "cartItems.$.quantity": quantity }, 
+            }
+          ); 
+          if(update){
+            const cart = await cartHelper.getCartHelper(authUser.userId);
+            console.log(cart[0]);
+            res.json({
+              status : true,
+              cart : cart[0]
+            })
+          }
   } catch (error) {
     console.log(error);
   }
