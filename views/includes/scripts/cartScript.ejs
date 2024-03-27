@@ -3,26 +3,25 @@
     const qtyDownBtn = document.querySelectorAll('.downBtn');
     let qtyInput = document.querySelectorAll('.qtyInput');
     const removeBtn = document.querySelectorAll('.removeBtn');
+    const addWishlistBtns = document.querySelectorAll('.addWishlistBtn');
     const serverError = `<%=error%>`
     const modal = document.getElementById('orderErrorModal');
     const grandTotal = document.querySelector('.grandTotalPreview');
     const billingPreview = document.querySelector('.billing-preview');
 
-    addEventListener('DOMContentLoaded',()=>{
+    addEventListener('DOMContentLoaded', () => {
         if (serverError.length > 0) {
-     const error = serverError.split('*')
-        const errorDiv = document.querySelector('.error-modal')
-        errorDiv.querySelector('.errorProducts').innerText = error[0]
-        errorDiv.querySelector('.errorMessage').innerText = error[1]
-       // console.log(modal)
-        modal.click()
-        document.getElementById('okBtn').onclick = () =>{
-            location.reload();
+            const error = serverError.split('*')
+            const errorDiv = document.querySelector('.error-modal')
+            errorDiv.querySelector('.errorProducts').innerText = error[0]
+            errorDiv.querySelector('.errorMessage').innerText = error[1]
+            // console.log(modal)
+            modal.click()
+            document.getElementById('okBtn').onclick = () => {
+                location.reload();
+            }
         }
-    }
     })
-        
-    
 
     function setError(btn, message) {
         const errorParent = btn.closest('#ancestor');
@@ -40,13 +39,13 @@
             let quantity = qtyInput.value;
             if (quantity < 5) {
                 quantity++
-                const data = await updateCartQuantity(itemId, quantity,productId)
+                const data = await updateCartQuantity(itemId, quantity, productId)
                 if (data.status === true) {
                     qtyInput.value = quantity
                     grandTotal.innerHTML = `<span>₹ </span> ${data.cart.grandTotal}`
                     console.log(data.cart)
                     billingPreview.innerHTML = ''
-                    data.cart.cartItems.forEach((cartItem)=>{
+                    data.cart.cartItems.forEach((cartItem) => {
                         const item = ` <div class="product-card mt-3 border-bottom border-2 p-3">
                                                     <p class="fw-bold text-dark" style="text-transform: capitalize;">
                                                         ${cartItem.Products.productName} (${cartItem.size}, ${cartItem.color})
@@ -72,7 +71,7 @@
                                                     </div>
                                                 </div>`
 
-                    billingPreview.innerHTML += item;
+                        billingPreview.innerHTML += item;
                     })
                 } else {
                     setError(btn, data.message)
@@ -93,17 +92,46 @@
             if (quantity > 1) {
                 setError(btn, '')
                 quantity--
-                const data = await updateCartQuantity(itemId, quantity,productId);
+                const data = await updateCartQuantity(itemId, quantity, productId);
                 if (data.status === true) {
                     qtyInput.value = quantity
-                    //qtyInput.value = quantity;
-                    location.reload()
+                    grandTotal.innerHTML = `<span>₹ </span> ${data.cart.grandTotal}`
+                    console.log(data.cart)
+                    billingPreview.innerHTML = ''
+                    data.cart.cartItems.forEach((cartItem) => {
+                        const item = ` <div class="product-card mt-3 border-bottom border-2 p-3">
+                                                    <p class="fw-bold text-dark" style="text-transform: capitalize;">
+                                                        ${cartItem.Products.productName} (${cartItem.size}, ${cartItem.color})
+                                                    </p>
+
+                                                    <div class="d-flex justify-content-between mt-3">
+                                                        <div class="d-flex flex-column ">
+                                                            <small class="fw-semibold">PRICE :</small>
+                                                            <small class="fw-semibold">QUANTITY :</small>
+                                                            <small class="fw-semibold">TOTAL :</small>
+                                                        </div>
+                                                        <div class="text-end d-flex flex-column">
+                                                            <small> <span>₹ </span>
+                                                                ${cartItem.Products.price}
+                                                            </small>
+                                                            <small>
+                                                                ${cartItem.quantity}
+                                                            </small>
+                                                            <small><span>₹ </span>
+                                                                ${cartItem.totalPrice}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+
+                        billingPreview.innerHTML += item;
+                    })
                 }
             }
         })
     })
 
-    async function updateCartQuantity(itemId, quantity,productId) {
+    async function updateCartQuantity(itemId, quantity, productId) {
         //console.log(itemId," ",quantity)
         const response = await fetch('/cart/updatequantity', {
             method: 'PATCH',
@@ -113,7 +141,7 @@
             body: JSON.stringify({
                 itemId: itemId,
                 quantity: Number(quantity),
-                productId:productId
+                productId: productId
             })
         })
 
@@ -153,5 +181,46 @@
         });
     }
 
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
 
+        const data = await response.json()
+
+        return data;
+    }
+
+    addWishlistBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const productId = btn.getAttribute('data-productId');
+            addToWishlist(productId);
+        })
+    })
+
+    async function addToWishlist(productId) {
+        const url = '/wishlist/add'
+        const method = 'POST'
+        const body = {
+            productId: productId
+        }
+        const data = await fetchFunction(url, method, body);
+        if (data.status === true) {
+            Swal.fire({
+                title: "Success",
+                text: data.message,
+                icon: "success"
+            });
+        }else{
+            Swal.fire({
+                title: "Error",
+                text: data.message,
+                icon: "error"
+            }); 
+        }
+    }
 </script>

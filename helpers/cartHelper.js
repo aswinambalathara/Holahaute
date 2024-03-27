@@ -111,6 +111,8 @@ module.exports.getCheckoutHelper = async (userId) => {
         orderInfo: {
           $push: {
             product: {
+              productName : "$product.productName",
+              price : "$product.price",
               productId: "$cartItems.productId",
               size: "$cartItems.size",
               quantity: "$cartItems.quantity",

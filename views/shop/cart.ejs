@@ -3,7 +3,7 @@
 
         <div class="p-0 p-md-5">
             <div class="container">
-                <div class="cart-container mt-5">
+                <div class="cart-container mt-5 font-poppins">
                     <h5>Your Cart</h5>
                     <% if(cartData) {%>
                         <div class="cart-wrapper d-flex justify-content-between flex-column flex-md-row mt-3">
@@ -72,7 +72,7 @@
                                                                 <button
                                                                     class="btn btn-outline-danger btn-sm me-2 removeBtn"
                                                                     data-itemId="<%= item._id%>">Remove</button>
-                                                                <button class="btn btn-outline-success btn-sm">Add to
+                                                                <button class="btn btn-outline-success btn-sm addWishlistBtn" data-productId="<%=item.productId%>">Add to
                                                                     wishlist</button>
                                                             </div>
                                                         </div>

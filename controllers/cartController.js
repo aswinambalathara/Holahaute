@@ -3,8 +3,10 @@ const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const addressSchema = require('../models/addressModel');
 const cartHelper = require("../helpers/cartHelper");
+const wishlistSchema = require('../models/wishlistModel');
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb"); 
+const userSchema = require("../models/userModel");
 
 module.exports.getCart = async (req, res) => {
   try {
@@ -179,7 +181,7 @@ try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId)
-  console.log(cart.totalQuantityByProduct)
+  console.log(cart.orderInfo)
   const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
   //console.log(stock)
   console.log(stock)
@@ -188,6 +190,7 @@ try {
       title: "Checkout",
       user: authUser.userName,
       grandTotal:cart.grandTotal,
+      cartItems : cart.orderInfo,
       addresses
     });
   }else{

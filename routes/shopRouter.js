@@ -25,6 +25,7 @@ router.post('/user/addaddress',authMiddleware.userStatus,authMiddleware.verifyUs
 router.patch('/user/removeaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doUnlistAddress);
 router.get('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getEditAddress); 
 router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doEditAddress);
+
 //cartRoutes
 
 router.get('/cart',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCart);
@@ -36,6 +37,7 @@ router.post('/placeorder',authMiddleware.userStatus,authMiddleware.verifyUser,or
 router.post('/verifypayment',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doverifyPayment);
 
 //orders
+
 router.get('/orderstatus',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderStatusPage);
 router.get('/myorders',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getMyorders);
 router.get('/myorders/order/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderDetail);
@@ -43,8 +45,11 @@ router.get('/myorders/trackorder/:id',authMiddleware.userStatus,authMiddleware.v
 router.patch('/myorder/cancelorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCancelOrder);
 
 //wishlist
+
 router.get('/wishlist',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.getWishlist);
 router.post('/wishlist/add',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.addToWishlist);
 router.patch('/wishlist/remove',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.removeFromWishList);
 router.get('/wishlist/fetchproductoptions/:id',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.fetchProductOptions);
+
+
 module.exports = router;
