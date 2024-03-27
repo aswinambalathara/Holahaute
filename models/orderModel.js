@@ -68,6 +68,8 @@ const orderSchema = Schema({
         type: Number,
         required: true,
       },
+
+      //price
     },
   ],
 

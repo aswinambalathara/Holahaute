@@ -1,5 +1,6 @@
 const userSchema = require("../models/userModel");
 const orderSchema = require("../models/orderModel");
+const couponSchema = require('../models/couponModel');
 const adminHelper = require('../helpers/adminHelper');
 const { ObjectId } = require("mongodb");
 module.exports.getAdminDashboard = (req, res) => {
@@ -155,3 +156,19 @@ module.exports.doChangeOrderStage = async (req, res) => {
 };
 
 module.exports.doAdminCancelOrder = async (req, res) => {};
+
+module.exports.getAdminCoupons = async (req,res) =>{
+try {
+  res.render("admin/adminCoupons", { title: "Coupons" });
+} catch (error) {
+  console.log(error);
+}
+};
+
+module.exports.doAddCoupon = async (req,res) =>{
+  try {
+    
+  } catch (error) {
+    console.log(error)
+  }
+}
