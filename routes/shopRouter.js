@@ -43,6 +43,7 @@ router.get('/myorders',authMiddleware.userStatus,authMiddleware.verifyUser,order
 router.get('/myorders/order/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderDetail);
 router.get('/myorders/trackorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderTracking);
 router.patch('/myorder/cancelorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCancelOrder);
+router.post('/myorders/rateproduct',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doProductRating);
 
 //wishlist
 

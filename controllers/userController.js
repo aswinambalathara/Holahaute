@@ -4,7 +4,7 @@ const verficationController = require("../controllers/verificationController");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userHelper = require("../helpers/userHelper");
-const { use } = require("passport");
+const ratingsSchema = require('../models/ratingsModel');
 
 module.exports.getUserProfile = async (req, res) => {
   try {
@@ -333,3 +333,33 @@ module.exports.doEditAddress = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.doProductRating = async (req,res)=>{
+  try {
+    const {productId,rating,review} = req.body
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const {userId} = authUser 
+    const existRating = await ratingsSchema.findOne({userId:userId,productId:productId});
+    if(existRating){
+      return res.json({
+        status : false,
+        message : "Review Already Exist"
+      });
+    }
+    const newRating = new ratingsSchema({
+      userId : userId,
+      productId : productId,
+      rating : Number(rating),
+      review : review? review : undefined
+    })
+    const inserted = await newRating.save()
+    if(inserted){
+      res.json({
+        status : true,
+        message : "Thanks for rating"
+      })
+    }
+  } catch (error) { 
+    console.log(error)
+  }
+} 

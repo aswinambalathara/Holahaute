@@ -51,6 +51,7 @@ module.exports.makeOrderHelper = async (userId) => {
                 size: "$cartItems.size",
                 quantity: "$cartItems.quantity",
                 color: "$cartItems.color",
+                price : "$product.price"
               },
             },
           },

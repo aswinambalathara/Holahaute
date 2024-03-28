@@ -1,0 +1,116 @@
+
+
+<!-- Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Rate the product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <strong class="productNamePreview" style="text-transform: capitalize;"></strong>
+                <div id="full-stars-example-two">
+                    <div class="rating-group">
+                        <input disabled checked class="rating__input rating__input--none" name="rating"
+                            id="rating3-none" value="0" type="radio">
+                        <label aria-label="1 star" class="rating__label" for="rating3-1"><i
+                                class="rating__icon rating__icon--star fa fa-star"></i></label>
+                        <input class="rating__input" name="rating" id="rating3-1" value="1" type="radio">
+                        <label aria-label="2 stars" class="rating__label" for="rating3-2"><i
+                                class="rating__icon rating__icon--star fa fa-star"></i></label>
+                        <input class="rating__input" name="rating" id="rating3-2" value="2" type="radio">
+                        <label aria-label="3 stars" class="rating__label" for="rating3-3"><i
+                                class="rating__icon rating__icon--star fa fa-star"></i></label>
+                        <input class="rating__input" name="rating" id="rating3-3" value="3" type="radio">
+                        <label aria-label="4 stars" class="rating__label" for="rating3-4"><i
+                                class="rating__icon rating__icon--star fa fa-star"></i></label>
+                        <input class="rating__input" name="rating" id="rating3-4" value="4" type="radio">
+                        <label aria-label="5 stars" class="rating__label" for="rating3-5"><i
+                                class="rating__icon rating__icon--star fa fa-star"></i></label>
+                        <input class="rating__input" name="rating" id="rating3-5" value="5" type="radio">
+                    </div>
+                </div>
+                <div class="review" hidden>
+                    <label for="review">
+                        Review
+                    </label>
+                    <textarea name="userReview" id="userReview" class="form-control" cols="30" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" hidden>
+                <button type="button" class="btn btn-primary btn-sm" id="rateSubmitBtn">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const rateProductBtns = document.querySelectorAll('.rateModal-trigger');
+    const rating = document.querySelectorAll('input[name="rating"]');
+    const reviewDiv = document.querySelector('.review');
+    const modalFooter = document.querySelector('.modal-footer')
+    const rateSubmitBtn = document.getElementById('rateSubmitBtn');
+    const reviewInput = document.getElementById('userReview');
+    const productNamePreview = document.querySelector('.productNamePreview');
+    rateProductBtns.forEach((triggerBtn) => {
+        triggerBtn.addEventListener('click', () => {
+            const productId = triggerBtn.getAttribute('data-productId');
+            const productName = triggerBtn.getAttribute('data-productName');
+            productNamePreview.innerText = productName
+            rating.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    reviewDiv.hidden = false
+                    modalFooter.hidden = false
+                    const ratingValue = btn.value
+                    rateSubmitBtn.addEventListener('click', async () => {
+                        const review = reviewInput.value
+                        console.log(review, ratingValue, productId);
+                        const url = '/myorders/rateproduct'
+                        const method = 'POST'
+                        const body = {
+                            productId: productId,
+                            rating: ratingValue,
+                            review: review ? review : undefined
+                        }
+
+                        const data = await fetchFunction(url, method, body);
+                        //console.log(data)
+                        if (data.status === true) {
+                            Swal.fire({
+                                text: data.message,
+                                icon: "success"
+                            }).then(()=>{
+                                location.reload()
+                            })
+                        }else{
+                            Swal.fire({
+                                text: data.message,
+                                icon: "error"
+                            }).then(()=>{
+                                document.querySelector('.close').click()
+                            })
+                        }
+                    })
+                })
+            })
+        })
+    })
+
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+
+        const data = await response.json()
+
+        return data;
+    }
+</script>

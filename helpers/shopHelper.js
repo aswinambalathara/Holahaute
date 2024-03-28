@@ -21,6 +21,8 @@ module.exports.filterHelp = async (
     sortFilter = { price: 1 };
   } else if (sort === "highToLow") {
     sortFilter = { price: -1 };
+  }else if (sort === 'averageRating'){
+    sortFilter = {averageRating : -1};
   }
 
   if (price === "allPrices") {
@@ -44,18 +46,25 @@ module.exports.filterHelp = async (
         as: "category",
       },
     },
+    {$lookup:{
+      from : 'ratings',
+      localField : '_id',
+      foreignField : "productId",
+      as: "ratings"
+    }},
+    {$addFields:{averageRating:{$avg:"$ratings.rating"}}},
     {
       $match: {
         $and: [
           { "category.categoryName": category ? category : { $exists: true } },
           { price: priceFilter },
         ],
-        $or: [{ userType: { $in: userTypes } }, { color: { $in: colors } }],
+        $or: [{ userType: { $in: userTypes } }, { color: { $in: colors } }], 
       },
     },
     { $sort: sortFilter },
   ]);
-
+console.log(products)
   return products;
 };
 
@@ -72,6 +81,8 @@ module.exports.defaultFilterHelp = async (sort, price, category) => {
     sortFilter = { price: 1 };
   } else if (sort === "highToLow") {
     sortFilter = { price: -1 };
+  }else if (sort === 'averageRating'){
+    sortFilter = {averageRating : -1};
   }
 
   if (price === "allPrices") {
@@ -95,6 +106,13 @@ module.exports.defaultFilterHelp = async (sort, price, category) => {
         as: "category",
       },
     },
+    {$lookup:{
+      from : 'ratings',
+      localField : '_id',
+      foreignField : "productId",
+      as: "ratings"
+    }},
+    {$addFields:{averageRating:{$avg:"$ratings.rating"}}},
     {
       $match: {
         $and: [
@@ -105,7 +123,7 @@ module.exports.defaultFilterHelp = async (sort, price, category) => {
     },
     { $sort: sortFilter },
   ]);
-
+console.log(products[0])
   return products;
 };
 

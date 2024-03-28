@@ -12,7 +12,7 @@ const ratingsSchema = Schema({
     required: true,
   },
 
-  ratings: {
+  rating: {
     type: Number,
     required: true,
     min: 1,

@@ -6,9 +6,10 @@ const paymentHelper = require("../helpers/paymentHelper");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = require("mongodb");
-const {RAZORPAY_KEY_SECRET } = process.env;
-const crypto = require('crypto')
+const { RAZORPAY_KEY_SECRET } = process.env;
+const crypto = require("crypto");
 const orderSchema = require("../models/orderModel");
+
 
 module.exports.doCartPlaceOrder = async (req, res) => {
   try {
@@ -17,7 +18,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
     const userId = authUser.userId;
     const orderId = uuidv4();
     const order = await orderHelper.makeOrderHelper(userId);
-    console.log(order);
+    //console.log(order);
     const product = order.orderInfo.map((item) => {
       return item.product;
     });
@@ -83,27 +84,34 @@ module.exports.doCartPlaceOrder = async (req, res) => {
 module.exports.doverifyPayment = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const {userId} = authUser;
+    const { userId } = authUser;
     const { response, order } = req.body;
     console.log(req.body);
-  const {razorpay_payment_id,razorpay_order_id,razorpay_signature} = response
-    let sign = crypto.createHmac('sha256',RAZORPAY_KEY_SECRET);
-    sign.update(razorpay_order_id + '|' + razorpay_payment_id);
-    sign = sign.digest('hex');
-    if(sign === razorpay_signature){ 
-      const orderUpdate = await orderSchema.updateOne({orderId : order.notes.order_Id},{
-        $set : {orderStatus : "CONFIRMED","paymentMethod.paymentId":razorpay_payment_id}
-      })
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+      response;
+    let sign = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
+    sign.update(razorpay_order_id + "|" + razorpay_payment_id);
+    sign = sign.digest("hex");
+    if (sign === razorpay_signature) {
+      const orderUpdate = await orderSchema.updateOne(
+        { orderId: order.notes.order_Id },
+        {
+          $set: {
+            orderStatus: "CONFIRMED",
+            "paymentMethod.paymentId": razorpay_payment_id,
+          },
+        }
+      );
 
-      if(orderUpdate){
+      if (orderUpdate) {
         res.json({
-          paid : true
-        })
+          paid: true,
+        });
       }
-    }else{
+    } else {
       res.json({
-        paid : false
-      })
+        paid: false,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -138,7 +146,9 @@ module.exports.getMyorders = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const orders = await orderSchema
       .find({ userId: new ObjectId(authUser.userId) })
-      .populate("products.productId");
+      .sort({ orderedAt: -1 })
+      .populate("products.productId")
+      .exec();
     //console.log(orders);
     const arrivals = orders.map((order) => {
       const options = {
@@ -166,7 +176,7 @@ module.exports.getOrderDetail = async (req, res) => {
     const orderId = req.params.id;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const order = await orderHelper.orderStatusHelper(authUser.userId, orderId);
-    console.log(order);
+    //console.log(order);
     res.render("user/orderDetail.ejs", {
       title: "Order",
       user: authUser.userName,
@@ -254,3 +264,4 @@ module.exports.doCancelOrder = async (req, res) => {
     console.log(error);
   }
 };
+

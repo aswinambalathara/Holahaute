@@ -69,7 +69,10 @@ const orderSchema = Schema({
         required: true,
       },
 
-      //price
+      price : {
+        type : Number,
+        required : true,
+      }
     },
   ],
 
