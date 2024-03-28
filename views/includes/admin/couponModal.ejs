@@ -1,44 +1,179 @@
 <!-- Button trigger modal -->
-  
-  <!-- Modal -->
-  <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Coupon</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body parent">
-            <form action="" class="d-flex flex-column">
-                <div class="mb-2">
-                    <label for="CouponName" class="form-label">Coupon Name</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label for="CouponCode" class="form-label">Coupon Code</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label for="ValidFrom" class="form-label">Valid From</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label for="ValidTo" class="form-label">Valid To</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label for="ValidFor" class="form-label">Valid For</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label for="Discount" class="form-label">Discount</label>
-                    <input type="text" name="" id="" class="form-control">
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
-        </div>
+
+<!-- Modal -->
+<div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Coupon</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="" class="d-flex flex-column" id="couponForm">
+          <div class="mb-2 parent">
+            <label for="CouponName" class="form-label">Coupon Name</label>
+            <input type="text" name="couponName" id="couponName" class="form-control">
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+          </div>
+          <div class="mb-2 parent">
+            <label for="CouponCode" class="form-label">Coupon Code</label>
+            <input type="text" name="couponCode" id="couponCode" class="form-control">
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+          </div>
+          <div class="mb-2 parent">
+            <label for="ValidFrom" class="form-label">Valid From</label>
+            <input type="date" name="validFrom" id="validFrom" class="form-control">
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+          </div>
+          <div class="mb-2 parent">
+            <label for="ValidTo" class="form-label">Valid To</label>
+            <input type="date" name="validTo" id="validTo" class="form-control">
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+          </div>
+          <div class="mb-2 parent">
+            <label for="ValidFor" class="form-label">Valid For</label>
+            <select name="validFor" id="validFor" class="form-select">
+              <option value="" checked>Choose Category</option>
+            </select>
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            <!-- <input type="text" name="validFor" id="validFor" class="form-control"> -->
+          </div>
+          <div class="mb-2 parent">
+            <label for="Discount" class="form-label">Discount</label>
+            <input type="text" name="discount" id="discount" class="form-control">
+            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
       </div>
     </div>
   </div>
+</div>
+
+<script>
+  const addCouponForm = document.getElementById('couponForm');
+  const couponName = document.getElementById('couponName');
+  const couponCode = document.getElementById('couponCode');
+  const validFrom = document.getElementById('validFrom');
+  const validTo = document.getElementById('validTo');
+  const validFor = document.getElementById('validFor');
+  const discount = document.getElementById('discount');
+  const createCouponBtn = document.getElementById('createCouponBtn');
+
+  couponName.addEventListener('blur', handleInputChange);
+  couponCode.addEventListener('blur', handleInputChange);
+  validFrom.addEventListener('blur', handleInputChange);
+  validTo.addEventListener('blur', handleInputChange);
+  validFor.addEventListener('blur', handleInputChange);
+  discount.addEventListener('blur', handleInputChange);
+  createCouponBtn.addEventListener('click', handleFormSubmit);
+
+  const errorMessages = {
+    couponName: {
+      required: "This field is required",
+      invalid: "Only letters allowed"
+    },
+    couponCode: {
+      required: "This field is required",
+      invalid: "Must contain atleast 3 uppercase and 3 characters"
+    },
+    validFrom: {
+      required: "This field is required",
+      invalid: "Enter a valid Date"
+    },
+    validTo: {
+      required: "This field is required",
+      invalid: "Select a future date"
+    },
+    validFor: {
+      required: "This field is required",
+    },
+    discount: {
+      required: "This field is required",
+      invalid: "Enter valid discount between 1 and 100%"
+    },
+  }
+
+  function handleInputChange(event) {
+    const input = event.target;
+    const type = input.id;
+    const value = input.value;
+
+    const errorMessage = validateInputs(input, type, value);
+    setError(input, errorMessage);
+  }
+
+  function validateInputs(input, type, value) {
+    let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+    let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
+    let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
+
+    const errorMessage = errorMessages[type];
+
+    if (value === '') {
+      return errorMessage.required;
+    }
+
+    switch (type) {
+      case 'couponName':
+        if (!lettersOnlyRegex.test(value)) {
+          return errorMessage.invalid;
+        }
+        break;
+      case 'couponCode':
+        if (!couponRegex.test(value)) {
+          return errorMessage.invalid
+        }
+        break;
+      case 'discount':
+        if (!discountRegex.test(value)) {
+          return errorMessage.invalid
+        }
+        break;
+      case 'validFrom':
+      case 'validTo':
+        const dateInMs = Date.parse(value);
+        const todayInMs = new Date().getTime();
+        console.log(dateInMs);
+        console.log(todayInMs);
+        if (dateInMs < todayInMs) {
+          return errorMessage.invalid
+        }
+        break;
+
+    }
+    return ''
+  }
+
+  function handleFormSubmit(event) {
+    event.preventDefault()
+
+    let hasError = false;
+    const allInputs = [couponName, couponCode, validFrom, validTo, validFor, discount];
+
+    allInputs.forEach((input) => {
+      const type = input.id;
+      const value = input.value;
+      const errorMessage = validateInputs(input, type, value);
+      if (errorMessage) {
+        hasError = true
+        setError(input, errorMessage);
+      } else {
+        setError(input, '');
+      }
+    });
+
+    if (!hasError) {
+      addCouponForm.submit()
+    }
+  }
+  function setError(element, message) {
+    const inputParent = element.closest('.parent');
+    const errorDisplay = inputParent.querySelector('.error');
+
+    errorDisplay.innerText = message;
+  }
+
+</script>
