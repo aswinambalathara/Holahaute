@@ -22,7 +22,7 @@
                                         <th scope="col">Coupon Name</th>
                                         <th scope="col">Coupon Code</th>
                                         <th scope="col">Expire At</th>
-                                        <th scope="col">Discount</th>
+                                        <th scope="col">Discount %</th>
                                         <th scope="col">Valid For</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">Actions</th>
@@ -32,16 +32,16 @@
                                     <% if (coupons) {%>
                                         <%coupons.forEach(function(coupon){%>
                                             <tr class="mt-3 border border-rounded">
-                                                <th scope="row" class="col-2">
+                                                <th scope="row" style="text-transform: capitalize;" class="col-2">
                                                     <%=coupon.couponName%>
                                                 </th>
                                                 <td class="col-2">
                                                     <%=coupon.couponCode%>
                                                 </td>
-                                                <td class="col-3">
+                                                <td class="col-2">
                                                     <%=coupon.validTo%>
                                                 </td>
-                                                <td class="col-1">
+                                                <td class="col-2">
                                                     <%=coupon.discountPercentage%>
                                                 </td>
                                                 <td style="text-transform: capitalize;" class="col-2">
@@ -107,7 +107,14 @@
                   editValidFrom.value = formattedValidFrom
                   editValidTo.value = formattedValidTo
                   editDiscount.value = data.coupon.discountPercentage
-                //   editCouponName.value = data.coupon.couponName
+                  editCouponBtn.setAttribute('data-couponId',data.coupon._id);
+                  editValidFor.options.forEach((option)=>{
+                    //console.log(option.value)
+                    if(option.value === data.coupon.validFor){
+                        option.selected = true
+                    }
+                  });
+                  editCouponTrigger.click()
                 }
             })
         });

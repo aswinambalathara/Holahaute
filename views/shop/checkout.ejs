@@ -177,18 +177,23 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="card shadow mb-3">
                             <div class="card-body py-4">
                                 <h5>Add Coupon</h5>
-                                <label for="" class="form-label mt-2" style="font-size: small">Coupon Code</label>
-                                <input type="text" name="" id="" class="form-control" />
+                                <div class="coupon-input">
+                                    <label for="" class="form-label mt-2" style="font-size: small">Coupon Code</label>
+                                    <input type="text" name="coupon" id="coupon" class="form-control" />
+
+                                </div>
+                                <button type="button" data-bs-toggle="modal"
+                                data-bs-target="#availableCoupons" class="btn btn-link p-0 border-0"><small>See available coupons</small></button>
                                 <div class="mt-2">
-                                    <button class="btn btn-primary btn-sm">Apply Coupon</button>
-                                    <button class="btn btn-outline-dark btn-sm">Remove Coupon</button>
+                                    <button class="btn btn-primary btn-sm" id="applyCoupon">Apply Coupon</button>
+                                    <button class="btn btn-outline-dark btn-sm" id="removeCoupon">Remove Coupon</button>
                                 </div>
                             </div>
                         </div>
+                        <%-include ('../includes/shop/couponsAvailable.ejs') %>
                     </div>
 
                     <div class="right-part col-12 col-md-6 vstack gap-3">
@@ -198,15 +203,15 @@
                             </div>
                             <div class="card-body p-4">
 
-                                
-                                    <div class="vstack gap-3">
-                                        <%cartItems.forEach(function(item){%>
+
+                                <div class="vstack gap-3">
+                                    <%cartItems.forEach(function(item){%>
                                         <div class="product-card border-bottom border-2">
                                             <p class="fw-bold text-dark" style="text-transform: capitalize;">
                                                 <%= item.product.productName%> (<%= item.product.size %>, <%=
-                                                                            item.product.color%>)
+                                                            item.product.color%>)
                                             </p>
-        
+
                                             <div class="d-flex justify-content-between mt-3 mb-3">
                                                 <div class="d-flex flex-column ">
                                                     <small class="fw-semibold">PRICE :</small>
@@ -227,9 +232,9 @@
                                             </div>
                                         </div>
                                         <%})%>
-                                    </div>
-                                
-                                
+                                </div>
+
+
                             </div>
                         </div>
                         <div class="card shadow mb-5">
@@ -263,8 +268,10 @@
                     </div>
                 </div>
             </div>
+            
             <%-include ('../includes/shop/orderModal.ejs') %>
         </div>
+
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
         <script>
@@ -272,7 +279,12 @@
             const deliveryAddress = document.querySelector('#deliveryAddress');
             const changeAddressBtn = document.getElementById('changeAddressBtn');
             const placeOrderBtn = document.getElementById('placeOrder');
-            const paymentOption = document.querySelectorAll('.paymentOption')
+            const selectBtns = document.querySelectorAll('.selectBtns');
+            const paymentOption = document.querySelectorAll('.paymentOption');
+            const couponInput = document.getElementById('coupon');
+            const couponModalClose = document.querySelector('.couponModalClose');
+            const applyCoupon = document.getElementById('applyCoupon');
+            const removeCoupon = document.getElementById('removeCoupon');
 
             changeAddressBtn.addEventListener('click', () => {
                 addressInput.forEach(async (input) => {
@@ -399,7 +411,30 @@
 
                 return data;
             }
+       
+    selectBtns.forEach((btn)=>{
+        btn.addEventListener('click',()=>{
+            const couponCode = btn.getAttribute('data-couponCode');
+            couponInput.value = couponCode;
+            couponModalClose.click();
+        });
+    })
+        
+    applyCoupon.addEventListener('click',async ()=>{
+        const couponCode = applyCoupon.value.trim()
+        if(couponCode === ''){
 
+        }else{
+            const url = ''
+            const method = 'POST'
+            const body = {
+                couponCode : couponCode
+            }
+        
+        }
+    })
+   
+    removeCoupon.addEventListener('click')
         </script>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

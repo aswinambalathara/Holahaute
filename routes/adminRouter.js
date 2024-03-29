@@ -35,5 +35,6 @@ router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.do
 router.get('/coupons',authMiddleware.verifyAdmin,adminController.getAdminCoupons);
 router.post('/coupons/addcoupon',authMiddleware.verifyAdmin,adminController.doAddCoupon);
 router.get('/coupons/fetchCoupon/:id',authMiddleware.verifyAdmin,adminController.doFetchCoupon);
+router.patch('/coupons/editcoupon/:id',authMiddleware.verifyAdmin,adminController.doEditCoupon);
 
 module.exports = router;

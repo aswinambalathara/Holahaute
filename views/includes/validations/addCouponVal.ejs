@@ -128,7 +128,7 @@
         const url = '/admin/coupons/addcoupon'
         const method = 'POST'
         const body = {
-          couponName: couponName.value.trim(),
+          couponName: couponName.value.trim().toLowerCase(),
           couponCode: couponCode.value.trim(),
           validFrom: new Date(validFrom.value.trim()),
           validTo: new Date(validTo.value.trim()),

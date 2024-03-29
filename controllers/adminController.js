@@ -185,12 +185,22 @@ module.exports.doAddCoupon = async (req, res) => {
     //console.log(req.body);
     const { couponName, couponCode, validFrom, validTo, validFor, discount } =
       req.body;
-    const coupon = await couponSchema.findOne({ couponCode, couponName });
+    const coupon = await couponSchema.findOne({$or:[{couponCode:couponCode},{couponName:couponName}]});
     if (coupon) {
-      return res.status(409).json({
-        status: false,
-        message: "Coupon with same code or name already exist",
-      });
+      if(coupon.validTo > Date.now()){ 
+        return res.status(409).json({
+          status: false,
+          message: "Coupon with same code or name already exist",
+        });
+       }
+      //else{
+      //   return res.json({
+      //     status : false,
+      //     expiredCoupon : true,
+      //     couponId : coupon._id,
+      //     message : "There is a expired coupon with same name or code do you wish to edit it ?"
+      //   });
+      // }  
     }
     const newCoupon = new couponSchema({
       couponName,
@@ -212,18 +222,52 @@ module.exports.doAddCoupon = async (req, res) => {
   }
 };
 
-module.exports.doFetchCoupon = async (req,res) =>{
-try {
-  const couponId = req.params.id;
-  const coupon = await couponSchema.findOne({_id:couponId});
-  console.log(coupon);
-  if(coupon){
-    return res.json({
-      status : true,
-      coupon : coupon
-    })
+module.exports.doFetchCoupon = async (req, res) => {
+  try {
+    const couponId = req.params.id;
+    const coupon = await couponSchema.findOne({ _id: couponId });
+    console.log(coupon);
+    if (coupon) {
+      return res.json({
+        status: true,
+        coupon: coupon,
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
-} catch (error) {
-  console.log(error);
-}
-}
+};
+
+module.exports.doEditCoupon = async (req, res) => {
+  try {
+    const couponId = req.params.id;
+    const { couponName, couponCode, validFrom, validTo, validFor, discount } = req.body;
+    const couponCheck = await couponSchema.findOne({$or:[{couponName:couponName},{couponCode:couponCode}]});
+    //console.log(couponCheck,couponId);
+    if(couponCheck && !couponCheck._id.equals(couponId)){
+      if(couponCheck.validTo > Date.now()){
+        return res.json({
+          status : false,
+          message : "Coupon Already Exist with same code or name"
+        })
+      }
+    }else{
+      const updated = await couponSchema.updateOne({_id:couponId},{$set:{
+        couponName : couponName,
+        couponCode : couponCode,
+        validFrom : validFrom,
+        validTo : validTo,
+        validFor : validFor,  
+        discountPercentage : discount
+      }});
+      if(updated){
+        res.json({
+          status : true,
+          message : "Coupon updates Successfull"
+        })
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};

@@ -1,11 +1,12 @@
 const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
+const couponSchema = require("../models/couponModel");
 const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
 module.exports.getCartHelper = async (userId) => {
   const cart = await cartSchema.aggregate([
-    { $match: { userId: new ObjectId (userId) } },
+    { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
     {
       $lookup: {
@@ -111,8 +112,9 @@ module.exports.getCheckoutHelper = async (userId) => {
         orderInfo: {
           $push: {
             product: {
-              productName : "$product.productName",
-              price : "$product.price",
+              productName: "$product.productName",
+              price: "$product.price",
+              category: "$product.category",
               productId: "$cartItems.productId",
               size: "$cartItems.size",
               quantity: "$cartItems.quantity",
@@ -128,6 +130,16 @@ module.exports.getCheckoutHelper = async (userId) => {
   return cart[0];
 };
 
+module.exports.availableCouponHelper = async (products) => {
+  let categories = products.map((item) => item.product.category);
+  categories = categories.map((id) => new ObjectId(id));
+  const availableCoupons = await couponSchema.find({
+    validFor: { $in: categories },
+  });
+
+  return availableCoupons
+};
+
 module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
   for (let item of totalQuantityByProduct) {
     const product = await productSchema.findOne(
@@ -135,7 +147,7 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
       { _id: 0, quantity: 1, productName: 1 }
     );
     const check = product.quantity - item.quantity;
-    if (check >=0 ) {
+    if (check >= 0) {
       return true;
     } else {
       return product.productName;
@@ -143,7 +155,7 @@ module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
   }
 };
 
-module.exports.addCartQuantityCheck = (cart,productId) => {
+module.exports.addCartQuantityCheck = (cart, productId) => {
   const matchingProducts = cart.cartItems.filter((item) =>
     item.productId.equals(productId)
   );
@@ -155,7 +167,6 @@ module.exports.addCartQuantityCheck = (cart,productId) => {
 
   return totalQuantity;
 };
-
 
 // module.exports.updateQuantityHelper = async (userId, itemId) => {
 //   const cart = await cartSchema.aggregate([

@@ -180,18 +180,19 @@ module.exports.getCartCheckOut = async (req,res)=>{
 try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
-  const cart = await cartHelper.getCheckoutHelper(authUser.userId)
-  console.log(cart.orderInfo)
+  const cart = await cartHelper.getCheckoutHelper(authUser.userId);
+  const availableCoupons = await cartHelper.availableCouponHelper(cart.orderInfo); 
+  //console.log(cart.orderInfo)
   const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
   //console.log(stock)
-  console.log(stock)
   if(stock === true){
     res.render("shop/checkout.ejs", {
       title: "Checkout",
       user: authUser.userName,
       grandTotal:cart.grandTotal,
       cartItems : cart.orderInfo,
-      addresses
+      addresses,
+      availableCoupons : availableCoupons,
     });
   }else{
     req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,Try different Quantity`);
