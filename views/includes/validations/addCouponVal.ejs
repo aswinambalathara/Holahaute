@@ -1,0 +1,176 @@
+<script>
+    //const addCouponForm = document.getElementById('couponForm');
+    const couponName = document.getElementById('couponName');
+    const couponCode = document.getElementById('couponCode');
+    const validFrom = document.getElementById('validFrom');
+    const validTo = document.getElementById('validTo');
+    const validFor = document.getElementById('validFor');
+    const discount = document.getElementById('discount');
+    const createCouponBtn = document.getElementById('createCouponBtn');
+  
+    couponName.addEventListener('blur', handleInputChange);
+    couponCode.addEventListener('blur', handleInputChange);
+    validFrom.addEventListener('blur', handleInputChange);
+    validTo.addEventListener('blur', handleInputChange);
+    validFor.addEventListener('blur', handleInputChange);
+    discount.addEventListener('blur', handleInputChange);
+    createCouponBtn.addEventListener('click', handleFormSubmit);
+  
+    const errorMessages = {
+      couponName: {
+        required: "This field is required",
+        invalid: "Only letters allowed"
+      },
+      couponCode: {
+        required: "This field is required",
+        invalid: "Must contain atleast 3 uppercase and 3 characters"
+      },
+      validFrom: {
+        required: "This field is required",
+        invalid: "Enter a valid Date"
+      },
+      validTo: {
+        required: "This field is required",
+        invalid: "Select a future date"
+      },
+      validFor: {
+        required: "This field is required",
+      },
+      discount: {
+        required: "This field is required",
+        invalid: "Enter valid discount between 1 and 100%"
+      },
+    }
+  
+    function handleInputChange(event) {
+      const input = event.target;
+      const type = input.id;
+      const value = input.value;
+      const errorMessage = validateInputs(input, type, value);
+      setError(input, errorMessage);
+    }
+  
+    function validateInputs(input, type, value) {
+      let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+      let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
+      let dates;
+      let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
+  
+      const errorMessage = errorMessages[type];
+  
+      if (value === '') {
+        return errorMessage.required;
+      }
+      switch (type) {
+        case 'couponName':
+          if (!lettersOnlyRegex.test(value)) {
+            return errorMessage.invalid;
+          }
+          break;
+        case 'couponCode':
+          if (!couponRegex.test(value)) {
+            return errorMessage.invalid
+          }
+          break;
+        case 'discount':
+          if (!discountRegex.test(value)) {
+            return errorMessage.invalid
+          }
+          break;
+        case 'validFrom':
+          dates = validateDate(Date.parse(value));
+          console.log(dates);
+          if (dates.parsedDate < dates.today) {
+            return errorMessage.invalid
+          }
+          break;
+        case 'validTo':
+          dates = validateDate(Date.parse(value));
+          console.log(dates)
+          if (dates.parsedDate <= dates.today) {
+            return errorMessage.invalid
+          }
+          break;
+      }
+  
+      return ''
+  
+    }
+  
+    function validateDate(dateInMs) {
+      const parsedDate = new Date(dateInMs);
+      parsedDate.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      //console.log(parsedDate,today);
+      return { parsedDate, today }
+    }
+  
+    async function handleFormSubmit(event) {
+      event.preventDefault()
+  
+      let hasError = false;
+      const allInputs = [couponName, couponCode, validFrom, validTo, validFor, discount];
+  
+      allInputs.forEach((input) => {
+        const type = input.id;
+        const value = input.value;
+        const errorMessage = validateInputs(input, type, value);
+        if (errorMessage) {
+          hasError = true
+          setError(input, errorMessage);
+        } else {
+          setError(input, '');
+        }
+      });
+  
+      if (!hasError) {
+        const url = '/admin/coupons/addcoupon'
+        const method = 'POST'
+        const body = {
+          couponName: couponName.value.trim(),
+          couponCode: couponCode.value.trim(),
+          validFrom: new Date(validFrom.value.trim()),
+          validTo: new Date(validTo.value.trim()),
+          validFor: validFor.value,
+          discount: Number(discount.value)
+        }
+        const data = await fetchFunction(url, method, body);
+        if(data.status === false){
+          Swal.fire({
+            text: data.message,
+            icon: "error"
+          });
+        }else{
+          Swal.fire({
+            text: data.message,
+            icon: "success"
+          }).then(()=>{
+            location.reload()
+          })
+        }
+      }
+    }
+  
+    function setError(element, message) {
+      const inputParent = element.closest('.parent');
+      const errorDisplay = inputParent.querySelector('.error');
+  
+      errorDisplay.innerText = message;
+    }
+  
+    async function fetchFunction(url, method, body) {
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      })
+  
+      const data = await response.json()
+  
+      return data;
+    }
+  
+  </script>

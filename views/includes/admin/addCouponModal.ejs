@@ -9,7 +9,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form action="" class="d-flex flex-column" id="couponForm">
+        <div class="d-flex flex-column" id="couponForm">
           <div class="mb-2 parent">
             <label for="CouponName" class="form-label">Coupon Name</label>
             <input type="text" name="couponName" id="couponName" class="form-control">
@@ -32,8 +32,13 @@
           </div>
           <div class="mb-2 parent">
             <label for="ValidFor" class="form-label">Valid For</label>
-            <select name="validFor" id="validFor" class="form-select">
+            <select name="validFor" id="validFor" style="text-transform: capitalize;" class="form-select">
               <option value="" checked>Choose Category</option>
+              <%categories.forEach(function(category){%>
+                <option value="<%=category._id%>" style="text-transform: capitalize;">
+                  <%= category.categoryName%>
+                </option>
+                <%})%>
             </select>
             <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
             <!-- <input type="text" name="validFor" id="validFor" class="form-control"> -->
@@ -43,7 +48,7 @@
             <input type="text" name="discount" id="discount" class="form-control">
             <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
           </div>
-        </form>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="createCouponBtn">Create Coupon</button>
@@ -51,8 +56,8 @@
     </div>
   </div>
 </div>
-
-<script>
+<%- include('../validations/addCouponVal')%>
+<!-- <script>
   const addCouponForm = document.getElementById('couponForm');
   const couponName = document.getElementById('couponName');
   const couponCode = document.getElementById('couponCode');
@@ -100,7 +105,6 @@
     const input = event.target;
     const type = input.id;
     const value = input.value;
-
     const errorMessage = validateInputs(input, type, value);
     setError(input, errorMessage);
   }
@@ -108,6 +112,7 @@
   function validateInputs(input, type, value) {
     let lettersOnlyRegex = /^[A-Za-z\s]*$/;
     let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
+    let dates;
     let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
 
     const errorMessage = errorMessages[type];
@@ -115,7 +120,6 @@
     if (value === '') {
       return errorMessage.required;
     }
-
     switch (type) {
       case 'couponName':
         if (!lettersOnlyRegex.test(value)) {
@@ -133,21 +137,35 @@
         }
         break;
       case 'validFrom':
-      case 'validTo':
-        const dateInMs = Date.parse(value);
-        const todayInMs = new Date().getTime();
-        console.log(dateInMs);
-        console.log(todayInMs);
-        if (dateInMs < todayInMs) {
+        dates = validateDate(Date.parse(value));
+        console.log(dates);
+        if (dates.parsedDate < dates.today) {
           return errorMessage.invalid
         }
         break;
-
+      case 'validTo':
+        dates = validateDate(Date.parse(value));
+        console.log(dates)
+        if (dates.parsedDate <= dates.today) {
+          return errorMessage.invalid
+        }
+        break;
     }
+
     return ''
+
   }
 
-  function handleFormSubmit(event) {
+  function validateDate(dateInMs) {
+    const parsedDate = new Date(dateInMs);
+    parsedDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    //console.log(parsedDate,today);
+    return { parsedDate, today }
+  }
+
+  async function handleFormSubmit(event) {
     event.preventDefault()
 
     let hasError = false;
@@ -166,9 +184,33 @@
     });
 
     if (!hasError) {
-      addCouponForm.submit()
+      const url = '/admin/coupons/addcoupon'
+      const method = 'POST'
+      const body = {
+        couponName: couponName.value.trim(),
+        couponCode: couponCode.value.trim(),
+        validFrom: new Date(validFrom.value.trim()),
+        validTo: new Date(validTo.value.trim()),
+        validFor: validFor.value,
+        discount: Number(discount.value)
+      }
+      const data = await fetchFunction(url, method, body);
+      if(data.status === false){
+        Swal.fire({
+          text: data.message,
+          icon: "error"
+        });
+      }else{
+        Swal.fire({
+          text: data.message,
+          icon: "success"
+        }).then(()=>{
+          location.reload()
+        })
+      }
     }
   }
+
   function setError(element, message) {
     const inputParent = element.closest('.parent');
     const errorDisplay = inputParent.querySelector('.error');
@@ -176,4 +218,18 @@
     errorDisplay.innerText = message;
   }
 
-</script>
+  async function fetchFunction(url, method, body) {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+
+    const data = await response.json()
+
+    return data;
+  }
+
+</script> -->

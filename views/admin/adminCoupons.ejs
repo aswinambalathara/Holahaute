@@ -6,12 +6,13 @@
             <!-- Main wraapper -->
             <div class="body-wrapper">
                 <%- include('../includes/admin/adminHeader')%>
-                    <div class="container-fluid vh-100 bg-light">
+                    <div class="container-fluid bg-light">
                         <div class="row mt-5">
                             <div class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between">
-                                <button class="btn add-product col-12 mt-3 mt-md-0 col-md-2" id="addCouponBtn" data-bs-toggle="modal" data-bs-target="#addCouponModal">Add Coupon</button>
+                                <button class="btn add-product col-12 mt-3 mt-md-0 col-md-2" id="addCouponBtn"
+                                    data-bs-toggle="modal" data-bs-target="#addCouponModal">Add Coupon</button>
                             </div>
-                            
+
                         </div>
 
                         <div class="mt-5">
@@ -28,33 +29,50 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="mt-3 border border-rounded">
-                                        <th scope="row">
+                                    <% if (coupons) {%>
+                                        <%coupons.forEach(function(coupon){%>
+                                            <tr class="mt-3 border border-rounded">
+                                                <th scope="row" class="col-2">
+                                                    <%=coupon.couponName%>
+                                                </th>
+                                                <td class="col-2">
+                                                    <%=coupon.couponCode%>
+                                                </td>
+                                                <td class="col-3">
+                                                    <%=coupon.validTo%>
+                                                </td>
+                                                <td class="col-1">
+                                                    <%=coupon.discountPercentage%>
+                                                </td>
+                                                <td style="text-transform: capitalize;" class="col-2">
+                                                    <%=coupon.validFor.categoryName%>
+                                                </td>
+                                                <td class="col-1">
+                                                    <%if(new Date()> coupon.validTo) {%>
 
-                                        </th>
-                                        <td>
-
-                                        </td>
-                                        <td>
-
-                                        </td>
-                                        <td>
-
-                                        </td>
-
-
-                                        <td>
-
-                                        </td>
-
-                                        <td>
-
-                                        </td>
-                                          
+                                                        <p class="text-danger m-0 fw-semibold">Expired</p>
+                                                        <%} else {%>
+                                                            <p class="text-success m-0 fw-semibold">Active</p>
+                                                            <%}%>
+                                                </td>
+                                                <td class="col-1">
+                                                    <div
+                                                        class="actions d-flex justify-content-evenly align-items-center">
+                                                        <button class="editCouponBtns"
+                                                            style="background: none; border: none;"
+                                                            data-couponId="<%=coupon._id%>"><i
+                                                                class="fa-solid fa-pen-to-square text-warning"></i></button>
+                                                        <i class="fa-solid fa-trash-can text-danger"></i>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <%})%>
+                                                <%} %>
                                 </tbody>
                             </table>
                         </div>
-                        <%- include ('../includes/admin/couponModal')%>
+                        <%- include ('../includes/admin/addCouponModal')%>
+                            <%- include ('../includes/admin/editCouponModal')%>
                     </div>
             </div>
     </div>
@@ -70,5 +88,40 @@
             responsive: true,
         });
 
-    </script>
+        const editCouponBtns = document.querySelectorAll('.editCouponBtns');
+
+        editCouponBtns.forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const couponId = btn.getAttribute('data-couponId');
+                console.log(couponId);
+                const url = `/admin/coupons/fetchCoupon/${couponId}`
+                const method = 'GET'
+                const data = await getFetchFunction(url,method);
+                console.log(data);
+                if(data.status === true){
+                  const formattedValidFrom = moment(data.coupon.validFrom).format('YYYY-MM-DD');
+                  const formattedValidTo = moment(data.coupon.validTo).format('YYYY-MM-DD');
+                  //console.log(formattedValidTo)
+                  editCouponName.value = data.coupon.couponName
+                  editCouponCode.value = data.coupon.couponCode
+                  editValidFrom.value = formattedValidFrom
+                  editValidTo.value = formattedValidTo
+                  editDiscount.value = data.coupon.discountPercentage
+                //   editCouponName.value = data.coupon.couponName
+                }
+            })
+        });
+
+        async function getFetchFunction(url, method) {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })
+            const data = await response.json()
+            return data;
+        }
+  
+  </script>
     <%- include('../includes/admin/adminEnd')%>

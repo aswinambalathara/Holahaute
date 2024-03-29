@@ -1,0 +1,70 @@
+
+<button data-bs-toggle="modal"
+data-bs-target="#editCouponModal" class="btn btn-sm btn-primary">Edit coupon Trigger</button>
+
+
+<div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="editCouponModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Coupon</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-column" id="editCouponForm">
+            <div class="mb-2 parent">
+              <label for="CouponName" class="form-label">Coupon Name</label>
+              <input type="text" name="couponName" id="editCouponName" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+            <div class="mb-2 parent">
+              <label for="CouponCode" class="form-label">Coupon Code</label>
+              <input type="text" name="couponCode" id="editCouponCode" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+            <div class="mb-2 parent">
+              <label for="ValidFrom" class="form-label">Valid From</label>
+              <input type="date" name="validFrom" id="editValidFrom" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+            <div class="mb-2 parent">
+              <label for="ValidTo" class="form-label">Valid To</label>
+              <input type="date" name="validTo" id="editValidTo" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+            <div class="mb-2 parent">
+              <label for="ValidFor" class="form-label">Valid For</label>
+              <select name="validFor" id="editValidFor" style="text-transform: capitalize;" class="form-select">
+                <option value="" checked>Choose Category</option>
+                <%categories.forEach(function(category){%>
+                  <option value="<%=category._id%>" style="text-transform: capitalize;">
+                    <%= category.categoryName%>
+                  </option>
+                  <%})%>
+              </select>
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+              <!-- <input type="text" name="validFor" id="validFor" class="form-control"> -->
+            </div>
+            <div class="mb-2 parent">
+              <label for="Discount" class="form-label">Discount</label>
+              <input type="text" name="discount" id="editDiscount" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="editCouponBtn">Edit Coupon</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editCouponName = document.getElementById('editCouponName');
+    const editCouponCode = document.getElementById('editCouponCode');
+    const editValidFrom = document.getElementById('editValidFrom');
+    const editValidTo = document.getElementById('editValidTo');
+    const editValidFor = document.getElementById('editValidFor');
+    const editDiscount = document.getElementById('editDiscount');
+    const editCouponBtn = document.getElementById('editCouponBtn');
+  </script>
