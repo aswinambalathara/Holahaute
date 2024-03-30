@@ -204,3 +204,37 @@ try {
 }
 }
 
+module.exports.doApplyCoupon = async (req,res)=>{
+try {
+  const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  const {couponCode} = req.body;
+  const couponCheck = await cartHelper.couponHelper(authUser.userId,couponCode);
+  if(couponCheck.status === false){
+    return res.json(couponCheck)
+  }else{
+    const totalamount = couponCheck.validCouponProducts.reduce((acc,item)=>{
+      acc += item.products.price
+      return acc
+    },0)
+    const discount = Math.ceil((totalamount*couponCheck.discount)/100)
+    const grandTotal = couponCheck.subTotal - discount 
+    console.log(couponCheck.subTotal,totalamount,discount);
+    res.json({
+      status : true,
+      subTotal : couponCheck.subTotal,
+      couponDiscount : discount,
+      grandTotal : grandTotal
+    })
+  }
+} catch (error) {
+  console.log(error)
+}
+}
+
+module.exports.doRemoveCoupon = async (req,res)=>{
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -1,0 +1,55 @@
+<button hidden class="btn btn-success btn-sm mb-2" id="walletHistoryTrigger" data-bs-toggle="modal" data-bs-target="#walletHistoryModal">
+    Historytrigger</button>
+
+
+<div class="modal fade font-poppins" id="walletHistoryModal" tabindex="-1" aria-labelledby="walletHistoryModal"
+    aria-hidden="true" style="z-index: 9999999;">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-primary-subtle">
+                <h1 class="modal-title fs-5 text-primary" id="exampleModalLabel">Wallet History</h1>
+                <button type="button" class="btn-close moneyCloseBtn" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body parent">
+                <div class="mb-3 "><strong>Wallet Balance: <span class="text-success walletBalance">₹ 123</span></strong>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-secondary">
+                        <thead>
+                          <tr>
+                            <th scope="col">Transactions</th>
+                            <th scope="col">Payment Id</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Balance</th>
+                          </tr>
+                        </thead>
+                        <tbody class="table-body">
+                          <tr>
+                            <th scope="row">12</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td>@mdo</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DATA Tables Script -->
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+<script>
+    new DataTable('#walletHistoryTable', {
+        responsive: true
+    });
+</script>

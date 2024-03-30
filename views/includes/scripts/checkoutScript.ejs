@@ -1,0 +1,213 @@
+<script>
+    const addressInput = document.querySelectorAll('.deliveryAddress');
+    const deliveryAddress = document.querySelector('#deliveryAddress');
+    const changeAddressBtn = document.getElementById('changeAddressBtn');
+    const placeOrderBtn = document.getElementById('placeOrder');
+    const selectBtns = document.querySelectorAll('.selectBtns');
+    const paymentOption = document.querySelectorAll('.paymentOption');
+    const couponInput = document.getElementById('coupon');
+    const couponModalClose = document.querySelector('.couponModalClose');
+    const applyCoupon = document.getElementById('applyCoupon');
+    const removeCoupon = document.getElementById('removeCoupon');
+
+    changeAddressBtn.addEventListener('click', () => {
+        addressInput.forEach(async (input) => {
+            if (input.checked) {
+                const addressId = input.value;
+                const url = `/user/userprofile/setprimary/${addressId}`;
+                const method = 'PATCH'
+                const body = {}
+                const data = await fetchFunction(url, method, body);
+                if (data.status === 'success') {
+                    location.reload()
+                }
+            }
+        })
+    })
+
+    paymentOption.forEach((option) => {
+        option.addEventListener('click', () => {
+            if (option.value !== "COD") {
+                return placeOrderBtn.innerText = 'Pay Now'
+            } else {
+                placeOrderBtn.innerText = 'Place Order'
+            }
+        })
+    })
+
+    placeOrderBtn.addEventListener('click', () => {
+        paymentOption.forEach((option) => {
+            if (option.checked) {
+                if (option.value !== '') {
+                    const paymentOptionVal = option.value;
+                    const deliveryAddressVal = deliveryAddress.value
+                    //console.log(paymentOptionVal," ",deliveryAddressVal)
+                    placeOrder(deliveryAddressVal, paymentOptionVal)
+                }
+            }
+        })
+    })
+
+    async function placeOrder(addressId, paymentOption) {
+        const url = '/placeorder';
+        const method = 'POST';
+        const body = {
+            addressId: addressId,
+            paymentOption: paymentOption
+        }
+        const data = await fetchFunction(url, method, body)
+        if (data.status === false) {
+            if (data.payment !== '') {
+                console.log(data.payment);
+                razorpayPayment(data.payment)
+            } else {
+                const errorDiv = document.querySelector('.error-modal')
+                errorDiv.querySelector('.errorProducts').innerText = data.product
+                errorDiv.querySelector('.errorMessage').innerText = data.message
+                document.getElementById('orderErrorModal').click()
+            }
+        } else {
+            document.getElementById('orderSuccessModal').click()
+            setTimeout(() => {
+                location.assign('/orderstatus');
+            }, 3000);
+        }
+    }
+
+    function setError(btn, message) {
+        const errorParent = btn.closest('.parent');
+        const errorDiv = errorParent.querySelector('.error')
+        errorDiv.innerText = message
+    }
+
+    function razorpayPayment(paymentData) {
+        const RZY_KEY = "<%=process.env.RAZORPAY_KEY_ID%>"
+        let options = {
+            "key": RZY_KEY, // Enter the Key ID generated from the Dashboard
+            "amount": paymentData.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Hola Haute",
+            "description": "PlaceOrder Transaction",
+            "image": "/images/logo/logo_1.png",
+            "order_id": paymentData.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+                verifyPayment(response, paymentData)
+            },
+            "notes": {
+                "address": "Hola Haute Corporate Office"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+        let rzp1 = new Razorpay(options);
+        rzp1.open()
+    }
+
+    async function verifyPayment(response, order) {
+        const url = '/verifypayment'
+        const method = 'POST'
+        const body = {
+            response,
+            order
+        }
+        const data = await fetchFunction(url, method, body);
+        if (data.paid === true) {
+            document.getElementById('orderSuccessModal').click()
+            setTimeout(() => {
+                location.assign('/orderstatus');
+            }, 3000);
+        } else {
+            location.assign('/myorders');
+        }
+    }
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await response.json()
+
+        return data;
+    }
+
+    selectBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (applyCoupon.disabled === true) {
+                Swal.fire({
+                    text: "a Coupon already applied try after removing",
+                    icon: 'error'
+                }).then(()=>{
+                    couponModalClose.click();
+                })
+            } else {
+                const couponCode = btn.getAttribute('data-couponCode');
+                couponInput.value = couponCode;
+            }
+        });
+    })
+
+    applyCoupon.addEventListener('click', async () => {
+        const couponCode = couponInput.value.trim()
+        let hasError = false;
+        if (couponCode === '') {
+            hasError = true;
+            setError(couponInput, "This field is required")
+        } else {
+            let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
+            if (!couponRegex.test(couponCode) || !isNaN(couponCode)) {
+                hasError = true;
+                setError(couponInput, "enter a valid coupon")
+            } else {
+                setError(couponInput, '')
+            }
+        }
+        if (hasError) {
+            return
+        } else {
+            const url = '/checkout/applycoupon'
+            const method = 'POST'
+            const body = {
+                couponCode: couponCode
+            }
+            const data = await fetchFunction(url, method, body);
+            console.log(data)
+            if (data.status === false) {
+                Swal.fire({
+                    text: data.message,
+                    icon: 'error'
+                });
+            } else {
+                applyCoupon.disabled = true
+                couponInput.disabled = true
+                couponPreview = document.querySelector('.coupon-discount-preview');
+                grandTotalPreview = document.querySelector('.grandTotal-preview');
+                couponPreview.innerHTML = `<span>- ₹</span>${data.couponDiscount}`
+                grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
+            }
+        }
+    })
+
+    removeCoupon.addEventListener('click',async () => {
+        const url = '/checkout/removecoupon'
+        const method = 'GET'
+        const data = await getFetchFunction(url,method);
+        console.log(data);
+    })
+
+
+    async function getFetchFunction(url, method) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+        const data = await response.json()
+        return data;
+    }
+</script>

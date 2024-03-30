@@ -1,6 +1,7 @@
 const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const couponSchema = require("../models/couponModel");
+const orderSchema = require("../models/orderModel");
 const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
@@ -137,7 +138,7 @@ module.exports.availableCouponHelper = async (products) => {
     validFor: { $in: categories },
   });
 
-  return availableCoupons
+  return availableCoupons;
 };
 
 module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
@@ -168,36 +169,48 @@ module.exports.addCartQuantityCheck = (cart, productId) => {
   return totalQuantity;
 };
 
-// module.exports.updateQuantityHelper = async (userId, itemId) => {
-//   const cart = await cartSchema.aggregate([
-//     { $match: { userId: new ObjectId(userId) } },
-//     { $unwind: "$cartItems" },
-//     {
-//       $lookup: {
-//         from: "products",
-//         localField: "cartItems.productId",
-//         foreignField: "_id",
-//         as: "product",
-//       },
-//     },
-//     { $unwind: "$product" },
-//     {
-//       $addFields: {
-//         total: { $multiply: ["$product.price", "$cartItems.quantity"] },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: "$_id",
-//         grandTotal: { $sum: "$total" },
-//         product: {
-//           $push: {
-//             quantity: "$cartItems.quantity",
-//             price: "",
-//           },
-//         },
-//       },
-//     },
-//   ]);
-//   console.log(cart)
-// };
+module.exports.couponHelper = async (userId, code) => {
+  try {
+    const couponCheck = await couponSchema.findOne({ couponCode: code });
+    if (couponCheck === "") {
+      return {status : false,message:"invalid coupon"};
+    }
+    const checkApplied = await orderSchema.findOne({
+      userId: new ObjectId(userId),
+      couponApplied: code,
+    });
+    if (checkApplied) {
+      return {status : false, message : "coupon already applied in another order"};
+    }
+
+    const validCouponProducts = await cartSchema.aggregate([
+      {$match:{userId: new ObjectId(userId)}},
+      {$unwind:"$cartItems"},
+      {$lookup:{
+        from : 'products',
+        localField : "cartItems.productId",
+        foreignField : "_id",
+        as : "product"
+      }},
+      {$unwind:"$product"},
+      {$addFields:{
+        totalPrice : {$multiply:["$cartItems.quantity","$product.price"]}
+      }},
+      {$group:{_id:"$_id",subTotal:{$sum:"$totalPrice"},products:{$push:"$product"}}},
+      {$unwind:"$products"},
+      {$match:{"products.category": new ObjectId(couponCheck.validFor)}},
+    ])
+    if(validCouponProducts.length === 0){
+      return {status : false, message : "coupon not valid for the products"}
+    }else{
+      console.log(validCouponProducts)
+      return {discount : couponCheck.discountPercentage, validCouponProducts : validCouponProducts, subTotal : validCouponProducts[0].subTotal}
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.removeCouponHelp = async(userId)=>{
+  
+}

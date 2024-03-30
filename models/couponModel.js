@@ -15,7 +15,7 @@ const couponSchema = Schema({
     },
 
     validFrom :{
-        type :Date,
+        type :Date,   
         required : true
     },
 

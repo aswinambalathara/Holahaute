@@ -4,7 +4,10 @@ const verficationController = require("../controllers/verificationController");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userHelper = require("../helpers/userHelper");
-const ratingsSchema = require('../models/ratingsModel');
+const { v4: uuidv4 } = require("uuid");
+const paymentHelper = require("../helpers/paymentHelper");
+const ratingsSchema = require("../models/ratingsModel");
+const walletSchema = require("../models/walletmodel");
 
 module.exports.getUserProfile = async (req, res) => {
   try {
@@ -14,11 +17,13 @@ module.exports.getUserProfile = async (req, res) => {
       model: "addresses",
       match: { status: true },
     });
+    const wallet = await walletSchema.findOne({ userId: authUser.userId });
     res.render("user/userProfile.ejs", {
       title: "userProfile",
       userdetail: user,
       user: authUser.userName,
       addresses: user.addresses,
+      walletBalance: wallet?.balance,
     });
   } catch (error) {
     console.log(error);
@@ -211,23 +216,22 @@ module.exports.DochangePasswordWithOtp = async (req, res) => {
         const passwordCheck = await bcrypt.compare(newPassword, password);
         if (passwordCheck === true) {
           res.json({
-            status : false,
-            message : "Cannot set current password as new password"
-          })
-        }else{
-          newPassword = await bcrypt.hash(newPassword,12);
+            status: false,
+            message: "Cannot set current password as new password",
+          });
+        } else {
+          newPassword = await bcrypt.hash(newPassword, 12);
           user.password = newPassword;
-          const updated = await user.save()
-          if(updated){
+          const updated = await user.save();
+          if (updated) {
             res.json({
-              status : true,
-              message : "Password updated succefully"
-            })
+              status: true,
+              message: "Password updated succefully",
+            });
           }
         }
       }
     }
-
   } catch (error) {
     console.log(error);
   }
@@ -334,32 +338,124 @@ module.exports.doEditAddress = async (req, res) => {
   }
 };
 
-module.exports.doProductRating = async (req,res)=>{
+module.exports.doProductRating = async (req, res) => {
   try {
-    const {productId,rating,review} = req.body
+    const { productId, rating, review } = req.body;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const {userId} = authUser 
-    const existRating = await ratingsSchema.findOne({userId:userId,productId:productId});
-    if(existRating){
+    const { userId } = authUser;
+    const existRating = await ratingsSchema.findOne({
+      userId: userId,
+      productId: productId,
+    });
+    if (existRating) {
       return res.json({
-        status : false,
-        message : "Review Already Exist"
+        status: false,
+        message: "Review Already Exist",
       });
     }
     const newRating = new ratingsSchema({
-      userId : userId,
-      productId : productId,
-      rating : Number(rating),
-      review : review? review : undefined
-    })
-    const inserted = await newRating.save()
-    if(inserted){
+      userId: userId,
+      productId: productId,
+      rating: Number(rating),
+      review: review ? review : undefined,
+    });
+    const inserted = await newRating.save();
+    if (inserted) {
       res.json({
+        status: true,
+        message: "Thanks for rating",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doAddWalletMoney = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    //console.log(req.body);
+    const { amount } = req.body;
+    const paymentId = uuidv4();
+    const payment = await paymentHelper.createPayment(paymentId, amount);
+    if (payment) {
+      res.json({
+        status: true,
+        payment: payment,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doVerifyWalletPayment = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const { userId } = authUser;
+    let { response, paymentData } = req.body;
+    console.log(response);
+    const verify = await paymentHelper.verifyPayment(response);
+    if (verify.status === true) {
+      paymentData.amount = paymentData.amount / 100;
+      const walletExist = await walletSchema.findOne({ userId: userId });
+      if (walletExist) {
+        const history = {
+          paymentType: "Deposit",
+          paymentId: verify.paymentId,
+          amount: paymentData.amount,
+          currentBalance: walletExist.balance + paymentData.amount,
+        };
+        const updateWallet = await walletSchema.updateOne(
+          { userId: userId },
+          { $inc: { balance: paymentData.amount }, $push: { history: history } }
+        );
+        if (updateWallet) {
+          return res.json({
+            paid: true,
+            message: `${paymentData.amount} added to wallet`,
+          });
+        }
+      } else {
+        const newWallet = new walletSchema({
+          userId: userId,
+          balance: paymentData.amount,
+          history: [
+            {
+              paymentType: "Deposit",
+              paymentId: verify.paymentId,
+              amount: paymentData.amount,
+              currentBalance: paymentData.amount,
+            },
+          ],
+        });
+        const createWallet = await newWallet.save()
+        if (createWallet) {
+          return res.json({
+            paid: true,
+            message: `₹ ${paymentData.amount} added to wallet`,
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getWalletHistory = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const { userId } = authUser;
+    const wallet = await walletSchema.findOne({userId:userId});
+    if(wallet){
+      return res.json({
         status : true,
-        message : "Thanks for rating"
+        walletBalance : wallet.balance,
+        walletHistory : wallet.history
       })
     }
-  } catch (error) { 
+  } catch (error) {
     console.log(error)
   }
-} 
+};

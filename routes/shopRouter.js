@@ -11,8 +11,8 @@ router.get('/productdetail/:id',shopController.getProductDetailPage);
 router.get('/shop',shopController.getProductsPage); 
 router.post('/search',shopController.doSearch);
 router.post('/shop/filter',shopController.doFilter);
-//userRoutes
 
+//userRoutes
 router.get('/user/userprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getUserProfile);
 router.get('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getEditUserProfile);
 router.patch('/user/editprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.DoEditUserProfile);
@@ -26,6 +26,10 @@ router.patch('/user/removeaddress/:id',authMiddleware.userStatus,authMiddleware.
 router.get('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getEditAddress); 
 router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doEditAddress);
 
+router.post('/user/wallet/addmoney',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doAddWalletMoney);
+router.post('/user/wallet/verifywalletpayment',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doVerifyWalletPayment);
+router.get('/user/wallet/history',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getWalletHistory);
+ 
 //cartRoutes
 
 router.get('/cart',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCart);
@@ -35,6 +39,8 @@ router.patch('/cart/removeitem/:id',authMiddleware.userStatus,authMiddleware.ver
 router.get('/checkout',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.getCartCheckOut);
 router.post('/placeorder',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCartPlaceOrder);
 router.post('/verifypayment',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doverifyPayment);
+router.post('/checkout/applycoupon',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doApplyCoupon);
+router.get('/checkout/removecoupon',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doRemoveCoupon);
 
 //orders
 

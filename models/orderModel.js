@@ -91,6 +91,10 @@ const orderSchema = Schema({
     }
   },
 
+  couponApplied : {
+      type : String,
+  },
+
   cancelReason: {
     type: String,
   },
