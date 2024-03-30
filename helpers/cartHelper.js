@@ -211,6 +211,26 @@ module.exports.couponHelper = async (userId, code) => {
   }
 };
 
-module.exports.removeCouponHelp = async(userId)=>{
-  
+module.exports.subTotalHelp = async (userId)=>{
+  const subtotal = await cartSchema.aggregate([
+    {$match:{userId: new ObjectId(userId)}},
+    {$unwind : "$cartItems"},
+    {
+      $lookup: {
+        from: "products",
+        localField: "cartItems.productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+    {
+      $addFields: {
+        orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
+      },
+    },
+    {$group:{_id:"$_id",subTotal:{$sum:"$orderTotal"}}}
+  ])
+
+  console.log(subtotal)
 }

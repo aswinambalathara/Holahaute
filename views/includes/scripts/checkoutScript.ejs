@@ -9,6 +9,11 @@
     const couponModalClose = document.querySelector('.couponModalClose');
     const applyCoupon = document.getElementById('applyCoupon');
     const removeCoupon = document.getElementById('removeCoupon');
+    const couponPreview = document.querySelector('.coupon-discount-preview');
+    const grandTotalPreview = document.querySelector('.grandTotal-preview');
+    const walletCheck = document.getElementById('walletCheck');
+    const walletCashInput = document.getElementById('walletCashInput');
+    const applyWalletCash = document.getElementById('applyWalletCash');
 
     changeAddressBtn.addEventListener('click', () => {
         addressInput.forEach(async (input) => {
@@ -141,7 +146,7 @@
                 Swal.fire({
                     text: "a Coupon already applied try after removing",
                     icon: 'error'
-                }).then(()=>{
+                }).then(() => {
                     couponModalClose.click();
                 })
             } else {
@@ -184,19 +189,48 @@
             } else {
                 applyCoupon.disabled = true
                 couponInput.disabled = true
-                couponPreview = document.querySelector('.coupon-discount-preview');
-                grandTotalPreview = document.querySelector('.grandTotal-preview');
+                couponPreview.setAttribute('data-couponDiscount', data.couponDiscount);
                 couponPreview.innerHTML = `<span>- ₹</span>${data.couponDiscount}`
                 grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
             }
         }
     })
 
-    removeCoupon.addEventListener('click',async () => {
+    removeCoupon.addEventListener('click', async () => {
         const url = '/checkout/removecoupon'
         const method = 'GET'
-        const data = await getFetchFunction(url,method);
+        const data = await getFetchFunction(url, method);
         console.log(data);
+    })
+
+    applyWalletCash.addEventListener('click', async () => {
+        let hasError = false;
+        const cashInputValue = walletCashInput.value
+        if (walletCheck.checked === false) {
+            let hasError = true
+            return setError(walletCashInput, "You should check the wallet first");
+        } else if (cashInputValue === '') {
+            let hasError = true
+            return setError(walletCashInput, "This field is required");
+        } else if (isNaN(cashInputValue)) {
+            let hasError = true
+            return setError(walletCashInput, "Enter a valid amout");
+        } else {
+            setError(walletCashInput, '')
+        }
+
+        if (!hasError) {
+            const couponDiscount = couponPreview.getAttribute('data-couponDiscount');
+            const url = '/checkout/applywallet'
+            const method = 'POST'
+            const body = {
+                walletAmount : cashInputValue,
+                couponDiscount : couponDiscount? couponDiscount : undefined
+            }
+
+            const data = await fetchFunction(url,method,body);
+            console.log(data);
+        }
     })
 
 

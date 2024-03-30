@@ -41,6 +41,7 @@ router.post('/placeorder',authMiddleware.userStatus,authMiddleware.verifyUser,or
 router.post('/verifypayment',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doverifyPayment);
 router.post('/checkout/applycoupon',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doApplyCoupon);
 router.get('/checkout/removecoupon',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doRemoveCoupon);
+router.post('/checkout/applywallet',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doApplyWallet);
 
 //orders
 

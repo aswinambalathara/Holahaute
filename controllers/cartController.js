@@ -7,6 +7,7 @@ const wishlistSchema = require('../models/wishlistModel');
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb"); 
 const userSchema = require("../models/userModel");
+const walletSchema = require ('../models/walletmodel');
 
 module.exports.getCart = async (req, res) => {
   try {
@@ -182,6 +183,7 @@ try {
   const addresses = await addressSchema.find({userId : new ObjectId(authUser.userId),status:true});
   const cart = await cartHelper.getCheckoutHelper(authUser.userId);
   const availableCoupons = await cartHelper.availableCouponHelper(cart.orderInfo); 
+  const wallet = await walletSchema.findOne({userId : authUser.userId})
   //console.log(cart.orderInfo)
   const stock = await cartHelper.checkProductQuantity(cart.totalQuantityByProduct);
   //console.log(stock)
@@ -193,6 +195,7 @@ try {
       cartItems : cart.orderInfo,
       addresses,
       availableCoupons : availableCoupons,
+      walletBalance : wallet? wallet.balance : undefined
     });
   }else{
     req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,Try different Quantity`);
@@ -236,5 +239,16 @@ module.exports.doRemoveCoupon = async (req,res)=>{
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   } catch (error) {
     console.log(error);
+  }
+}
+
+module.exports.doApplyWallet = async (req,res)=>{
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    //console.log(req.body);
+    const {walletAmount,couponDiscount} = req.body;
+    const subTotal = await cartHelper.subTotalHelp(authUser.userId)
+  } catch (error) {
+    console.log(error)
   }
 }
