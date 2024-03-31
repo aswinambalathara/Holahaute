@@ -232,5 +232,5 @@ module.exports.subTotalHelp = async (userId)=>{
     {$group:{_id:"$_id",subTotal:{$sum:"$orderTotal"}}}
   ])
 
-  console.log(subtotal)
+  return subtotal[0].subTotal;
 }

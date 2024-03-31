@@ -43,7 +43,7 @@ module.exports.makeOrderHelper = async (userId) => {
       {
         $group: {
           _id: "$userId",
-          grandTotal: { $sum: "$orderTotal" },
+          subTotal: { $sum: "$orderTotal" },
           orderInfo: {
             $push: {
               product: {

@@ -8,12 +8,18 @@ const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = require("mongodb");
 const { RAZORPAY_KEY_SECRET } = process.env;
 const crypto = require("crypto");
+const walletSchema = require("../models/walletmodel");
 const orderSchema = require("../models/orderModel");
-
 
 module.exports.doCartPlaceOrder = async (req, res) => {
   try {
-    const { addressId, paymentOption } = req.body;
+    const {
+      addressId,
+      paymentOption,
+      walletAmount,
+      couponDiscount,
+      couponCode,
+    } = req.body;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
     const orderId = uuidv4();
@@ -31,17 +37,44 @@ module.exports.doCartPlaceOrder = async (req, res) => {
       const decreaseQuantity = await orderHelper.decreaseProductQuantity(
         order.totalQuantityByProduct
       );
+      if (walletAmount !== 0) {
+        const wallet = await walletSchema.findOne({ userId: userId });
+        const history = {
+          paymentType: "Withdrawal",
+          amount: walletAmount,
+          currentBalance: wallet.balance - walletAmount,
+        };
+        const updateWallet = await walletSchema.updateOne(
+          { userId: userId },
+          {
+            $inc: { balance: -Number(walletAmount) },
+            $push: { history: history },
+          }
+        );
+      }
 
       if (decreaseQuantity) {
+        let couponApplied ;
+        if(couponDiscount !== 0){
+          couponApplied = {
+            couponCode : couponCode,
+            couponDiscount : couponDiscount
+          }
+        }
+        const walletApplied = walletAmount !== 0 ? walletAmount : undefined
         const orderStatus = paymentOption === "COD" ? "CONFIRMED" : "PENDING";
+        const grandTotal = order.subTotal - (walletAmount + couponDiscount);
         const newOrder = new orderSchema({
           userId: userId,
           addressId: addressId,
           orderId: orderId,
           orderStatus: orderStatus,
           products: product,
-          grandTotal: order.grandTotal,
+          subTotal : order.subTotal,
+          grandTotal: grandTotal,
           "paymentMethod.method": paymentOption,
+          couponApplied: couponApplied,
+          walletApplied : walletApplied
         });
         const ordered = await newOrder.save();
         if (ordered) {
@@ -52,15 +85,15 @@ module.exports.doCartPlaceOrder = async (req, res) => {
             { $set: { cartItems: [] } }
           );
 
-          if (paymentOption === "COD") {
+          if (paymentOption === "COD" || grandTotal === 0) { 
             res.json({
               status: true,
               message: "OrderSuccessfull",
             });
-          } else if (paymentOption === "razorpay") {
+          } else if (paymentOption === "razorpay" && grandTotal !== 0) {
             const payment = await paymentHelper.createPayment(
               orderId,
-              order.grandTotal
+              grandTotal
             );
             res.json({
               status: false,
@@ -264,4 +297,3 @@ module.exports.doCancelOrder = async (req, res) => {
     console.log(error);
   }
 };
-

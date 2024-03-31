@@ -69,12 +69,17 @@ const orderSchema = Schema({
         required: true,
       },
 
-      price : {
-        type : Number,
-        required : true,
-      }
+      price: {
+        type: Number,
+        required: true,
+      },
     },
   ],
+
+  subTotal : {
+    type : Number,
+    required : true
+  },
 
   grandTotal: {
     type: Number,
@@ -88,11 +93,20 @@ const orderSchema = Schema({
     },
     paymentId: {
       type: String,
+    },
+  },
+
+  couponApplied: {
+    couponCode :{
+      type : String,
+    },
+    couponDiscount:{
+      type : Number,
     }
   },
 
-  couponApplied : {
-      type : String,
+  walletApplied :{
+      type : Number
   },
 
   cancelReason: {

@@ -210,7 +210,7 @@ try {
 module.exports.doApplyCoupon = async (req,res)=>{
 try {
   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-  const {couponCode} = req.body;
+  const {couponCode,walletDiscount} = req.body;
   const couponCheck = await cartHelper.couponHelper(authUser.userId,couponCode);
   if(couponCheck.status === false){
     return res.json(couponCheck)
@@ -220,13 +220,13 @@ try {
       return acc
     },0)
     const discount = Math.ceil((totalamount*couponCheck.discount)/100)
-    const grandTotal = couponCheck.subTotal - discount 
-    console.log(couponCheck.subTotal,totalamount,discount);
+    const grandTotal = couponCheck.subTotal - (discount+walletDiscount) 
+    console.log(couponCheck.subTotal,discount);
     res.json({
       status : true,
-      subTotal : couponCheck.subTotal,
       couponDiscount : discount,
-      grandTotal : grandTotal
+      grandTotal : grandTotal,
+      walletAmount : walletDiscount
     })
   }
 } catch (error) {
@@ -236,7 +236,18 @@ try {
 
 module.exports.doRemoveCoupon = async (req,res)=>{
   try {
+    console.log(req.body)
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const {walletDiscount,couponDiscount} = req.body;
+    const subTotal = await cartHelper.subTotalHelp(authUser.userId);
+    let grandTotal = subTotal - (walletDiscount+couponDiscount);
+    grandTotal = grandTotal + couponDiscount
+    return res.json({
+      status : true,
+      grandTotal : grandTotal,
+      walletAmount : walletDiscount,
+      couponDiscount : 0
+    })
   } catch (error) {
     console.log(error);
   }
@@ -245,9 +256,49 @@ module.exports.doRemoveCoupon = async (req,res)=>{
 module.exports.doApplyWallet = async (req,res)=>{
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    //console.log(req.body);
+    console.log(req.body);
     const {walletAmount,couponDiscount} = req.body;
-    const subTotal = await cartHelper.subTotalHelp(authUser.userId)
+    const wallet = await walletSchema.findOne({userId : authUser.userId});
+    const subTotal = await cartHelper.subTotalHelp(authUser.userId);
+    const allowedWalletCash = Math.round((subTotal*80)/100);
+    if(walletAmount > allowedWalletCash){
+      return res.json({
+        status : false,
+        message :"You can only apply 80% of the Subtotal from wallet"
+      });
+    }else if(walletAmount > wallet.balance){
+      return res.json({
+        status : false,
+        message :"Insufficient Balance"
+      });
+    }
+    const grandTotal = subTotal - (walletAmount+couponDiscount);
+    return res.json({
+      status : true,
+      grandTotal : grandTotal,
+      couponDiscount : couponDiscount,
+      walletAmount : walletAmount
+    });
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+module.exports.doUncheckWallet = async (req,res)=>{
+  try {
+    console.log(req.body);
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const {walletDiscount,couponDiscount} = req.body;
+    const subTotal = await cartHelper.subTotalHelp(authUser.userId);
+    let grandTotal = subTotal - (walletDiscount+couponDiscount);
+    grandTotal = grandTotal + walletDiscount
+    return res.json({
+      status : true,
+      grandTotal : grandTotal,
+      walletAmount : 0,
+      couponDiscount : couponDiscount
+    })
   } catch (error) {
     console.log(error)
   }

@@ -3,6 +3,7 @@ const orderSchema = require("../models/orderModel");
 const couponSchema = require("../models/couponModel");
 const adminHelper = require("../helpers/adminHelper");
 const categorySchema = require("../models/categoryModel");
+const walletSchema = require("../models/walletmodel");
 const { ObjectId } = require("mongodb");
 
 module.exports.getAdminDashboard = (req, res) => {
@@ -124,7 +125,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
     const id = req.params.id;
     const { changeStage } = req.body;
     const order = await orderSchema.findOne({ _id: id });
-    console.log(changeStage);
+    //console.log(changeStage);
     console.log(order);
     if (changeStage !== order.orderStage) {
       if (changeStage === "CANCEL ORDER") {
@@ -139,10 +140,56 @@ module.exports.doChangeOrderStage = async (req, res) => {
           }
         );
         if (changed) {
-          res.status(200).json({
-            status: true,
-            message: "stage changed",
+          const paymentMethod = order.paymentMethod.method;
+          const wallet = await walletSchema.findOne({
+            userId: order.userId,
           });
+          if (paymentMethod === "COD") {
+            if (order.walletApplied) {
+              const returnWalletAmt = order.walletApplied;
+              const history = {
+                paymentType: "Deposit",
+                amount: returnWalletAmt,
+                currentBalance: wallet.balance + returnWalletAmt,
+                remarks: "Amout returned from cancel order",
+              };
+              const updateWallet = await walletSchema.updateOne(
+                { userId: order.userId },
+                {
+                  $inc: { balance: Number(returnWalletAmt) },
+                  $push: { history: history },
+                }
+              );
+              if (updateWallet) {
+                return res.status(200).json({
+                  status: true,
+                  message: "stage changed",
+                });
+              }
+            }
+          } else {
+            const WalletAmount = order.walletApplied ? order.walletApplied : 0;
+            const returnAmount = order.grandTotal + WalletAmount;
+            const history = {
+              paymentType: "Deposit",
+              amount: returnAmount,
+              currentBalance: wallet.balance + returnAmount,
+              remarks: "Amout returned from cancel order",
+            };
+            const updateWallet = await walletSchema.updateOne(
+              { userId: order.userId },
+              {
+                $inc: { balance: Number(returnAmount) },
+                $push: { history: history },
+              }
+            );
+            if(updateWallet){
+            return res.status(200).json({
+                status: true,
+                message: "stage changed",
+              });
+            }
+          }
         }
       } else {
         const changed = await orderSchema.updateOne(
@@ -185,14 +232,16 @@ module.exports.doAddCoupon = async (req, res) => {
     //console.log(req.body);
     const { couponName, couponCode, validFrom, validTo, validFor, discount } =
       req.body;
-    const coupon = await couponSchema.findOne({$or:[{couponCode:couponCode},{couponName:couponName}]});
+    const coupon = await couponSchema.findOne({
+      $or: [{ couponCode: couponCode }, { couponName: couponName }],
+    });
     if (coupon) {
-      if(coupon.validTo > Date.now()){ 
+      if (coupon.validTo > Date.now()) {
         return res.status(409).json({
           status: false,
           message: "Coupon with same code or name already exist",
         });
-       }
+      }
       //else{
       //   return res.json({
       //     status : false,
@@ -200,7 +249,7 @@ module.exports.doAddCoupon = async (req, res) => {
       //     couponId : coupon._id,
       //     message : "There is a expired coupon with same name or code do you wish to edit it ?"
       //   });
-      // }  
+      // }
     }
     const newCoupon = new couponSchema({
       couponName,
@@ -241,30 +290,38 @@ module.exports.doFetchCoupon = async (req, res) => {
 module.exports.doEditCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
-    const { couponName, couponCode, validFrom, validTo, validFor, discount } = req.body;
-    const couponCheck = await couponSchema.findOne({$or:[{couponName:couponName},{couponCode:couponCode}]});
+    const { couponName, couponCode, validFrom, validTo, validFor, discount } =
+      req.body;
+    const couponCheck = await couponSchema.findOne({
+      $or: [{ couponName: couponName }, { couponCode: couponCode }],
+    });
     //console.log(couponCheck,couponId);
-    if(couponCheck && !couponCheck._id.equals(couponId)){
-      if(couponCheck.validTo > Date.now()){
+    if (couponCheck && !couponCheck._id.equals(couponId)) {
+      if (couponCheck.validTo > Date.now()) {
         return res.json({
-          status : false,
-          message : "Coupon Already Exist with same code or name"
-        })
+          status: false,
+          message: "Coupon Already Exist with same code or name",
+        });
       }
-    }else{
-      const updated = await couponSchema.updateOne({_id:couponId},{$set:{
-        couponName : couponName,
-        couponCode : couponCode,
-        validFrom : validFrom,
-        validTo : validTo,
-        validFor : validFor,  
-        discountPercentage : discount
-      }});
-      if(updated){
+    } else {
+      const updated = await couponSchema.updateOne(
+        { _id: couponId },
+        {
+          $set: {
+            couponName: couponName,
+            couponCode: couponCode,
+            validFrom: validFrom,
+            validTo: validTo,
+            validFor: validFor,
+            discountPercentage: discount,
+          },
+        }
+      );
+      if (updated) {
         res.json({
-          status : true,
-          message : "Coupon updates Successfull"
-        })
+          status: true,
+          message: "Coupon updates Successfull",
+        });
       }
     }
   } catch (error) {
