@@ -5,54 +5,65 @@
             <div class="container-fluid">
                 <div class="wishlist-container mt-5 font-poppins">
                     <h5 class="mx-5">WishList</h5>
-                    <div class="mx-5 mt-5 mb-3 flex-wrap px-md-5 row">
+                    <div class="vstack gap-2 mt-4">
                         <%if (wishlist) {%>
                             <% wishlist.products.forEach(function(product){%>
-                                <div class="card col-12 p-0 col-md-3 mx-md-2 my-2" style="width: 18rem;">
+                        <div class="card">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center part-1">
                                     <div class="image-div"
-                                        style="background-image: url('/images/product-images/<%=product.images[0]%>'); height: 18rem ; background-size: cover; position: relative;">
-                                        <button type="button" class="removeitemBtn" data-productId="<%=product._id%>"><i
-                                                class="fa-regular fa-trash-can"
-                                                style="position: absolute; right: 10px; top: 10px; color: red;"></i></button>
+                                    style="background-image: url('/images/product-images/<%=product.images[0]%>'); height: 8rem ; width: 8rem; background-size: cover; background-position: top; position: relative;">
+                                </div>
+                                <div class="product-details d-flex flex-column justify-content-center ms-3">
+                                    <h6 class="card-title" style="text-transform: capitalize;">
+                                        <%=product.productName%>
+                                    </h6>
+                                    <p class="card-text">
+                                        <%=product.description%>
+                                    </p>
+                                    <strong class="text-danger-emphasis mt-3"><span>₹</span>
+                                        <%=product.price%>
+                                    </strong>
+                                </div>
+                                </div>
+                                <div class="d-flex align-items-center part-2">
+                                    <div class="options-div me-5">
+                                        <div class="size-div mb-3">
+                                            <select name="sizeOptions" id="sizeOptions" class="form-select form-select-sm sizeOptions" style="text-transform: capitalize;">
+                                                <%product.sizeOptions.forEach(function(size){%>
+                                                <option value="<%=size%>" style="text-transform: capitalize;"><%=size%></option>
+                                                <%})%>
+                                            </select>
+                                        </div>
+                                        <div class="color-div">
+                                            <select name="color" id="colorOptions" class="form-select form-select-sm colorOptions" style="text-transform: capitalize;">
+                                                <%product.color.forEach(function(clr){%>
+                                                <option value="<%=clr%>" style="text-transform: capitalize;"><%=clr%></option>
+                                                <%})%>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <!-- <img class="card-img-top" src="/images/product-images/1710179061194-1_3c9d436a-48e3-4fc4-9f97-23dba70ec632.webp" alt="Card image cap"> -->
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <div class="product-details d-flex">
-                                            <h6 class="card-title">
-                                                <%=product.productName%>
-                                            </h6>
-                                        </div>
-                                        <div>
-                                            <p class="card-text">
-                                                <%=product.description%>
-                                            </p>
-                                            <strong class="text-danger-emphasis"><span>₹</span>
-                                                <%=product.price%>
-                                            </strong>
-                                        </div>
-                                        <div class="d-flex justify-content-evenly align-items-center mt-5">
-                                            <button class="btn btn-primary btn-sm">Buy Now</button>
-                                            <button class="btn btn-outline-primary btn-sm addToCart"
-                                                data-productId="<%=product._id%>">Add to cart</button>
-                                        </div>
+                                    <div class="d-flex flex-column">
+                                        <button class="btn btn-primary btn-sm mb-2 addToCart">Add To Cart</button>
+                                        <button class="btn btn-outline-primary btn-sm mb-2">Buy Now</button>
+                                        <button class="btn btn-outline-danger btn-sm removeitemBtn" data-productId="<%=product._id%>">Remove</button>
                                     </div>
                                 </div>
-                                <%} )%>
-                                    <%}%>
+                            </div>
+                        </div>
+                        <%} )%>
+                        <%}%>
+                        
                     </div>
                 </div>
             </div>
         </div>
 
-        <%- include('../includes/wishlist/modal.ejs') %>
+       
             <%- include('../includes/shop/shopFooter.ejs') %>
                 <script>
                     const removeBtns = document.querySelectorAll('.removeitemBtn');
                     const addToCartBtns = document.querySelectorAll('.addToCart');
-                    const sizeOption = document.querySelector('input[name="sizeOption"]:checked');
-                    const colorOption = document.querySelector('input[name="color"]:checked');
-                    const optionModalTrigger = document.getElementById('optionModalTrigger');
-
 
                     addToCartBtns.forEach((btn) => {
                         btn.addEventListener('click', async () => {
@@ -77,7 +88,7 @@
                                     sizeOptionsPreview.innerHTML = ''
                                     colorOptionsPreview.innerHTML = ''
                                     productNamePreview.innerText = productData.product.productName
-                                    addToCartBtn.setAttribute('data-productId',productId)
+                                    addToCartBtn.setAttribute('data-productId', productId)
                                     productData.product.sizeOptions.forEach((size) => {
                                         const sizeOption = `<div class="ms-1 mb-1 mb-lg-0 ">
                             <input type="radio" class="btn-check " id="${size}" autocomplete="off"
@@ -107,37 +118,6 @@
                                 }
                             }
                         })
-                    })
-
-
-                    optionModalTrigger.addEventListener('click',()=>{
-                        const sizeOption = document.querySelector('input[name="sizeOption"]:checked');
-                    const colorOption = document.querySelector('input[name="color"]:checked');
-                    const addToCartBtn = document.getElementById('addToCartBtn');
-
-                    addToCartBtn.addEventListener('click',()=>{
-                        const productId = addToCartBtn.getAttribute('data-productId');
-                        let hasError = false
-                        // if(!sizeOption.checked){
-                        //     console.log(sizeOption.checked)
-                        //     hasError = true
-                        //     setError(sizeOption,"Select a size");
-                        // }else if(!colorOption.checked){
-                        //     hasError = true
-                        //     setError(colorOption,"Select a color");
-                        // }else{
-                        //     hasError = false
-                        //     setError(colorOption,'')
-                        // }
-
-                        if(!hasError){
-                            const colorOptionValue = colorOption.value
-                            const sizeOptionValue = sizeOption.value
-
-                            addToCart(colorOptionValue,sizeOptionValue,productId);
-                        }
-                    })
-
                     })
 
                     removeBtns.forEach((btn) => {
@@ -189,16 +169,16 @@
                         return data;
                     }
 
-                    function addToCart(colorOptionValue,sizeOptionValue,productId) {
+                    function addToCart(colorOptionValue, sizeOptionValue, productId) {
                         let hasError = false
-                        console.log(colorOptionValue,sizeOptionValue,productId);
+                        console.log(colorOptionValue, sizeOptionValue, productId);
                     }
 
                     function setError(element, message) {
-                    const inputParent = element.closest('.parent');
-                    const errorDisplay = inputParent.querySelector('.error');
+                        const inputParent = element.closest('.parent');
+                        const errorDisplay = inputParent.querySelector('.error');
 
-                    errorDisplay.innerText = message;
-                }
+                        errorDisplay.innerText = message;
+                    }
                 </script>
                 <%- include('../includes/shop/shopEnd.ejs') %>

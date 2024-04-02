@@ -136,6 +136,7 @@ module.exports.availableCouponHelper = async (products) => {
   categories = categories.map((id) => new ObjectId(id));
   const availableCoupons = await couponSchema.find({
     validFor: { $in: categories },
+    validTo : {$gt: Date.now()}
   });
 
   return availableCoupons;
@@ -171,8 +172,9 @@ module.exports.addCartQuantityCheck = (cart, productId) => {
 
 module.exports.couponHelper = async (userId, code) => {
   try {
-    const couponCheck = await couponSchema.findOne({ couponCode: code });
-    if (couponCheck === "") {
+    const couponCheck = await couponSchema.findOne({ couponCode: code});
+    console.log(couponCheck)
+    if (couponCheck === " ") {
       return {status : false,message:"invalid coupon"};
     }
     const checkApplied = await orderSchema.findOne({

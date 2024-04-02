@@ -5,10 +5,27 @@ const adminHelper = require("../helpers/adminHelper");
 const categorySchema = require("../models/categoryModel");
 const walletSchema = require("../models/walletmodel");
 const { ObjectId } = require("mongodb");
+const salesHelper = require('../helpers/salesHelper');
 
-module.exports.getAdminDashboard = (req, res) => {
-  res.render("admin/dashboard", { title: "DashBoard" });
+module.exports.getAdminDashboard = async (req, res) => {
+  try {
+    res.render("admin/dashboard", { title: "DashBoard",});
+  } catch (error) {
+    console.log(error)
+  }
 };
+
+module.exports.generateSales = async (req,res) =>{
+  const {startDate,EndDate,type} = req.body;
+  if(type === 'default'){
+    const defaultSales = await salesHelper.monthlySalesHelp();
+    res.json({
+      status : true,
+      sales : defaultSales
+    })
+  }
+  
+}
 
 module.exports.getAdminUsers = async (req, res) => {
   try {

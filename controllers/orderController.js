@@ -84,7 +84,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
             { userId: userId },
             { $set: { cartItems: [] } }
           );
-
+          req.session.cartCount = 0;
           if (paymentOption === "COD" || grandTotal === 0) { 
             res.json({
               status: true,
@@ -168,6 +168,8 @@ module.exports.getOrderStatusPage = async (req, res) => {
       user: authUser.userName,
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -197,6 +199,8 @@ module.exports.getMyorders = async (req, res) => {
       title: "My Orders",
       user: authUser.userName,
       orders,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
       //arrivals
     });
   } catch (error) {
@@ -215,6 +219,8 @@ module.exports.getOrderDetail = async (req, res) => {
       user: authUser.userName,
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -236,6 +242,8 @@ module.exports.getOrderTracking = async (req, res) => {
       title: "Tracking Order",
       user: authUser.userName,
       orderTrack,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);

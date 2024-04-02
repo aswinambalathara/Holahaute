@@ -24,6 +24,8 @@ module.exports.getUserProfile = async (req, res) => {
       user: authUser.userName,
       addresses: user.addresses,
       walletBalance: wallet?.balance,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -70,6 +72,8 @@ module.exports.getEditUserProfile = async (req, res) => {
       userdetail: user,
       user: authUser.userName,
       success: req.flash("success"),
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -243,6 +247,8 @@ module.exports.getAddAddress = (req, res) => {
     res.render("user/addAddress.ejs", {
       title: "Add Address",
       user: authUser.userName,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -308,6 +314,8 @@ module.exports.getEditAddress = async (req, res) => {
       title: "Edit Address",
       user: authUser.userName,
       address: address,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);

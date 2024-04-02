@@ -10,6 +10,7 @@ const sortFilter = document.getElementsByName('sortFilter');
     const categories = document.getElementsByName('categories');
     const addWishlistBtns = document.querySelectorAll('.addWishlistBtn');
      const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions,.categoryFilter');
+     const wishlistNotify = document.querySelector('.wishlist-notify');
     let checkedSort;
     let checkedPrice;
     let checkedUserOptions = []; 
@@ -303,6 +304,7 @@ addWishlistBtns.forEach((btn)=>{
        }
        const data = await fetchFunction(url,method,body);
        if(data.status === true){
+        wishlistNotify.setAttribute('data-notify',data.wishlistCount)
         const animatedHeart = document.createElement('i');
         animatedHeart.classList.add('fa-solid', 'fa-heart');
         animatedHeart.style.color = '#f50000';

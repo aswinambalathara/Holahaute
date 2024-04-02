@@ -1,0 +1,368 @@
+<script>
+    //
+    const editCouponBtns = document.querySelectorAll('.editCouponBtns');
+
+    //Add coupon inputs
+    const couponName = document.getElementById('couponName');
+    const couponCode = document.getElementById('couponCode');
+    const validFrom = document.getElementById('validFrom');
+    const validTo = document.getElementById('validTo');
+    const validFor = document.getElementById('validFor');
+    const discount = document.getElementById('discount');
+    const minimumPurchaseAmt = document.getElementById('minimumPurchaseAmt');
+    const maximumDiscount = document.getElementById('maximumDiscount');
+    const createCouponBtn = document.getElementById('createCouponBtn');
+
+    couponName.addEventListener('blur', handleInputChange);
+    couponCode.addEventListener('blur', handleInputChange);
+    validFrom.addEventListener('blur', handleInputChange);
+    validTo.addEventListener('blur', handleInputChange);
+    validFor.addEventListener('blur', handleInputChange);
+    discount.addEventListener('blur', handleInputChange);
+    minimumPurchaseAmt.addEventListener('blur', handleInputChange);
+    maximumDiscount.addEventListener('blur', handleInputChange);
+    createCouponBtn.addEventListener('click', handleFormSubmit);
+
+    //Editcoupon inputs
+    const editCouponName = document.getElementById('editCouponName');
+    const editCouponCode = document.getElementById('editCouponCode');
+    const editValidFrom = document.getElementById('editValidFrom');
+    const editValidTo = document.getElementById('editValidTo');
+    const editValidFor = document.getElementById('editValidFor');
+    const editDiscount = document.getElementById('editDiscount');
+    const editMinimumPurchaseAmt = document.getElementById('editMinimumPurchaseAmt');
+    const editMaximumDiscount = document.getElementById('editMaximumDiscount');
+    const editCouponTrigger = document.getElementById('editCouponTrigger');
+    const editCouponBtn = document.getElementById('editCouponBtn');
+
+    editCouponName.addEventListener('blur', handleInputChange);
+    editCouponCode.addEventListener('blur', handleInputChange);
+    editValidFrom.addEventListener('blur', handleInputChange);
+    editValidTo.addEventListener('blur', handleInputChange);
+    editDiscount.addEventListener('blur', handleInputChange);
+    editMinimumPurchaseAmt.addEventListener('blur', handleInputChange);
+    editMaximumDiscount.addEventListener('blur', handleInputChange);
+    editCouponBtn.addEventListener('click', editHandleFormSubmit);
+
+    editCouponBtns.forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const couponId = btn.getAttribute('data-couponId');
+            //console.log(couponId);
+            const url = `/admin/coupons/fetchCoupon/${couponId}`
+            const method = 'GET'
+            const data = await getFetchFunction(url, method);
+            //console.log(data);
+            if (data.status === true) {
+                const formattedValidFrom = moment(data.coupon.validFrom).format('YYYY-MM-DD');
+                const formattedValidTo = moment(data.coupon.validTo).format('YYYY-MM-DD');
+                //console.log(formattedValidTo)
+                editCouponName.value = data.coupon.couponName
+                editCouponCode.value = data.coupon.couponCode
+                editValidFrom.value = formattedValidFrom
+                editValidTo.value = formattedValidTo
+                editDiscount.value = data.coupon.discountPercentage
+                editCouponBtn.setAttribute('data-couponId', data.coupon._id);
+                editValidFor.options.forEach((option) => {
+                    //console.log(option.value)
+                    if (option.value === data.coupon.validFor) {
+                        option.selected = true
+                    }
+                });
+                editCouponTrigger.click()
+            }
+        })
+    });
+
+    const errorMessages = {
+        couponName: {
+            required: "This field is required",
+            invalid: "Only letters allowed"
+        },
+        couponCode: {
+            required: "This field is required",
+            invalid: "Must contain atleast 3 uppercase and 3 characters"
+        },
+        validFrom: {
+            required: "This field is required",
+            invalid: "Enter a valid Date",
+            invalid2: "start Date must be before end Date"
+        },
+        validTo: {
+            required: "This field is required",
+            invalid: "Select a future date",
+        },
+        minimumPurchaseAmt: {
+            required: "This field is required",
+        },
+        maximumDiscount: {
+            required: "This field is required",
+        },
+        validFor: {
+            required: "This field is required",
+        },
+        discount: {
+            required: "This field is required",
+            invalid: "Enter valid discount between 1 and 100%"
+        },
+        editCouponName: {
+            required: "This field is required",
+            invalid: "Only letters allowed"
+        },
+        editCouponCode: {
+            required: "This field is required",
+            invalid: "Must contain atleast 3 uppercase and 3 characters"
+        },
+        editValidFrom: {
+            required: "This field is required",
+            invalid: "start Date must be before end Date"
+        },
+        editValidTo: {
+            required: "This field is required",
+            invalid: "Select a future date"
+        },
+        editMinimumPurchaseAmt: {
+            required: "This field is required",
+        },
+        editMaximumDiscount: {
+            required: "This field is required",
+        },
+        editDiscount: {
+            required: "This field is required",
+            invalid: "Enter valid discount between 1 and 100%"
+        },
+    }
+
+    function handleInputChange(event) {
+        const input = event.target;
+        const type = input.id;
+        const value = input.value;
+        //console.log(input);
+        const errorMessage = validateInputs(input, type, value);
+        setError(input, errorMessage);
+    }
+
+    function validateInputs(input, type, value) {
+        let lettersandNumbersOnlyRegex = /^[a-zA-Z0-9]+$/;
+        let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
+        let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
+        let dates;
+        const validToValue = Date.parse(validTo.value);
+        const editvalidToValue = Date.parse(editValidTo.value);
+
+        const errorMessage = errorMessages[type];
+
+        if (value === '') {
+            return errorMessage.required;
+        }
+        switch (type) {
+            case 'couponName':
+                if (!lettersandNumbersOnlyRegex.test(value)) {
+                    return errorMessage.invalid;
+                }
+                break;
+            case 'couponCode':
+                if (!couponRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'discount':
+                if (!discountRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'validFrom':
+                dates = validateDate(Date.parse(value), validToValue);
+                //console.log(dates);
+                if (dates.parsedDate < dates.today) {
+                    return errorMessage.invalid
+                } else if (dates.parsedDate >= dates.parsedOtherDate) {
+                    return errorMessage.invalid2
+                }
+                break;
+            case 'validTo':
+                dates = validateDate(Date.parse(value));
+                //console.log(dates)
+                if (dates.parsedDate <= dates.today) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'editCouponName':
+                if (!lettersandNumbersOnlyRegex.test(value)) {
+                    return errorMessage.invalid;
+                }
+                break;
+            case 'editCouponCode':
+                if (!couponRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'editDiscount':
+                if (!discountRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'editValidFrom':
+                dates = validateDate(Date.parse(value), editvalidToValue);
+                //console.log(dates);
+                if (dates.parsedDate >= dates.parsedOtherDate) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'editValidTo':
+                dates = validateDate(Date.parse(value));
+                //console.log(dates)
+                if (dates.parsedDate < dates.today) {
+                    return errorMessage.invalid
+                }
+                break;
+        }
+        return ''
+    }
+
+    function validateDate(dateInMs, otherDateinMs = "null") {
+        const parsedDate = new Date(dateInMs);
+        parsedDate.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (otherDateinMs !== 'null') {
+            const parsedOtherDate = new Date(otherDateinMs);
+            parsedOtherDate.setHours(0, 0, 0, 0);
+            return { parsedDate, today, parsedOtherDate }
+        }
+        return { parsedDate, today };
+    }
+ 
+    async function handleFormSubmit(event) {
+        event.preventDefault()
+
+        let hasError = false;
+        const allInputs = [couponName, couponCode, validFrom, validTo, validFor, discount, minimumPurchaseAmt, maximumDiscount];
+
+        allInputs.forEach((input) => {
+            const type = input.id;
+            const value = input.value;
+            const errorMessage = validateInputs(input, type, value);
+            if (errorMessage) {
+                hasError = true
+                setError(input, errorMessage);
+            } else {
+                setError(input, '');
+            }
+        });
+
+        if (!hasError) {
+            const url = '/admin/coupons/addcoupon'
+            const method = 'POST'
+            const body = {
+                couponName: couponName.value.trim().toLowerCase(),
+                couponCode: couponCode.value.trim(),
+                validFrom: new Date(validFrom.value.trim()),
+                validTo: new Date(validTo.value.trim()),
+                validFor: validFor.value,
+                discount: Number(discount.value),
+                minimumPurchaseAmount : Number(minimumPurchaseAmt.value),
+                maximumDiscount : Number(maximumDiscount.value)
+            }
+            const data = await fetchFunction(url, method, body);
+            if (data.status === false) {
+                Swal.fire({
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                Swal.fire({
+                    text: data.message,
+                    icon: "success"
+                }).then(() => {
+                    location.reload()
+                })
+            }
+        }
+    }
+
+    async function editHandleFormSubmit(event) {
+        const couponId = event.target.getAttribute('data-couponId');
+
+        let hasError = false;
+        const allInputs = [editCouponName, editCouponCode, editValidTo, editValidFrom, editDiscount,editMinimumPurchaseAmt,editMaximumDiscount];
+
+        allInputs.forEach((input) => {
+            const type = input.id;
+            const value = input.value;
+            const errorMessage = validateInputs(input, type, value);
+            if (errorMessage) {
+                hasError = true
+                setError(input, errorMessage);
+            } else {
+                setError(input, '');
+            }
+        });
+
+        if (!hasError) {
+            const couponNameValue = editCouponName.value.trim()
+            const couponCodeValue = editCouponCode.value.trim()
+            const discountValue = Number(editDiscount.value.trim())
+            const maximumDiscountValue = Number(editMaximumDiscount.value.trim())
+            const minimumPurchaseAmountValue = Number(editMinimumPurchaseAmt.value.trim())
+            const url = `/admin/coupons/editcoupon/${couponId}`
+            const method = 'PATCH'
+            const body = {
+                couponName: couponNameValue ? couponNameValue.toLowerCase() : undefined,
+                couponCode: couponCodeValue ? couponCodeValue : undefined,
+                validFrom: new Date(editValidFrom.value.trim()),
+                validTo: new Date(editValidTo.value.trim()),
+                validFor: editValidFor.value,
+                discount: discountValue ? discountValue : undefined,
+                minimumPurchaseAmount :minimumPurchaseAmountValue? minimumPurchaseAmountValue : undefined,
+                maximumDiscount : maximumDiscountValue? maximumDiscountValue : undefined
+            }
+            const data = await fetchFunction(url, method, body);
+            if (data.status === false) {
+                Swal.fire({
+                    text: data.message,
+                    icon: "error"
+                });
+            } else {
+                Swal.fire({
+                    text: data.message,
+                    icon: "success"
+                }).then(() => {
+                    location.reload()
+                })
+            }
+        }
+    }
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+
+        const data = await response.json()
+
+        return data;
+    }
+
+    async function getFetchFunction(url, method) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+        const data = await response.json()
+        return data;
+    }
+
+    function setError(element, message) {
+        const inputParent = element.closest('.parent');
+        const errorDisplay = inputParent.querySelector('.error');
+
+        errorDisplay.innerText = message;
+    }
+
+</script>

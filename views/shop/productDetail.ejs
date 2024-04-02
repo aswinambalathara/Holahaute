@@ -282,6 +282,8 @@
                 const errorParent = document.getElementById('errorParent');
                 const productName = '<%= product.productName%>'
                 const addToWishlistBtn = document.querySelector('.addToWishlistBtn');
+                const wishlistNotify = document.querySelector('.wishlist-notify');
+                const cartNotify = document.querySelector('.cart-notify');
 
                 async function addToCart(id) {
                     const sizeOption = document.querySelector('input[name="sizeOption"]:checked').value;
@@ -317,6 +319,8 @@
                             const data = await response.json()
                             console.log(data)
                             if (data.status) {
+                                cartNotify.setAttribute('data-notify',data.cartCount)
+                                console.log(data)
                                 Swal.fire({
                                     title: productName.toLocaleUpperCase(),
                                     text: data.message,
@@ -352,6 +356,8 @@
                     }
                     const data = await fetchFunction(url, method, body);
                     if (data.status === true) {
+                        console.log(data)
+                        wishlistNotify.setAttribute('data-notify',data.wishlistCount)
                         Swal.fire({
                             text: data.message,
                             icon: "success"

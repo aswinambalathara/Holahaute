@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const userSchema = require("../models/userModel");
 const adminSchema = require("../models/adminModel");
 const verificationController = require("../controllers/verificationController");
+const wishlistSchema = require('../models/wishlistModel');
+const cartSchema = require('../models/cartModel');
 const jwt = require('jsonwebtoken');
 
 module.exports.getUserSignup = (req, res) => {
@@ -144,10 +146,15 @@ module.exports.doUserLogin = async (req, res) => {
         req.session.userIsBlocked = false;
         const checkPassword = await bcrypt.compare(password, userData.password);
         if (checkPassword) {
+          const wishlist = await wishlistSchema.findOne({userId : userData._id})
+          const cart = await cartSchema.findOne({userId : userData._id});
+          req.session.cartCount = cart? cart.cartItems.length : 0
+          req.session.wishlistCount = wishlist?  wishlist.wishlistItems.length : 0
           const payLoad = {
             userName : userData.fullName,
             userId : userData._id
           }
+
         const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '24h'})  
           res.cookie('token',token,{httpOnly:true,secure : true});
           
@@ -222,7 +229,10 @@ module.exports.doOtpLogin = async (req, res) => {
     if (user) {
       if (!user.isBlocked) {
         if(user.isVerified){
-
+          const wishlist = await wishlistSchema.findOne({userId : user._id})
+          const cart = await cartSchema.findOne({userId : user._id});
+          req.session.cartCount = cart? cart.cartItems.length : 0
+          req.session.wishlistCount = wishlist?  wishlist.wishlistItems.length : 0
           const payLoad = {
             userName : user.fullName,
             userId : user._id

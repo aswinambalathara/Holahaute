@@ -21,7 +21,9 @@ module.exports.getCart = async (req, res) => {
       title: "Cart",
       user: authUser.userName,
       cartData: cart[0],
-      error : req.flash('error')
+      error : req.flash('error'),
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -67,6 +69,7 @@ module.exports.doAddToCart = async (req, res) => {
             res.json({
               status: true,
               message: "Added to cart",
+              cartCount : req.session.cartCount
             });
           } else {
             res.json({
@@ -97,10 +100,11 @@ module.exports.doAddToCart = async (req, res) => {
               },
             }
           );
-          req.session.productCount++;
+          req.session.cartCount++;
           res.json({
             status: true,
             message: "Added to cart",
+            cartCount : req.session.cartCount
           });
         }else{
           res.json({
@@ -117,10 +121,11 @@ module.exports.doAddToCart = async (req, res) => {
         cartItems: [{ productId: productId, color: color, size: size }],
       });
       await newCart.save();
-      req.session.productCount = 1;
+      req.session.cartCount = 1;
       res.json({
         status: true,
         message: "Added To Cart",
+        cartCount : req.session.cartCount
       });
     }
   } catch (error) {
@@ -168,8 +173,10 @@ module.exports.doRemoveItem = async (req, res) => {
       { $pull: { cartItems: { _id: new ObjectId(itemId) } } }
     );
     if (remove) {
+      req.session.cartCount--;
       res.json({
         status: true,
+        cartCount : req.session.cartCount
       });
     }
   } catch (error) {
@@ -195,7 +202,9 @@ try {
       cartItems : cart.orderInfo,
       addresses,
       availableCoupons : availableCoupons,
-      walletBalance : wallet? wallet.balance : undefined
+      walletBalance : wallet? wallet.balance : undefined,
+      wishlistCount : req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   }else{
     req.flash('error',`${stock.toUpperCase()} * is not available at this quantity,Try different Quantity`);

@@ -87,48 +87,6 @@
         new DataTable("#product-table", {
             responsive: true,
         });
-
-        const editCouponBtns = document.querySelectorAll('.editCouponBtns');
-
-        editCouponBtns.forEach((btn) => {
-            btn.addEventListener('click', async () => {
-                const couponId = btn.getAttribute('data-couponId');
-                console.log(couponId);
-                const url = `/admin/coupons/fetchCoupon/${couponId}`
-                const method = 'GET'
-                const data = await getFetchFunction(url,method);
-                console.log(data);
-                if(data.status === true){
-                  const formattedValidFrom = moment(data.coupon.validFrom).format('YYYY-MM-DD');
-                  const formattedValidTo = moment(data.coupon.validTo).format('YYYY-MM-DD');
-                  //console.log(formattedValidTo)
-                  editCouponName.value = data.coupon.couponName
-                  editCouponCode.value = data.coupon.couponCode
-                  editValidFrom.value = formattedValidFrom
-                  editValidTo.value = formattedValidTo
-                  editDiscount.value = data.coupon.discountPercentage
-                  editCouponBtn.setAttribute('data-couponId',data.coupon._id);
-                  editValidFor.options.forEach((option)=>{
-                    //console.log(option.value)
-                    if(option.value === data.coupon.validFor){
-                        option.selected = true
-                    }
-                  });
-                  editCouponTrigger.click()
-                }
-            })
-        });
-
-        async function getFetchFunction(url, method) {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json"
-                },
-            })
-            const data = await response.json()
-            return data;
-        }
-  
   </script>
+  <%- include('../includes/scripts/couponScript.ejs')%>
     <%- include('../includes/admin/adminEnd')%>

@@ -43,7 +43,7 @@ const orderSchema = Schema({
 
   orderStatus: {
     type: String,
-    required: true,
+    required: true,  
   },
 
   products: [

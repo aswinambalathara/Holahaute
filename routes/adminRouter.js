@@ -6,7 +6,8 @@ const categoryController = require('../controllers/categoryController')
 const authMiddleware = require('../middlewares/authMiddleware');
 const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer')
 
-router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard)
+router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard);
+router.post('/generatesaleschart',authMiddleware.verifyAdmin,adminController.generateSales);
 
 router.get('/products',authMiddleware.verifyAdmin,productController.getAdminProducts)
 router.get('/products/addproduct',authMiddleware.verifyAdmin,productController.getAddProducts)

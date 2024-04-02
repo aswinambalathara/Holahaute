@@ -16,17 +16,21 @@ module.exports.getAdminProducts = async (req, res) => {
       success: req.flash("success"),
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 module.exports.getAddProducts = async (req, res) => {
-  const categories = await categorySchema.find({ status: true });
+  try {
+    const categories = await categorySchema.find({ status: true });
   res.render("admin/addProduct", {
     title: "Add Product",
     categories,
     err: req.flash("error"),
   });
+  } catch (error) {
+    console.error(error)
+  }
 };
 
 module.exports.doAddProducts = async (req, res) => {
@@ -101,7 +105,7 @@ module.exports.doAddProducts = async (req, res) => {
       res.redirect("/admin/products");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -119,7 +123,7 @@ module.exports.getEditProducts = async (req, res) => {
       err: req.flash("error"),
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

@@ -18,6 +18,8 @@ module.exports.getHomePage = async (req, res) => {
       categories,
       products,
       user: user ? user.userName : undefined,
+      wishlistCount : user? req.session.wishlistCount : 0,
+      cartCount : user? req.session.cartCount : 0
     });
   } catch (error) {
     console.log(error);
@@ -40,6 +42,8 @@ module.exports.getProductDetailPage = async (req, res) => {
       product,
       relatedProducts,
       user: user ? user.userName : undefined,
+      wishlistCount : user? req.session.wishlistCount : 0,
+      cartCount : user? req.session.cartCount : 0
     });
   } catch (error) {
     console.log(error);
@@ -66,6 +70,8 @@ module.exports.getProductsPage = async (req, res) => {
       products,
       user: user ? user.userName : undefined,
       categories: categoryIds,
+      wishlistCount : user? req.session.wishlistCount : 0,
+      cartCount : user? req.session.cartCount : 0
     });
   } catch (error) {
     console.log(error);
@@ -131,6 +137,8 @@ module.exports.getWishlist = async (req, res) => {
       title: "Wishlist",
       user: authUser.userName,
       wishlist,
+      wishlistCount :  req.session.wishlistCount,
+      cartCount : req.session.cartCount
     });
   } catch (error) {
     console.log(error);
@@ -164,10 +172,12 @@ module.exports.addToWishlist = async (req, res) => {
           },
         }
       );
+      req.session.wishlistCount++;
       if (added) {
         res.json({
           status: true,
-          message: "Product added to cart",
+          message: "Product added to WishList",
+          wishlistCount : req.session.wishlistCount
         });
       }
     } else {
@@ -176,10 +186,12 @@ module.exports.addToWishlist = async (req, res) => {
         wishlistItems: [{ productId: productId }],
       });
       const added = await newWishlist.save();
+      req.session.wishlistCount = 1;
       if (added) {
         res.json({
           status: true,
           message: "Added to wishlist",
+          wishlistCount : req.session.wishlistCount
         });
       }
     }
@@ -200,12 +212,13 @@ module.exports.removeFromWishList = async (req, res) => {
     );
 
     if(removed){
+      req.session.wishlistCount--;
       return res.json({
         status : true,
-        message : "Product Removed"
+        message : "Product Removed",
+        wishlistCount : req.session.wishlistCount
       })
     }
-
   } catch (error) {
     console.log(error);
   }

@@ -49,6 +49,16 @@ hidden data-bs-target="#editCouponModal" class="btn btn-sm btn-primary" id="edit
               <input type="text" name="discount" id="editDiscount" class="form-control">
               <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
             </div>
+            <div class="mb-2 parent">
+              <label for="Minimum Purchase Amount" class="form-label">Minimum Purchase Amount</label>
+              <input type="text" name="editMinimumPurchaseAmt" id="editMinimumPurchaseAmt" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
+            <div class="mb-2 parent">
+              <label for="Maximum Discount" class="form-label">Maximum Discount</label>
+              <input type="text" name="editMaximumDiscount" id="editMaximumDiscount" class="form-control">
+              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -57,174 +67,3 @@ hidden data-bs-target="#editCouponModal" class="btn btn-sm btn-primary" id="edit
       </div>
     </div>
   </div>
-
-  <script>
-    const editCouponName = document.getElementById('editCouponName');
-    const editCouponCode = document.getElementById('editCouponCode');
-    const editValidFrom = document.getElementById('editValidFrom');
-    const editValidTo = document.getElementById('editValidTo');
-    const editValidFor = document.getElementById('editValidFor');
-    const editDiscount = document.getElementById('editDiscount');
-    const editCouponTrigger = document.getElementById('editCouponTrigger');
-    const editCouponBtn = document.getElementById('editCouponBtn');
-
-    editCouponName.addEventListener('blur', handleInputChange);
-    editCouponCode.addEventListener('blur', handleInputChange);
-    editValidFrom.addEventListener('blur', handleInputChange);
-    editValidTo.addEventListener('blur', handleInputChange);
-    //editValidFor.addEventListener('blur', handleInputChange);
-    editDiscount.addEventListener('blur', handleInputChange);
-    editCouponBtn.addEventListener('click', handleFormSubmit);
-
-
-    const editErrorMessages = {
-      editCouponName: {
-        invalid: "Only letters allowed"
-      },
-      editCouponCode: {
-        invalid: "Must contain atleast 3 uppercase and 3 characters"
-      },
-      editValidFrom: {
-        invalid: "Enter a valid Date"
-      },
-      editValidTo: {
-        invalid: "Select a future date"
-      },
-      editDiscount: {
-        invalid: "Enter valid discount between 1 and 100%"
-      },
-    }
-
-    function handleInputChange(event) {
-      const input = event.target;
-      const type = input.id;
-      const value = input.value;
-      const errorMessage = validateInputs(input, type, value);
-      setError(input, errorMessage);
-    }
-
-    function validateDate(dateInMs) {
-      const parsedDate = new Date(dateInMs);
-      parsedDate.setHours(0, 0, 0, 0);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      //console.log(parsedDate,today);
-      return { parsedDate, today }
-    }
-
-    function validateInputs(input, type, value) {
-      let lettersOnlyRegex = /^[A-Za-z\s]*$/;
-      let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
-      let dates;
-      let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
-  
-      const errorMessage = editErrorMessages[type];
-
-      switch (type) {
-        case 'editCouponName':
-          if (!lettersOnlyRegex.test(value)) {
-            return errorMessage.invalid;
-          }
-          break;
-        case 'editCouponCode':
-          if (!couponRegex.test(value)) {
-            return errorMessage.invalid
-          }
-          break;
-        case 'editDiscount':
-          if (!discountRegex.test(value)) {
-            return errorMessage.invalid
-          }
-          break;
-        case 'editValidFrom':
-          dates = validateDate(Date.parse(value));
-          //console.log(dates);
-          if (dates.parsedDate < dates.today) {
-            return errorMessage.invalid
-          }
-          break;
-        case 'editValidTo':
-          dates = validateDate(Date.parse(value));
-          //console.log(dates)
-          if (dates.parsedDate <= dates.today) {
-            return errorMessage.invalid
-          }
-          break;
-      }
-  
-      return ''
-  
-    }
-
-    async function handleFormSubmit(event) {
-      const couponId = event.target.getAttribute('data-couponId');
-  
-      let hasError = false;
-      const allInputs = [editCouponName,editCouponCode,editValidTo,editValidFrom,editDiscount];
-  
-      allInputs.forEach((input) => {
-        const type = input.id;
-        const value = input.value;
-        const errorMessage = validateInputs(input, type, value);
-        if (errorMessage) {
-          hasError = true
-          setError(input, errorMessage);
-        } else {
-          setError(input, '');
-        }
-      });
-  
-      if (!hasError) {
-        const couponNameValue = editCouponName.value.trim()
-        const couponCodeValue = editCouponCode.value.trim()
-        const discountValue = Number(editDiscount.value.trim())
-        const url = `/admin/coupons/editcoupon/${couponId}`
-        const method = 'PATCH'
-        const body = {
-          couponName: couponNameValue? couponNameValue.toLowerCase() : undefined,
-          couponCode: couponCodeValue? couponCodeValue : undefined,
-          validFrom: new Date(editValidFrom.value.trim()),
-          validTo: new Date(editValidTo.value.trim()),
-          validFor: editValidFor.value,
-          discount: discountValue? discountValue : undefined
-        }
-        const data = await fetchFunction(url, method, body);
-        if(data.status === false){
-          Swal.fire({
-            text: data.message,
-            icon: "error"
-          });
-        }else{
-          Swal.fire({
-            text: data.message,
-            icon: "success"
-          }).then(()=>{
-            location.reload()
-          })
-        }
-      }
-    }
-
-
-    function setError(element, message) {
-      const inputParent = element.closest('.parent');
-      const errorDisplay = inputParent.querySelector('.error');
-  
-      errorDisplay.innerText = message;
-    }
-  
-    async function fetchFunction(url, method, body) {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-  
-      const data = await response.json()
-  
-      return data;
-    }
-  
-  </script>
