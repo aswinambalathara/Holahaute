@@ -5,27 +5,26 @@ const adminHelper = require("../helpers/adminHelper");
 const categorySchema = require("../models/categoryModel");
 const walletSchema = require("../models/walletmodel");
 const { ObjectId } = require("mongodb");
-const salesHelper = require('../helpers/salesHelper');
+const salesHelper = require("../helpers/salesHelper");
 
 module.exports.getAdminDashboard = async (req, res) => {
   try {
-    res.render("admin/dashboard", { title: "DashBoard",});
+    res.render("admin/dashboard", { title: "DashBoard" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
-module.exports.generateSales = async (req,res) =>{
-  const {startDate,EndDate,type} = req.body;
-  if(type === 'default'){
+module.exports.generateSales = async (req, res) => {
+  const { startDate, EndDate, type } = req.body;
+  if (type === "default") {
     const defaultSales = await salesHelper.monthlySalesHelp();
     res.json({
-      status : true,
-      sales : defaultSales
-    })
+      status: true,
+      sales: defaultSales,
+    });
   }
-  
-}
+};
 
 module.exports.getAdminUsers = async (req, res) => {
   try {
@@ -200,8 +199,8 @@ module.exports.doChangeOrderStage = async (req, res) => {
                 $push: { history: history },
               }
             );
-            if(updateWallet){
-            return res.status(200).json({
+            if (updateWallet) {
+              return res.status(200).json({
                 status: true,
                 message: "stage changed",
               });
@@ -236,37 +235,39 @@ module.exports.doAdminCancelOrder = async (req, res) => {};
 
 module.exports.getAdminCoupons = async (req, res) => {
   try {
+    const updates = await couponSchema.updateMany(
+      { validTo: { $lt: Date.now() } },
+      { $set: { isExpired: true } }
+    );
     const categories = await categorySchema.find({ status: true });
-    const coupons = await couponSchema.find({}).populate("validFor");
+    let coupons = await couponSchema.find({}).populate("validFor");
     res.render("admin/adminCoupons", { title: "Coupons", coupons, categories });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 module.exports.doAddCoupon = async (req, res) => {
   try {
     //console.log(req.body);
-    const { couponName, couponCode, validFrom, validTo, validFor, discount } =
-      req.body;
-    const coupon = await couponSchema.findOne({
-      $or: [{ couponCode: couponCode }, { couponName: couponName }],
-    });
+    const {
+      couponName,
+      couponCode,
+      validFrom,
+      validTo,
+      validFor,
+      discount,
+      minimumPurchaseAmount,
+      maximumDiscount,
+    } = req.body;
+    const coupon = await couponSchema.findOne({ couponCode: couponCode });
     if (coupon) {
       if (coupon.validTo > Date.now()) {
         return res.status(409).json({
           status: false,
-          message: "Coupon with same code or name already exist",
+          message: "Coupon with same code already exist",
         });
       }
-      //else{
-      //   return res.json({
-      //     status : false,
-      //     expiredCoupon : true,
-      //     couponId : coupon._id,
-      //     message : "There is a expired coupon with same name or code do you wish to edit it ?"
-      //   });
-      // }
     }
     const newCoupon = new couponSchema({
       couponName,
@@ -275,6 +276,8 @@ module.exports.doAddCoupon = async (req, res) => {
       validFor,
       validTo: new Date(validTo),
       discountPercentage: Number(discount),
+      minimumPurchaseAmount: Number(minimumPurchaseAmount),
+      maximumDiscount: Number(maximumDiscount),
     });
     const added = await newCoupon.save();
     if (added) {
@@ -284,7 +287,7 @@ module.exports.doAddCoupon = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -292,7 +295,7 @@ module.exports.doFetchCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
     const coupon = await couponSchema.findOne({ _id: couponId });
-    console.log(coupon);
+    //console.log(coupon);
     if (coupon) {
       return res.json({
         status: true,
@@ -300,18 +303,24 @@ module.exports.doFetchCoupon = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 module.exports.doEditCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
-    const { couponName, couponCode, validFrom, validTo, validFor, discount } =
-      req.body;
-    const couponCheck = await couponSchema.findOne({
-      $or: [{ couponName: couponName }, { couponCode: couponCode }],
-    });
+    const {
+      couponName,
+      couponCode,
+      validFrom,
+      validTo,
+      validFor,
+      discount,
+      minimumPurchaseAmount,
+      maximumDiscount,
+    } = req.body;
+    const couponCheck = await couponSchema.findOne({ couponCode: couponCode });
     //console.log(couponCheck,couponId);
     if (couponCheck && !couponCheck._id.equals(couponId)) {
       if (couponCheck.validTo > Date.now()) {
@@ -331,6 +340,8 @@ module.exports.doEditCoupon = async (req, res) => {
             validTo: validTo,
             validFor: validFor,
             discountPercentage: discount,
+            minimumPurchaseAmount: minimumPurchaseAmount,
+            maximumDiscount: maximumDiscount,
           },
         }
       );
@@ -342,6 +353,29 @@ module.exports.doEditCoupon = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
+
+module.exports.doDeleteCoupon = async (req,res)=>{
+  try {
+    const couponId = req.params.id
+    //console.log(couponId)
+    if(couponId){
+      const deleted = await couponSchema.deleteOne({_id:couponId});
+      if(deleted){
+        return res.status(200).json({
+          status : true,
+          message : "Coupon Deleted"
+        })
+      }else{
+        return res.json({
+          status : false,
+          message : "something went wrong"
+        })
+      }
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}

@@ -38,7 +38,7 @@
                                                 <td class="col-2">
                                                     <%=coupon.couponCode%>
                                                 </td>
-                                                <td class="col-2">
+                                                <td class="col-2 validToDates">
                                                     <%=coupon.validTo%>
                                                 </td>
                                                 <td class="col-2">
@@ -62,7 +62,9 @@
                                                             style="background: none; border: none;"
                                                             data-couponId="<%=coupon._id%>"><i
                                                                 class="fa-solid fa-pen-to-square text-warning"></i></button>
-                                                        <i class="fa-solid fa-trash-can text-danger"></i>
+                                                        <button class="deleteCouponBtns" data-couponId="<%=coupon._id%>"
+                                                            style="background: none; border: none;"><i
+                                                                class="fa-solid fa-trash-can text-danger"></i></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -82,11 +84,12 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <script>
         new DataTable("#product-table", {
             responsive: true,
         });
-  </script>
-  <%- include('../includes/scripts/couponScript.ejs')%>
-    <%- include('../includes/admin/adminEnd')%>
+    </script>
+    <%- include('../includes/scripts/couponScript.ejs')%>
+        <%- include('../includes/admin/adminEnd')%>

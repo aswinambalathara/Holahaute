@@ -1,7 +1,9 @@
 <script>
     //
     const editCouponBtns = document.querySelectorAll('.editCouponBtns');
-
+    const validToDates = document.querySelectorAll('.validToDates');
+    const deleteCouponBtns = document.querySelectorAll('.deleteCouponBtns');
+    //console.log(validToDates)
     //Add coupon inputs
     const couponName = document.getElementById('couponName');
     const couponCode = document.getElementById('couponCode');
@@ -44,6 +46,12 @@
     editMaximumDiscount.addEventListener('blur', handleInputChange);
     editCouponBtn.addEventListener('click', editHandleFormSubmit);
 
+    validToDates.forEach((element) => {
+        //console.log(element.innerText)
+        element.innerText = moment(new Date(element.innerText)).format('DD-MM-YYYY');
+
+    })
+
     editCouponBtns.forEach((btn) => {
         btn.addEventListener('click', async () => {
             const couponId = btn.getAttribute('data-couponId');
@@ -61,6 +69,8 @@
                 editValidFrom.value = formattedValidFrom
                 editValidTo.value = formattedValidTo
                 editDiscount.value = data.coupon.discountPercentage
+                editMaximumDiscount.value = data.coupon.maximumDiscount
+                editMinimumPurchaseAmt.value = data.coupon.minimumPurchaseAmount
                 editCouponBtn.setAttribute('data-couponId', data.coupon._id);
                 editValidFor.options.forEach((option) => {
                     //console.log(option.value)
@@ -72,6 +82,40 @@
             }
         })
     });
+
+    deleteCouponBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const couponId = btn.getAttribute('data-couponId');
+                    console.log(couponId);
+                    if (couponId) {
+                        const url = `/admin/coupons/deletecoupon/${couponId}`
+                        const method = 'DELETE';
+                        const body = {}
+                        const data = await fetchFunction(url, method, body);
+                        console.log(data);
+                        if (data.status === true) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your file has been deleted.",
+                                icon: "success"
+                            }).then(()=> location.reload())
+                        }
+                    }
+                }
+            });
+
+        })
+    })
 
     const errorMessages = {
         couponName: {
@@ -142,7 +186,7 @@
     }
 
     function validateInputs(input, type, value) {
-        let lettersandNumbersOnlyRegex = /^[a-zA-Z0-9]+$/;
+        let lettersandNumbersOnlyRegex = /^[a-zA-Z0-9\s]+$/;
         let couponRegex = /^[A-Z0-9]{3,}[A-Z0-9_-]*$/
         let discountRegex = /^([1-9]|[1-9][0-9]|100|\d{1,2}\.\d{1,2})$/;
         let dates;
@@ -156,7 +200,7 @@
         }
         switch (type) {
             case 'couponName':
-                if (!lettersandNumbersOnlyRegex.test(value)) {
+                if (!lettersandNumbersOnlyRegex.test(value.trim())) {
                     return errorMessage.invalid;
                 }
                 break;
@@ -187,7 +231,7 @@
                 }
                 break;
             case 'editCouponName':
-                if (!lettersandNumbersOnlyRegex.test(value)) {
+                if (!lettersandNumbersOnlyRegex.test(value.trim())) {
                     return errorMessage.invalid;
                 }
                 break;
@@ -231,7 +275,7 @@
         }
         return { parsedDate, today };
     }
- 
+
     async function handleFormSubmit(event) {
         event.preventDefault()
 
@@ -260,8 +304,8 @@
                 validTo: new Date(validTo.value.trim()),
                 validFor: validFor.value,
                 discount: Number(discount.value),
-                minimumPurchaseAmount : Number(minimumPurchaseAmt.value),
-                maximumDiscount : Number(maximumDiscount.value)
+                minimumPurchaseAmount: Number(minimumPurchaseAmt.value),
+                maximumDiscount: Number(maximumDiscount.value)
             }
             const data = await fetchFunction(url, method, body);
             if (data.status === false) {
@@ -284,7 +328,7 @@
         const couponId = event.target.getAttribute('data-couponId');
 
         let hasError = false;
-        const allInputs = [editCouponName, editCouponCode, editValidTo, editValidFrom, editDiscount,editMinimumPurchaseAmt,editMaximumDiscount];
+        const allInputs = [editCouponName, editCouponCode, editValidTo, editValidFrom, editDiscount, editMinimumPurchaseAmt, editMaximumDiscount];
 
         allInputs.forEach((input) => {
             const type = input.id;
@@ -313,8 +357,8 @@
                 validTo: new Date(editValidTo.value.trim()),
                 validFor: editValidFor.value,
                 discount: discountValue ? discountValue : undefined,
-                minimumPurchaseAmount :minimumPurchaseAmountValue? minimumPurchaseAmountValue : undefined,
-                maximumDiscount : maximumDiscountValue? maximumDiscountValue : undefined
+                minimumPurchaseAmount: minimumPurchaseAmountValue ? minimumPurchaseAmountValue : undefined,
+                maximumDiscount: maximumDiscountValue ? maximumDiscountValue : undefined
             }
             const data = await fetchFunction(url, method, body);
             if (data.status === false) {

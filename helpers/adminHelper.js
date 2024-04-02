@@ -1,3 +1,4 @@
+const couponSchema = require("../models/couponModel");
 const orderSchema = require("../models/orderModel");
 const { ObjectId } = require("mongodb");
 
@@ -37,10 +38,10 @@ module.exports.orderInfoHelper = async (orderDocId) => {
           _id: "$_id",
           user: {
             $push: {
-                userId : "$user._id",
-                userName : "$user.fullName",
-                email : "$user.email",
-                mobile : "$user.phone"
+              userId: "$user._id",
+              userName: "$user.fullName",
+              email: "$user.email",
+              mobile: "$user.phone",
             },
           },
           orderStatus: {
@@ -53,7 +54,7 @@ module.exports.orderInfoHelper = async (orderDocId) => {
               orderStage: "$orderStage",
               shippingAddress: "$address",
               paymentMethod: "$paymentMethod",
-              cancelReason : "$cancelReason"
+              cancelReason: "$cancelReason",
             },
           },
           products: {
@@ -76,3 +77,5 @@ module.exports.orderInfoHelper = async (orderDocId) => {
     console.log(error);
   }
 };
+  
+

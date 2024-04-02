@@ -59,6 +59,7 @@ router.get('/wishlist',authMiddleware.userStatus,authMiddleware.verifyUser,shopC
 router.post('/wishlist/add',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.addToWishlist);
 router.patch('/wishlist/remove',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.removeFromWishList);
 router.get('/wishlist/fetchproductoptions/:id',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.fetchProductOptions);
+router.post('/wishlist/addtocart/:id',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doAddToCart);
 
 
 module.exports = router;

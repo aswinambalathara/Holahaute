@@ -37,5 +37,6 @@ router.get('/coupons',authMiddleware.verifyAdmin,adminController.getAdminCoupons
 router.post('/coupons/addcoupon',authMiddleware.verifyAdmin,adminController.doAddCoupon);
 router.get('/coupons/fetchCoupon/:id',authMiddleware.verifyAdmin,adminController.doFetchCoupon);
 router.patch('/coupons/editcoupon/:id',authMiddleware.verifyAdmin,adminController.doEditCoupon);
+router.delete('/coupons/deletecoupon/:id',authMiddleware.verifyAdmin,adminController.doDeleteCoupon);
 
 module.exports = router;

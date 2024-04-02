@@ -28,11 +28,11 @@ const couponSchema = Schema({
     required: true,
     ref: "category",
   },
-  minimumAmount: {
+  minimumPurchaseAmount: {
     type: Number,
     required: true,
   },
-  MaximumDiscount: {
+  maximumDiscount: {
     type: Number,
     required: true,
   },
@@ -41,6 +41,12 @@ const couponSchema = Schema({
     required: true,
     min: 0,
     max: 100,
+  },
+
+  isExpired: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
 });
 

@@ -1,0 +1,193 @@
+<script>
+    const moneyInput = document.getElementById('money-input');
+    const addMoneyBtn = document.getElementById('addMoneyBtn');
+    const walletHistorBtn = document.getElementById('walletHistoryBtn');
+    const wallettrigger = document.getElementById('walletHistoryTrigger')
+    let tableBody = document.querySelector('.table-body');
+
+    function setPrimary(addressId) {
+        fetch(`http://localhost:3000/user/userprofile/setprimary/${addressId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((response) => response.json())
+            .then((data) => {
+                if (data.status === 'success') {
+                    location.reload('/user/userprofile')
+                }
+            })
+    }
+
+    async function removeAddress(addressId) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const url = `http://localhost:3000/user/removeaddress/${addressId}`
+                const method = "PATCH"
+                const body = {}
+
+                const data = await fetchFunction(url, method, body)
+                if (data.status === true) {
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your file has been deleted.",
+                        icon: "success"
+                    }).then(() => {
+                        location.reload('/user/userprofile')
+                    })
+                }
+            }
+        });
+    }
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        })
+
+        const data = await response.json()
+
+        return data;
+    }
+
+    function setError(btn, message) {
+        const errorParent = btn.closest('.parent');
+        const errorDiv = errorParent.querySelector('.error')
+        errorDiv.innerText = message
+    }
+
+    addMoneyBtn.addEventListener('click', async () => {
+        const moneyInputValue = moneyInput.value.trim()
+        let hasError = false;
+        if (moneyInputValue === '') {
+            hasError = true
+            setError(moneyInput, "This field is required");
+        } else if (isNaN(moneyInputValue)) {
+            setError(moneyInput, "Enter valid amount");
+            hasError = true
+        } else if (moneyInputValue > 20000) {
+            setError(moneyInput, "You can only add upto ₹20,000 to wallet");
+            hasError = true
+        } else {
+            setError(moneyInput, '');
+        }
+
+        if (!hasError) {
+            const url = '/user/wallet/addmoney'
+            const method = 'POST'
+            const body = {
+                amount: moneyInputValue
+            }
+            const data = await fetchFunction(url, method, body);
+            if (data.payment !== '') {
+                console.log(data.payment)
+                razorpayPayment(data.payment);
+            }
+        }
+    })
+
+    function razorpayPayment(paymentData) {
+        const RZY_KEY = "<%=process.env.RAZORPAY_KEY_ID%>"
+        let options = {
+            "key": RZY_KEY, // Enter the Key ID generated from the Dashboard
+            "amount": paymentData.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Hola Haute",
+            "description": "Wallet Transaction",
+            "image": "/images/logo/logo_1.png",
+            "order_id": paymentData.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+                verifyPayment(response, paymentData)
+            },
+            "notes": {
+                "address": "Hola Haute Corporate Office"
+            },
+            "theme": {
+                "color": "#3399cc"
+            }
+        };
+
+        let rzp2 = new Razorpay(options);
+        rzp2.open()
+    }
+
+    async function verifyPayment(response, paymentData) {
+        console.log(response)
+        const url = '/user/wallet/verifywalletpayment'
+        const method = 'POST'
+        const body = {
+            response,
+            paymentData
+        }
+        const data = await fetchFunction(url, method, body);
+        if (data.paid === true) {
+            document.querySelector('.moneyCloseBtn').click();
+            Swal.fire({
+                text: data.message,
+                icon: "success"
+            }).then(() => {
+                location.reload('/user/userprofile')
+            });
+        }
+    }
+
+    walletHistorBtn.addEventListener('click', async () => {
+        const url = '/user/wallet/history'
+        const method = 'GET'
+        const data = await getFetchFunction(url, method);
+        console.log(data);
+        if (data.status === true) {
+            document.querySelector('.walletBalance').innerText = `₹ ${data.walletBalance}`
+            tableBody.innerHTML = ''
+            data.walletHistory.forEach((elem) => {
+                const formattedDate = moment(new Date(elem.date)).format('DD-MM-YYYY');
+                let transaction = `<tr>
+            <th scope="row" class="transaction">${elem.paymentType}</th>
+            <td>${elem.paymentId}</td>
+            <td>${elem.amount}</td>
+            <td>${formattedDate}</td>
+            <td>${elem.currentBalance}</td>
+          </tr>`
+          tableBody.innerHTML += transaction
+            })
+
+            const transactions = document.querySelectorAll('.transaction');
+            transactions.forEach((transaction)=>{
+                if(transaction.innerText === "Deposit"){
+                    transaction.classList.add('text-success');
+                    transaction.parentElement.classList.add('table-success')
+                }else if(transaction.innerText === "Withdrawal"){
+                    transaction.classList.add('text-danger');
+                    transaction.parentElement.classList.add('table-danger')
+                }else{
+                    transaction.classList.add('text-info');
+                    transaction.parentElement.classList.add('table-light')
+                }
+            })
+            wallettrigger.click()
+        }
+    })
+
+    async function getFetchFunction(url, method) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+        const data = await response.json()
+        return data;
+    }
+</script>

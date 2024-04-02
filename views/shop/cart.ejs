@@ -48,9 +48,11 @@
                                                     <div class="section-1">
                                                         <div
                                                             class="product-detail-wrapper d-flex flex-column flex-wrap ms-3 mt-3">
-                                                            <h6 class="fw-bold " style="text-transform: capitalize;">
-                                                                <%=item.Products.productName%>
-                                                            </h6>
+                                                            <a href="/productdetail/<%=item.productId%>" class="text-dark">
+                                                                <h6 class="fw-bold " style="text-transform: capitalize;">
+                                                                    <%=item.Products.productName%>
+                                                                </h6>
+                                                            </a>
                                                             <small class="m-0">Size : <span
                                                                     style="text-transform: uppercase;">
                                                                     <%=item.size%>
