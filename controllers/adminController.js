@@ -6,24 +6,47 @@ const categorySchema = require("../models/categoryModel");
 const walletSchema = require("../models/walletmodel");
 const { ObjectId } = require("mongodb");
 const salesHelper = require("../helpers/salesHelper");
+const { json } = require("express");
 
 module.exports.getAdminDashboard = async (req, res) => {
   try {
-    res.render("admin/dashboard", { title: "DashBoard" });
+    const defaultSales = await salesHelper.monthlySalesHelp(new Date().getFullYear()) 
+    const monthsArray = defaultSales.monthsArray
+    const salesArray = JSON.stringify(defaultSales.sales);
+    res.render("admin/dashboard", { title: "DashBoard" ,monthsArray,salesArray});
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
 module.exports.generateSales = async (req, res) => {
-  const { startDate, EndDate, type } = req.body;
-  if (type === "default") {
-    const defaultSales = await salesHelper.monthlySalesHelp();
-    res.json({
-      status: true,
-      sales: defaultSales,
-    });
+  try {
+    const {type} = req.body
+    console.log(type)
+    if(type === 'daily'){
+      const {fromDate,toDate} = req.body
+      const dailySales = await salesHelper.dailySalesHelp(new Date(fromDate),new Date(toDate));
+      if(dailySales.sales.every(value=> value === 0)){
+        return res.json({
+          status : false,
+          message : "No sales"
+        })
+      }else{
+        return res.json({
+          status : true,
+          result : dailySales,
+          description : `Daily sales from ${new Date(fromDate).toISOString().substring(0,10)} to ${new Date(toDate).toISOString().substring(0,10)}`
+        })
+      }
+    }else if(type === 'weekly'){
+      const {fromDate,toDate} = req.body
+      //console.log(req.body)
+      const weeklySales = await salesHelper.weeklySalesHelp(fromDate,toDate);
+    }
+  } catch (error) {
+    console.error(error)
   }
+
 };
 
 module.exports.getAdminUsers = async (req, res) => {
@@ -231,7 +254,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
   }
 };
 
-module.exports.doAdminCancelOrder = async (req, res) => {};
+//-`module.exports.doAdminCancelOrder = async (req, res) => {};
 
 module.exports.getAdminCoupons = async (req, res) => {
   try {

@@ -1,0 +1,90 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- body wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+                    <div class="container-fluid bg-light">
+                        <div class="row mt-5">
+                            <div class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between">
+                                <a href="/admin/offers/addoffer" class="btn add-product col-12 mt-3 mt-md-0 col-md-2">Add Offer</a>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-5">
+                            <table class="table display border border-2 rounded" id="product-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Coupon Name</th>
+                                        <th scope="col">Coupon Code</th>
+                                        <th scope="col">Expire At</th>
+                                        <th scope="col">Discount %</th>
+                                        <th scope="col">Valid For</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                            <tr class="mt-3 border border-rounded">
+                                                <th scope="row" style="text-transform: capitalize;" class="col-2">
+                                                    Name
+                                                </th>
+                                                <td class="col-2">
+                                                    sgas
+                                                </td>
+                                                <td class="col-2 validToDates">
+                                                    gas
+                                                </td>
+                                                <td class="col-2">
+                                                    gasg
+                                                </td>
+                                                <td style="text-transform: capitalize;" class="col-2">
+                                                    agsga
+                                                </td>
+                                                <td class="col-1">
+                                                    agasg
+
+                                                        <!-- <p class="text-danger m-0 fw-semibold">Expired</p>
+                                                        
+                                                            <p class="text-success m-0 fw-semibold">Active</p> -->
+                                                           
+                                                </td>
+                                                <td class="col-1">
+                                                    <div
+                                                        class="actions d-flex justify-content-evenly align-items-center">
+                                                        <button class="editCouponBtns"
+                                                            style="background: none; border: none;"
+                                                            data-couponId=""><i
+                                                                class="fa-solid fa-pen-to-square text-warning"></i></button>
+                                                        <button class="deleteCouponBtns" data-couponId=""
+                                                            style="background: none; border: none;"><i
+                                                                class="fa-solid fa-trash-can text-danger"></i></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                           
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+            </div>
+    </div>
+    <!-- DATA Tables Script -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+    <script>
+        new DataTable("#product-table", {
+            responsive: true,
+        });
+    </script>
+        <%- include('../includes/admin/adminEnd')%>

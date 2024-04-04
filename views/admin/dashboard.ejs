@@ -110,18 +110,24 @@
                 </div>
                 <div class="card-body pt-0 px-3">
                   <div class="data-range-preview">
-                    <!-- <div class="date-range-div d-flex align-items-center justify-content-between px-2">
-                      <div class="from-date-div col-md-6 me-2">
-                        <label for="">From Date</label>
-                        <input type="date" class="form-control" id="fromDate">
+                    <!-- <div class="date-range-div d-flex align-items-center">
+                     
+                      <div class="from-date-div me-2 col-md-5">
+                        <label for="">Start Year: </label>
+                        <select name="startYears" id="startYearSelect" class="form-select form-select-sm">
+
+                        </select>
                       </div>
-                      <div class="to-date-div col-md-6">
-                        <label for="">To Date</label>
-                        <input type="date" class="form-control" id="toDate">
+                      <div class="from-date-div me-2 col-md-5">
+                        <label for="">End Year: </label>
+                        <select name="endYears" id="endYearSelect" class="form-select form-select-sm">
+
+                        </select>
                       </div>
-                    </div>
-                    <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm"
-                        id="sales-filter-btn">Apply Filter</button></div> -->
+                     
+                      <button class="btn btn-primary btn-sm align-self-end"
+                        id="applyFilterBtn">Apply Filter</button>
+                    </div> -->
                   </div>
                   <div class="mt-5">
                     <canvas id="myChart"></canvas>
@@ -132,139 +138,5 @@
           </div>
       </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    defaultSales()
-    // const fromDateInput = document.getElementById('fromDate');
-    // const toDate = document.getElementById('toDate');
-    // const salesFilterBtn = document.getElementById('sales-filter-btn');
-    const salesSelect = document.getElementById('salesFilter')
-    const dataRangePreview = document.querySelector('.data-range-preview');
-
-    salesSelect.addEventListener('change', () => {
-      dataRangePreview.innerHTML = ''
-      const selectValue = salesSelect.value
-
-      if (selectValue === 'daily') {
-
-        dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center justify-content-between px-2">
-              <div class="from-date-div col-md-6 me-2">
-                <label for="dailyFromDate">From Date</label>
-                <input type="date" class="form-control" id="dailyFromDate">
-              </div>
-              <div class="to-date-div col-md-6">
-                <label for="dailyToDate">To Date</label>
-                <input type="date" class="form-control" id="dailyToDate">
-              </div>
-            </div>
-            <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm" id="ApplyFilterBtn">Apply Filter</button></div>
-          </div>`
-
-        const fromDate = document.getElementById('dailyFromDate');
-        const toDate = document.getElementById('dailyToDate');
-        const applyFilter = document.getElementById('ApplyFilterBtn');
-
-        applyFilter.addEventListener('click', () => {
-          const toDateValue = new Date(toDate.value.trim());
-          const fromDateValue = new Date(fromDate.value.trim());
-          if (toDateValue < fromDateValue) {
-            return Swal.fire({
-              text: "Start Date must be before End date",
-              icon: "error"
-            });
-          } else {
-            const daysCheck = new Date(fromDateValue.getTime() + (20 * 24 * 60 * 60 * 1000));
-            console.log(daysCheck);
-            if (toDateValue > daysCheck) {
-              return Swal.fire({
-                text: "Maximum 20 days is allowed",
-                icon: "error"
-              });
-            } else {
-              const url = '/generatesaleschart'
-              const method = 'POST'
-              const body = {
-                fromDate: fromDateValue,
-                toDate: toDateValue,
-              }
-              const data = fetchFunction(url, method, body);
-              console.log(data);
-            }
-          }
-        })
-
-      } else if (selectValue === 'weekly') {
-
-      } else if (selectValue === 'monthly') {
-
-      } else if (selectValue === 'yearly') {
-
-      }
-    })
-
-    async function fetchFunction(url, method, body) {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      const data = await response.json()
-
-      return data;
-    }
-
-    const months = [
-      "JAN",
-      "FEB",
-      "MAR",
-      "APR",
-      "MAY",
-      "JUN",
-      "JUL",
-      "AUG",
-      "SEP",
-      "OCT",
-      "NOV",
-      "DEC",
-    ]
-
-    const ctx = document.getElementById('myChart');
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-
-   async function defaultSales (){
-      const url = "/admin/generatesaleschart"
-      const method = 'POST'
-      const body = {
-        type : 'default'
-      }
-
-     const data = await fetchFunction(url,method,body);
-     console.log(data);
-     if(data.status === true){
-      
-     }
-    }
-
-  </script>
+  <%- include ('../includes/scripts/dashboardScript.ejs')%>
   <%- include('../includes/admin/adminEnd')%>

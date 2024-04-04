@@ -1,0 +1,316 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const fromDateInput = document.getElementById('fromDate');
+    const toDate = document.getElementById('toDate');
+    const salesFilterBtn = document.getElementById('sales-filter-btn');
+    const salesSelect = document.getElementById('salesFilter')
+    const dataRangePreview = document.querySelector('.data-range-preview');
+    let salesLinechart;
+
+    let monthsArray = "<%=monthsArray%>".split(',')
+    monthsArray = monthsArray.map((month) => Number(month));
+    //console.log(monthsArray)
+    const salesArray = JSON.parse('<%=salesArray%>')
+    //console.log(salesArray);
+    if (salesArray.length > 0 && monthsArray.length > 0) {
+        const months = monthsArray.map((month => correctMonths(month)));
+        //console.log(months)
+        const currentYear = new Date().getFullYear()
+        makeChart(months, salesArray, 'line', `${currentYear} monthly sales`);
+    }
+
+    salesSelect.addEventListener('change', () => {
+        dataRangePreview.innerHTML = ''
+        const selectValue = salesSelect.value
+
+        if (selectValue === 'daily') {
+
+            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center justify-content-between px-2">
+            <div class="from-date-div col-md-6 me-2">
+              <label for="dailyFromDate">From Date</label>
+              <input type="date" class="form-control" id="dailyFromDate">
+            </div>
+            <div class="to-date-div col-md-6">
+              <label for="dailyToDate">To Date</label>
+              <input type="date" class="form-control" id="dailyToDate">
+            </div>
+          </div>
+          <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button></div>
+        </div>`
+
+            const fromDate = document.getElementById('dailyFromDate');
+            const toDate = document.getElementById('dailyToDate');
+            const applyFilter = document.getElementById('applyFilterBtn');
+
+            applyFilter.addEventListener('click', async () => {
+                const toDateValue = new Date(toDate.value.trim());
+                const fromDateValue = new Date(fromDate.value.trim());
+                if (isNaN(toDateValue) || isNaN(fromDateValue)) {
+                    return Swal.fire({
+                        text: "Select a date range",
+                        icon: "error"
+                    });
+                }
+
+                if (toDateValue < fromDateValue) {
+                    return Swal.fire({
+                        text: "Start Date must be before End date",
+                        icon: "error"
+                    });
+                } else {
+                    const daysCheck = new Date(fromDateValue.getTime() + (20 * 24 * 60 * 60 * 1000));
+                    //console.log(daysCheck);
+                    if (toDateValue > daysCheck) {
+                        return Swal.fire({
+                            text: "Maximum 20 days is allowed",
+                            icon: "error"
+                        });
+                    } else {
+                        const url = '/admin/generatesaleschart'
+                        const method = 'POST'
+                        const body = {
+                            fromDate: fromDateValue,
+                            toDate: toDateValue,
+                            type: selectValue
+                        }
+                        const data = await fetchFunction(url, method, body);
+                        console.log(data);
+                        if (data.status === false) {
+                            return Swal.fire({
+                                text: data?.message,
+                                icon: "error"
+                            });
+                        }else{
+                            const dates = data.result.dates;
+                            const sales = data.result.sales;
+                            const description = data.description
+                            makeChart(dates,sales,"line",description)
+                        }
+                    }
+                }
+            })
+
+        } else if (selectValue === 'weekly') {
+            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center justify-content-between px-2">
+            <div class="from-date-div col-md-6 me-2">
+              <label for="dailyFromDate">From Date</label>
+              <input type="date" class="form-control" id="weeklyFromDate">
+            </div>
+            <div class="to-date-div col-md-6">
+              <label for="dailyToDate">To Date</label>
+              <input type="date" class="form-control" id="weeklyToDate">
+            </div>
+          </div>
+          <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button></div>
+        </div>`
+
+            const fromDate = document.getElementById('weeklyFromDate');
+            const toDate = document.getElementById('weeklyToDate');
+            const applyFilter = document.getElementById('applyFilterBtn');
+
+            applyFilter.addEventListener('click', async () => {
+                const toDateValue = new Date(toDate.value.trim());
+                const fromDateValue = new Date(fromDate.value.trim());
+
+                if (isNaN(toDateValue) || isNaN(fromDateValue)) {
+                    return Swal.fire({
+                        text: "Select a date range",
+                        icon: "error"
+                    });
+                }
+
+                if (toDateValue < fromDateValue) {
+                    return Swal.fire({
+                        text: "Start Date must be before End date",
+                        icon: "error"
+                    });
+                } else {
+                    const weekCheck = new Date(fromDateValue.getTime() + (20 * 7 * 1000 * 60 * 60 * 24));
+                    if (toDateValue > weekCheck) {
+                        return Swal.fire({
+                            text: "Maximum 20 weeks allowed",
+                            icon: "error"
+                        });
+                    } else {
+
+                        const url = '/admin/generatesaleschart'
+                        const method = 'POST'
+                        const body = {
+                            fromDate: fromDateValue,
+                            toDate: toDateValue,
+                            type: selectValue
+                        }
+                        const data = await fetchFunction(url, method, body);
+                        console.log(data);
+                    }
+                }
+            })
+
+        } else if (selectValue === 'monthly') {
+            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center justify-content-between px-2">
+                      <div class="from-date-div col-md-4 me-2">
+                        <label for="">Select Year: </label>
+                        <select name="years" id="yearsSelect" class="form-select form-select-sm">
+
+                        </select>
+                        <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm"
+                          id="applyFilterBtn">Apply Filter</button></div>
+                      </div>
+                    </div>`
+
+            const yearsSelect = document.getElementById('yearsSelect');
+            const currentYear = new Date().getFullYear()
+            const applyFilter = document.getElementById('applyFilterBtn');
+            const year = currentYear - 10
+            for (let i = year; i <= currentYear + 10; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.innerText = i;
+                yearsSelect.appendChild(option);
+            }
+            applyFilter.addEventListener('click', async () => {
+                const year = Number(yearsSelect.value);
+                if (year > new Date().getFullYear()) {
+                    return Swal.fire({
+                        text: "Future years not allowed",
+                        icon: "error"
+                    });
+                } else {
+                    const url = '/admin/generatesaleschart'
+                    const method = 'POST'
+                    const body = {
+                        year: year,
+                        type: selectValue
+                    }
+                    const data = await fetchFunction(url, method, body);
+                    console.log(data);
+                }
+            });
+        } else if (selectValue === 'yearly') {
+
+            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center">
+                     
+                     <div class="from-date-div me-2 col-md-5">
+                       <label for="">Start Year: </label>
+                       <select name="startYears" id="startYearSelect" class="form-select form-select-sm">
+
+                       </select>
+                     </div>
+                     <div class="from-date-div me-2 col-md-5">
+                       <label for="">End Year: </label>
+                       <select name="endYears" id="endYearSelect" class="form-select form-select-sm">
+
+                       </select>
+                     </div>
+                    
+                     <button class="btn btn-primary btn-sm align-self-end"
+                       id="applyFilterBtn">Apply Filter</button>
+                   </div>`
+
+
+            const startYearSelect = document.getElementById('startYearSelect');
+            const endYearSelect = document.getElementById('endYearSelect');
+            const applyFilter = document.getElementById('applyFilterBtn');
+            const currentYear = new Date().getFullYear()
+            const firstYear = currentYear - 10
+            for (let i = firstYear; i <= currentYear + 10; i++) {
+                const option1 = document.createElement('option');
+                const option2 = document.createElement('option');
+                option1.value = i;
+                option1.innerText = i;
+                option2.value = i;
+                option2.innerText = i;
+                startYearSelect.appendChild(option1);
+                endYearSelect.appendChild(option2);
+            }
+            applyFilter.addEventListener('click', async () => {
+                const fromYear = Number(startYearSelect.value);
+                const toYear = Number(endYearSelect.value);
+                if (fromYear >= toYear) {
+                    return Swal.fire({
+                        text: "Start Year is must be before End Year",
+                        icon: "error"
+                    });
+                } else {
+                    const yearsCheck = fromYear + 10
+                    if (toYear > yearsCheck) {
+                        return Swal.fire({
+                            text: "Maximum 20 years allowed",
+                            icon: "error"
+                        });
+                    } else {
+                        const url = '/admin/generatesaleschart'
+                        const method = 'POST'
+                        const body = {
+                            fromYear: fromYear,
+                            toYear: toYear,
+                            type: selectValue
+                        }
+                        const data = await fetchFunction(url, method, body);
+                        console.log(data);
+                    }
+                }
+            })
+        }
+    })
+
+    async function fetchFunction(url, method, body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await response.json()
+
+        return data;
+    }
+
+    
+    async function makeChart(labels, data, chartType, description) {
+        const salesChart = document.getElementById('myChart');
+        if(salesLinechart){
+            salesLinechart.destroy()
+        }
+        const config = {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: description,
+                    data: data,
+                    borderWidth: 1,
+                    borderColor: 'blue'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        }
+         salesLinechart = new Chart(salesChart, config);
+    }
+
+    function correctMonths(num) {
+        const months = [
+            "JAN",
+            "FEB",
+            "MAR",
+            "APR",
+            "MAY",
+            "JUN",
+            "JUL",
+            "AUG",
+            "SEP",
+            "OCT",
+            "NOV",
+            "DEC",
+        ]
+        return months[num - 1]
+    }
+
+</script>

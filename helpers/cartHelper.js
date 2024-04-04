@@ -132,14 +132,20 @@ module.exports.getCheckoutHelper = async (userId) => {
 };
 
 module.exports.availableCouponHelper = async (products) => {
-  let categories = products.map((item) => item.product.category);
-  categories = categories.map((id) => new ObjectId(id));
-  const availableCoupons = await couponSchema.find({
-    validFor: { $in: categories },
-    validTo : {$gt: Date.now()}
-  });
+  const updateCoupons = await couponSchema.updateMany(
+    { validTo: { $lt: Date.now() } },
+    { $set: { isExpired: true } }
+  );
+  if (updateCoupons.acknowledged) {
+    let categories = products.map((item) => item.product.category);
+    categories = categories.map((id) => new ObjectId(id));
+    const availableCoupons = await couponSchema.find({
+      validFor: { $in: categories },
+      validTo: { $gt: Date.now() },
+    });
 
-  return availableCoupons;
+    return availableCoupons;
+  }
 };
 
 module.exports.checkProductQuantity = async (totalQuantityByProduct) => {
@@ -172,51 +178,76 @@ module.exports.addCartQuantityCheck = (cart, productId) => {
 
 module.exports.couponHelper = async (userId, code) => {
   try {
-    const couponCheck = await couponSchema.findOne({ couponCode: code});
-    console.log(couponCheck)
+    const couponCheck = await couponSchema.findOne({ couponCode: code });
+    console.log(couponCheck);
     if (couponCheck === " ") {
-      return {status : false,message:"invalid coupon"};
+      return { status: false, message: "invalid coupon" };
+    }
+    if (couponCheck.isExpired) {
+      return {
+        status: false,
+        message: "Coupon Expired or not available at the moment",
+      };
     }
     const checkApplied = await orderSchema.findOne({
       userId: new ObjectId(userId),
       couponApplied: code,
     });
     if (checkApplied) {
-      return {status : false, message : "coupon already applied in another order"};
+      return {
+        status: false,
+        message: "coupon already applied in another order",
+      };
     }
 
     const validCouponProducts = await cartSchema.aggregate([
-      {$match:{userId: new ObjectId(userId)}},
-      {$unwind:"$cartItems"},
-      {$lookup:{
-        from : 'products',
-        localField : "cartItems.productId",
-        foreignField : "_id",
-        as : "product"
-      }},
-      {$unwind:"$product"},
-      {$addFields:{
-        totalPrice : {$multiply:["$cartItems.quantity","$product.price"]}
-      }},
-      {$group:{_id:"$_id",subTotal:{$sum:"$totalPrice"},products:{$push:"$product"}}},
-      {$unwind:"$products"},
-      {$match:{"products.category": new ObjectId(couponCheck.validFor)}},
-    ])
-    if(validCouponProducts.length === 0){
-      return {status : false, message : "coupon not valid for the products"}
-    }else{
-      console.log(validCouponProducts)
-      return {discount : couponCheck.discountPercentage, validCouponProducts : validCouponProducts, subTotal : validCouponProducts[0].subTotal}
+      { $match: { userId: new ObjectId(userId) } },
+      { $unwind: "$cartItems" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "cartItems.productId",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $addFields: {
+          totalPrice: { $multiply: ["$cartItems.quantity", "$product.price"] },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          subTotal: { $sum: "$totalPrice" },
+          products: { $push: "$product" },
+        },
+      },
+      { $unwind: "$products" },
+      { $match: { "products.category": new ObjectId(couponCheck.validFor) } },
+    ]);
+    if (validCouponProducts.length === 0) {
+      return { status: false, message: "coupon not valid for the products" };
+    } else {
+      //console.log(validCouponProducts);
+      return {
+        discountPercent: couponCheck.discountPercentage,
+        validCouponProducts: validCouponProducts,
+        subTotal: validCouponProducts[0].subTotal,
+        minimumPurchaseAmount: couponCheck.minimumPurchaseAmount,
+        maximumDiscount: couponCheck.maximumDiscount,
+      };
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports.subTotalHelp = async (userId)=>{
+module.exports.subTotalHelp = async (userId) => {
   const subtotal = await cartSchema.aggregate([
-    {$match:{userId: new ObjectId(userId)}},
-    {$unwind : "$cartItems"},
+    { $match: { userId: new ObjectId(userId) } },
+    { $unwind: "$cartItems" },
     {
       $lookup: {
         from: "products",
@@ -231,8 +262,8 @@ module.exports.subTotalHelp = async (userId)=>{
         orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
       },
     },
-    {$group:{_id:"$_id",subTotal:{$sum:"$orderTotal"}}}
-  ])
+    { $group: { _id: "$_id", subTotal: { $sum: "$orderTotal" } } },
+  ]);
 
   return subtotal[0].subTotal;
-}
+};

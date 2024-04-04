@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const productController = require('../controllers/productController')
+const productController = require('../controllers/productController');
+const offerController = require('../controllers/offerController');
 const categoryController = require('../controllers/categoryController')
 const authMiddleware = require('../middlewares/authMiddleware');
 const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer')
@@ -31,12 +32,15 @@ router.patch('/category/deletecategory/:id',authMiddleware.verifyAdmin,categoryC
 router.get('/orders',authMiddleware.verifyAdmin,adminController.getAdminOrders);
 router.get('/orders/orderinfo/:id',authMiddleware.verifyAdmin, adminController.getAdminOrderInfo);
 router.patch('/orders/changestage/:id',authMiddleware.verifyAdmin,adminController.doChangeOrderStage);
-router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.doAdminCancelOrder);
+//router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.doAdminCancelOrder);
 
 router.get('/coupons',authMiddleware.verifyAdmin,adminController.getAdminCoupons);
 router.post('/coupons/addcoupon',authMiddleware.verifyAdmin,adminController.doAddCoupon);
 router.get('/coupons/fetchCoupon/:id',authMiddleware.verifyAdmin,adminController.doFetchCoupon);
 router.patch('/coupons/editcoupon/:id',authMiddleware.verifyAdmin,adminController.doEditCoupon);
 router.delete('/coupons/deletecoupon/:id',authMiddleware.verifyAdmin,adminController.doDeleteCoupon);
+
+
+router.get('/offers',authMiddleware.verifyAdmin,offerController.getAdminOffers)
 
 module.exports = router;
