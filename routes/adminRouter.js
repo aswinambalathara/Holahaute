@@ -9,6 +9,7 @@ const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/mult
 
 router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard);
 router.post('/generatesaleschart',authMiddleware.verifyAdmin,adminController.generateSales);
+router.post('/generatersalesreport',authMiddleware.verifyAdmin,adminController.generateSalesReport);
 
 router.get('/products',authMiddleware.verifyAdmin,productController.getAdminProducts)
 router.get('/products/addproduct',authMiddleware.verifyAdmin,productController.getAddProducts)

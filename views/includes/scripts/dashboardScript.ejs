@@ -5,17 +5,69 @@
     const salesFilterBtn = document.getElementById('sales-filter-btn');
     const salesSelect = document.getElementById('salesFilter')
     const dataRangePreview = document.querySelector('.data-range-preview');
+    const formatOptions = document.querySelectorAll('.formatOptions');
+    let salesData = {}
     let salesLinechart;
 
     let monthsArray = "<%=monthsArray%>".split(',')
     monthsArray = monthsArray.map((month) => Number(month));
-    //console.log(monthsArray)
     const salesArray = JSON.parse('<%=salesArray%>')
-    //console.log(salesArray);
+
+    formatOptions.forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const format = btn.getAttribute('data-format');
+            console.log(format)
+            console.log(salesData);
+            const url = "/admin/generatersalesreport"
+            const method = 'POST'
+            const body = {
+                salesData: salesData,
+                format: format,
+            }
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+            console.log(response);
+            if (response.status === 200) {
+                const contentType = response.headers.get('Content-Type');
+                if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+                    const blob = await response.blob();
+                    downloadFile(blob,format)
+                }else{
+                    throw new Error ("unsupported file format");
+                }
+            }
+        })
+    })
+
+    function downloadFile(blob,format){
+        const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    if (format === "pdf") {
+        a.download = "sales_report.pdf";
+    } else if (format === "excel") {
+        a.download = "sales_report.xlsx";
+    }
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    }
+
     if (salesArray.length > 0 && monthsArray.length > 0) {
         const months = monthsArray.map((month => correctMonths(month)));
-        //console.log(months)
         const currentYear = new Date().getFullYear()
+        salesData = {
+            months: months,
+            sales: salesArray,
+            description: `${currentYear} monthly sales`,
+            type: "monthly"
+        }
         makeChart(months, salesArray, 'line', `${currentYear} monthly sales`);
     }
 
@@ -35,7 +87,9 @@
               <input type="date" class="form-control" id="dailyToDate">
             </div>
           </div>
-          <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button></div>
+          <div class="mt-3 d-flex justify-content-end">
+            <button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button>
+            </div>
         </div>`
 
             const fromDate = document.getElementById('dailyFromDate');
@@ -84,8 +138,14 @@
                             const dates = data.result.dates;
                             const sales = data.result.sales;
                             const description = data.description
+                            salesData = {
+                                dates: dates,
+                                sales: sales,
+                                description: description,
+                                type: "daily"
+                            }
                             makeChart(dates, sales, "line", description);
-                            dataRangePreview.innerHTML = ''
+                            return dataRangePreview.innerHTML = ''
                         }
                     }
                 }
@@ -102,12 +162,15 @@
               <input type="date" class="form-control" id="weeklyToDate">
             </div>
           </div>
-          <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button></div>
+          <div class="mt-3 d-flex justify-content-end">
+            <button class="btn btn-primary btn-sm" id="applyFilterBtn">Apply Filter</button>
+            </div>
         </div>`
 
             const fromDate = document.getElementById('weeklyFromDate');
             const toDate = document.getElementById('weeklyToDate');
             const applyFilter = document.getElementById('applyFilterBtn');
+
 
             applyFilter.addEventListener('click', async () => {
                 const toDateValue = new Date(toDate.value.trim());
@@ -152,35 +215,46 @@
                             const weeks = data.result.weeks.map((week) => `Week${week}`);
                             const sales = data.result.sales
                             const description = data.description
+                            salesData = {
+                                weeks: weeks,
+                                sales: sales,
+                                description: description,
+                                type: "weekly"
+                            }
                             makeChart(weeks, sales, "line", description);
-                            dataRangePreview.innerHTML = ''
+                            return dataRangePreview.innerHTML = ''
                         }
                     }
                 }
             })
 
         } else if (selectValue === 'monthly') {
-            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center justify-content-between px-2">
+
+            dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center  px-2">
                       <div class="from-date-div col-md-4 me-2">
                         <label for="">Select Year: </label>
                         <select name="years" id="yearsSelect" class="form-select form-select-sm">
 
                         </select>
-                        <div class="mt-3 d-flex justify-content-end"><button class="btn btn-primary btn-sm"
-                          id="applyFilterBtn">Apply Filter</button></div>
                       </div>
+                      <div class="mt-3 d-flex justify-content-end align-self-end">
+                            <button class="btn btn-primary btn-sm"
+                          id="applyFilterBtn">Apply Filter</button>
+                          </div>
                     </div>`
 
             const yearsSelect = document.getElementById('yearsSelect');
             const currentYear = new Date().getFullYear()
             const applyFilter = document.getElementById('applyFilterBtn');
             const year = currentYear - 10
+
             for (let i = year; i <= currentYear + 10; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.innerText = i;
                 yearsSelect.appendChild(option);
             }
+
             applyFilter.addEventListener('click', async () => {
                 const year = Number(yearsSelect.value);
                 if (year > new Date().getFullYear()) {
@@ -206,30 +280,38 @@
                         const months = data.result.monthsArray.map((month) => correctMonths(month));
                         const sales = data.result.sales
                         const { description } = data
+                        salesData = {
+                            months: months,
+                            sales: sales,
+                            description: description,
+                            type: "monthly"
+                        }
                         makeChart(months, sales, "line", description);
-                        dataRangePreview.innerHTML = ''
+                        return dataRangePreview.innerHTML = ''
                     }
                 }
             });
+
         } else if (selectValue === 'yearly') {
 
             dataRangePreview.innerHTML = `<div class="date-range-div d-flex align-items-center">
                      
-                     <div class="from-date-div me-2 col-md-5">
+                     <div class="from-date-div me-2 col-md-4">
                        <label for="">Start Year: </label>
                        <select name="startYears" id="startYearSelect" class="form-select form-select-sm">
 
                        </select>
                      </div>
-                     <div class="from-date-div me-2 col-md-5">
+                     <div class="from-date-div me-2 col-md-4">
                        <label for="">End Year: </label>
                        <select name="endYears" id="endYearSelect" class="form-select form-select-sm">
 
                        </select>
                      </div>
-                    
-                     <button class="btn btn-primary btn-sm align-self-end"
-                       id="applyFilterBtn">Apply Filter</button>
+                     <div class="d-flex align-self-end">
+                            <button class="btn btn-primary btn-sm"
+                          id="applyFilterBtn">Apply Filter</button>
+                          </div>
                    </div>`
 
 
@@ -238,6 +320,7 @@
             const applyFilter = document.getElementById('applyFilterBtn');
             const currentYear = new Date().getFullYear()
             const firstYear = currentYear - 10
+
             for (let i = firstYear; i <= currentYear + 10; i++) {
                 const option1 = document.createElement('option');
                 const option2 = document.createElement('option');
@@ -248,6 +331,7 @@
                 startYearSelect.appendChild(option1);
                 endYearSelect.appendChild(option2);
             }
+
             applyFilter.addEventListener('click', async () => {
                 const fromYear = Number(startYearSelect.value);
                 const toYear = Number(endYearSelect.value);
@@ -278,18 +362,24 @@
                                 text: data.message,
                                 icon: "error"
                             });
-                        }else{
+                        } else {
                             const years = data.result.years;
                             const sales = data.result.sales;
-                            const {description} = data;
-                            makeChart(years,sales,"line",description);
-                            dataRangePreview.innerHTML = ''
+                            const { description } = data;
+                            salesData = {
+                                years: years,
+                                sales: sales,
+                                description: description,
+                                type: "yearly"
+                            }
+                            makeChart(years, sales, "line", description);
+                            return dataRangePreview.innerHTML = ''
                         }
                     }
                 }
             })
         }
-    })
+    });
 
     async function fetchFunction(url, method, body) {
         const response = await fetch(url, {
@@ -303,7 +393,6 @@
 
         return data;
     }
-
 
     async function makeChart(labels, data, chartType, description) {
         const salesChart = document.getElementById('myChart');
@@ -349,5 +438,6 @@
         ]
         return months[num - 1]
     }
+
 
 </script>

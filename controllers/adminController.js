@@ -121,6 +121,19 @@ module.exports.generateSales = async (req, res) => {
   }
 };
 
+module.exports.generateSalesReport = async (req,res)=>{
+  try {
+    const {format,salesData} = req.body
+    if(format === "excel"){
+    adminHelper.generateExcelDoc(salesData,res);
+    }else{
+
+    }
+  } catch (error) { 
+    console.log(error);
+  }
+}
+
 module.exports.getAdminUsers = async (req, res) => {
   try {
     const users = await userSchema.find({});

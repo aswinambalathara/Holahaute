@@ -2,6 +2,7 @@ const couponSchema = require("../models/couponModel");
 const orderSchema = require("../models/orderModel");
 const userSchema = require("../models/userModel");
 const { ObjectId } = require("mongodb");
+const excelJs = require("exceljs");
 
 module.exports.orderInfoHelper = async (orderDocId) => {
   try {
@@ -98,6 +99,49 @@ module.exports.dashboardUsersHelp = async () => {
       },
     },
   ]);
-return dashboardUsers
+  return dashboardUsers;
   //console.log(dashboardUsers)
 };
+
+  module.exports.generateExcelDoc = async (data, res) => {
+    console.log(data);
+    const salesData = data.months.map((month, index) => {
+      return { type: month, sales: data.sales[index] };
+    });
+    console.log(salesData);
+    const workbook = new excelJs.Workbook();
+    const workSheet = workbook.addWorksheet("salesReport");
+    if (data.type === "daily") {
+      workSheet.addRow(["Date", "Total Sales"]);
+      salesData.forEach(({ date, totalSale }) => {
+        workSheet.addRow([date, totalSale]);
+      });
+    } else if (data.type === "weekly") {
+      workSheet.addRow(["Week", "Total Sale"]);
+      salesData.forEach(({ week, sa }) => {
+        workSheet.addRow([week, totalSale]);
+      });
+    } else if (data.type === "monthly") {
+      workSheet.addRow(["Month", "Total Sale"]);
+      salesData.forEach(({ month, sales }) => {
+        workSheet.addRow([month, sales]);
+      });
+    } else if (data.type === "yearly") {
+      workSheet.addRow(["Year", "Total Sale"]);
+      salesData.forEach(({ year, totalSale }) => {
+        workSheet.addRow([year, totalSale]);
+      });
+    }
+
+    const excelBuffer = await workbook.xlsx.writeBuffer();
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales_report.xlsx"
+    );
+
+    res.status(200).send(excelBuffer);
+  };
