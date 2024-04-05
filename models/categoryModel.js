@@ -18,11 +18,16 @@ const categorySchema = Schema({
         type : String,
         required :true 
     },
-
-    // offer : {
-    //     type : mongoose.Schema.Types.ObjectId,
-    //     ref : 'offer'
-    // }
+    soldProducts :{
+        type : Number,
+        required : true,
+        default : 0
+    },
+    totalSales :{
+        type : Number,
+        required : true,
+        default : 0
+    }
 })
 
 

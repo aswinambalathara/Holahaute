@@ -80,11 +80,12 @@
                                 text: data?.message,
                                 icon: "error"
                             });
-                        }else{
+                        } else {
                             const dates = data.result.dates;
                             const sales = data.result.sales;
                             const description = data.description
-                            makeChart(dates,sales,"line",description)
+                            makeChart(dates, sales, "line", description);
+                            dataRangePreview.innerHTML = ''
                         }
                     }
                 }
@@ -142,6 +143,18 @@
                         }
                         const data = await fetchFunction(url, method, body);
                         console.log(data);
+                        if (data.status === false) {
+                            return Swal.fire({
+                                text: data.message,
+                                icon: "error"
+                            })
+                        } else {
+                            const weeks = data.result.weeks.map((week) => `Week${week}`);
+                            const sales = data.result.sales
+                            const description = data.description
+                            makeChart(weeks, sales, "line", description);
+                            dataRangePreview.innerHTML = ''
+                        }
                     }
                 }
             })
@@ -184,6 +197,18 @@
                     }
                     const data = await fetchFunction(url, method, body);
                     console.log(data);
+                    if (data.status === false) {
+                        return Swal.fire({
+                            text: data.message,
+                            icon: "error"
+                        })
+                    } else {
+                        const months = data.result.monthsArray.map((month) => correctMonths(month));
+                        const sales = data.result.sales
+                        const { description } = data
+                        makeChart(months, sales, "line", description);
+                        dataRangePreview.innerHTML = ''
+                    }
                 }
             });
         } else if (selectValue === 'yearly') {
@@ -248,6 +273,18 @@
                         }
                         const data = await fetchFunction(url, method, body);
                         console.log(data);
+                        if (data.status === false) {
+                            return Swal.fire({
+                                text: data.message,
+                                icon: "error"
+                            });
+                        }else{
+                            const years = data.result.years;
+                            const sales = data.result.sales;
+                            const {description} = data;
+                            makeChart(years,sales,"line",description);
+                            dataRangePreview.innerHTML = ''
+                        }
                     }
                 }
             })
@@ -267,10 +304,10 @@
         return data;
     }
 
-    
+
     async function makeChart(labels, data, chartType, description) {
         const salesChart = document.getElementById('myChart');
-        if(salesLinechart){
+        if (salesLinechart) {
             salesLinechart.destroy()
         }
         const config = {
@@ -292,7 +329,7 @@
                 }
             }
         }
-         salesLinechart = new Chart(salesChart, config);
+        salesLinechart = new Chart(salesChart, config);
     }
 
     function correctMonths(num) {

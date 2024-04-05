@@ -1,5 +1,6 @@
 const couponSchema = require("../models/couponModel");
 const orderSchema = require("../models/orderModel");
+const userSchema = require("../models/userModel");
 const { ObjectId } = require("mongodb");
 
 module.exports.orderInfoHelper = async (orderDocId) => {
@@ -77,5 +78,26 @@ module.exports.orderInfoHelper = async (orderDocId) => {
     console.log(error);
   }
 };
-  
 
+module.exports.dashboardUsersHelp = async () => {
+  const dashboardUsers = await userSchema.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalUsers: { $sum: 1 },
+        activeUsers: {
+          $sum: {
+            $cond: { if: { $eq: ["$isBlocked", false] }, then: 1, else: 0 },
+          },
+        },
+        blockedUsers: {
+          $sum: {
+            $cond: { if: { $eq: ["$isBlocked", true] }, then: 1, else: 0 },
+          },
+        },
+      },
+    },
+  ]);
+return dashboardUsers
+  //console.log(dashboardUsers)
+};

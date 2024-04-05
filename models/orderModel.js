@@ -43,7 +43,7 @@ const orderSchema = Schema({
 
   orderStatus: {
     type: String,
-    required: true,  
+    required: true,
   },
 
   products: [
@@ -76,9 +76,9 @@ const orderSchema = Schema({
     },
   ],
 
-  subTotal : {
-    type : Number,
-    required : true
+  subTotal: {
+    type: Number,
+    required: true,
   },
 
   grandTotal: {
@@ -97,16 +97,16 @@ const orderSchema = Schema({
   },
 
   couponApplied: {
-    couponCode :{
-      type : String,
+    couponCode: {
+      type: String,
     },
-    couponDiscount:{
-      type : Number,
-    }
+    couponDiscount: {
+      type: Number,
+    },
   },
 
-  walletApplied :{
-      type : Number
+  walletApplied: {
+    type: Number,
   },
 
   cancelReason: {

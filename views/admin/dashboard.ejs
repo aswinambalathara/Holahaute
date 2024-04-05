@@ -10,34 +10,25 @@
           <div class="container-fluid">
             <!--  Row 1 -->
             <div class="row">
-              <div class="top-part d-flex align-items-start justify-content-between p-0 mb-3">
-
+              <div class="top-part d-flex align-items-start justify-content-between p-0">
                 <div class="col-md-6 section-left me-3">
-                  <div class="orders-overview card shadow ">
-                    <div class="card-header ps-4">
-                      <h5 class="m-0">Orders Overview</h5>
+                  <div class="users-overview card shadow mb-2">
+                    <div class="card-header ps-4 bg-success-subtle">
+                      <h5 class="mb-2">Users Overview</h5>
                     </div>
-                    <div class="card-body px-3 mb-4">
-                      <div class="vstack gap-4">
+                    <div class="card-body px-3">
+                      <div class="vstack gap-2">
                         <div class="total-users shadow-sm p-3 d-flex flex-column bg-primary-subtle">
-                          <h6 class="fw-bold">Total Orders</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
+                          <h6 class="fw-bold">Total Users</h6>
+                          <strong class="ms-1 mb-0"><%=dashboardUsers[0].totalUsers%></strong>
                         </div>
                         <div class="active-users shadow-sm p-3 d-flex flex-column bg-success-subtle">
-                          <h6 class="fw-bold">Active Orders</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
+                          <h6 class="fw-bold">Active Users</h6>
+                          <strong class="ms-1 mb-0"><%=dashboardUsers[0].activeUsers%></strong>
                         </div>
                         <div class="blocked-users shadow-sm p-3 d-flex flex-column bg-danger-subtle">
-                          <h6 class="fw-bold">Cancelled Orders</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
-                        </div>
-                        <div class="blocked-users shadow-sm p-3 d-flex flex-column bg-info-subtle">
-                          <h6 class="fw-bold">Delivered Orders</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
-                        </div>
-                        <div class="blocked-users shadow-sm p-3 d-flex flex-column bg-warning-subtle">
-                          <h6 class="fw-bold">Returned Orders</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
+                          <h6 class="fw-bold">Blocked Users</h6>
+                          <strong class="ms-1 mb-0"><%=dashboardUsers[0].blockedUsers%></strong>
                         </div>
                       </div>
                     </div>
@@ -45,43 +36,20 @@
                 </div>
 
                 <div class="col-md-6 section-right d-flex flex-column me-3">
-                  <div class="users-overview card shadow mb-2">
-                    <div class="card-header ps-4">
-                      <h5 class="m-0">Users Overview</h5>
-                    </div>
-                    <div class="card-body px-3">
-                      <div class="vstack gap-2">
-                        <div class="total-users shadow-sm p-3 d-flex flex-column bg-primary-subtle">
-                          <h6 class="fw-bold">Total Users</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
-                        </div>
-                        <div class="active-users shadow-sm p-3 d-flex flex-column bg-success-subtle">
-                          <h6 class="fw-bold">Active Users</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
-                        </div>
-                        <div class="blocked-users shadow-sm p-3 d-flex flex-column bg-danger-subtle">
-                          <h6 class="fw-bold">Blocked Users</h6>
-                          <strong class="ms-1 mb-0">12233</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   <div class="d-flex flex-column">
-                    <div class="category-products-overview card mb-0 shadow">
-                      <div class="card-header ps-4">
-                        <h5 class="m-0">Products & Category Overview</h5>
+                    <div class="category-products-overview card shadow ">
+                      <div class="card-header bg-info-subtle">
+                        <h5 class="mb-2">Products & Category Overview</h5>
                       </div>
-                      <div class="card-body px-3 pt-3">
-                        <div class="products-overview border shadow-sm p-2 rounded mb-3">
-                          <h6 class="fs-4">Products Overview</h6>
-                          <div class="mt-2">
-                            <strong class="fs-4">Total Products : <span>12</span></strong>
+                      <div class="card-body mb-2">
+                        <div class="vstack gap-4">
+                          <div class="products-overview border shadow-sm rounded p-4 bg-success-subtle bg-gradient">
+                            <h6 class="fs-4 mb-3">Products Overview</h6>
+                            <strong class="fs-4">Total Products : <span><%=totalProducts%></span></strong>
                           </div>
-                        </div>
-                        <div class="category-overview border shadow-sm p-2 rounded">
-                          <h6 class="fs-4">Category Overview</h6>
-                          <div class="mt-2">
-                            <strong class="fs-4">Total Category : <span>6</span></strong>
+                          <div class="category-overview border shadow-sm rounded p-4 p-4 bg-info-subtle bg-gradient">
+                            <h6 class="fs-4 mb-3">Category Overview</h6>
+                            <strong class="fs-4">Total Category : <span><%=totalCategories%></span></strong>
                           </div>
                         </div>
                       </div>
@@ -90,6 +58,50 @@
                 </div>
 
               </div>
+            </div>
+
+            <div class="row">
+<div class="middle-part d-flex p-0">
+  <div class="col-md-4 me-3">
+    <div class="orders-overview card shadow">
+      <div class="card-header ps-4 bg-primary-subtle">
+        <h5 class="m-0">Orders Overview</h5>
+      </div>
+      <div class="card-body px-3">
+        <div class="vstack gap-4">
+          <div class="total-orders shadow-sm p-3 d-flex flex-column bg-primary-subtle">
+            <h5 class="fw-bold">Total Orders</h5>
+            <h5 class="ms-1 mb-0 fw-bolder"><%=dashboardOrders[0].totalOrders%></h5>
+          </div>
+          <div class="active-orders shadow-sm p-3 d-flex flex-column bg-success-subtle">
+            <h5 class="fw-bold">Active Orders</h5>
+            <h5 class="ms-1 mb-0 fw-bolder"><%=dashboardOrders[0].activeOrders%></h5>
+          </div>
+          <div class="cancelled-orders shadow-sm p-3 d-flex flex-column bg-danger-subtle">
+            <h5 class="fw-bold">Cancelled Orders</h5>
+            <h5 class="ms-1 mb-0 fw-bolder"><%=dashboardOrders[0].cancelledOrders%></h5>
+          </div>
+          <div class="delivered-orders shadow-sm p-3 d-flex flex-column bg-info-subtle">
+            <h5 class="fw-bold">Delivered Orders</h5>
+            <h5 class="ms-1 mb-0 fw-bolder"><%=dashboardOrders[0].deliveredOrders%></h5>
+          </div>
+          <div class="returned-orders shadow-sm p-3 d-flex flex-column bg-warning-subtle">
+            <h5 class="fw-bold">Returned Orders</h5>
+            <h5 class="ms-1 mb-0 fw-bolder"><%=dashboardOrders[0].returnedOrders%></h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-danger-subtle">Category Sales</div>
+      <div class="card-body">
+
+      </div>
+    </div>
+  </div>
+</div>
             </div>
 
             <!-- Sales -->
@@ -106,6 +118,14 @@
                       <option value="monthly">Monthly</option>
                       <option value="yearly">Yearly</option>
                     </select>
+                  </div>
+                </div>
+                <div class="d-flex px-3">
+                  <div class="card ">
+                    <div class="card-body ps-3 pe-5 py-3 bg-primary rounded bg-gradient">
+                      <h5 class="m-0 text-white">Total Sales:</h5>
+                      <h5 class="mt-2 fw-bolder text-white"><span>₹ </span><%=dashboardOrders[0].overallSales%></h5>
+                    </div>
                   </div>
                 </div>
                 <div class="card-body pt-0 px-3">
@@ -139,4 +159,4 @@
       </div>
   </div>
   <%- include ('../includes/scripts/dashboardScript.ejs')%>
-  <%- include('../includes/admin/adminEnd')%>
+    <%- include('../includes/admin/adminEnd')%>

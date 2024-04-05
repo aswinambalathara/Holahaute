@@ -4,7 +4,7 @@ const fs = require("fs");
 const { error } = require("console");
 module.exports.getAdminCategory = async (req, res) => {
   const data = await categorySchema.find({ status: true });
-  // console.log(data);
+   //console.log(data);
 
   res.render("admin/adminCategory", { title: "Category", data });
 };

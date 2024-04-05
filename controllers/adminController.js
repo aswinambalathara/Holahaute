@@ -7,13 +7,30 @@ const walletSchema = require("../models/walletmodel");
 const { ObjectId } = require("mongodb");
 const salesHelper = require("../helpers/salesHelper");
 const { json } = require("express");
+const productModel = require("../models/productModel");
 
 module.exports.getAdminDashboard = async (req, res) => {
   try {
-    const defaultSales = await salesHelper.monthlySalesHelp(new Date().getFullYear()) 
-    const monthsArray = defaultSales.monthsArray
+    const defaultSales = await salesHelper.monthlySalesHelp(
+      new Date().getFullYear()
+    );
+    //const categorySales = await salesHelper.categorySalesHelp()
+    const dashboardOrders = await salesHelper.dashboardOrdersHelp()
+    const dashboardUsers = await adminHelper.dashboardUsersHelp()
+    const totalProducts = await productModel.find({isDeleted:false}).count()
+    const totalCategories = await categorySchema.find({status:true}).count()
+    //console.log(totalProducts)
+    const monthsArray = defaultSales.monthsArray;
     const salesArray = JSON.stringify(defaultSales.sales);
-    res.render("admin/dashboard", { title: "DashBoard" ,monthsArray,salesArray});
+    res.render("admin/dashboard", {
+      title: "DashBoard",
+      monthsArray,
+      salesArray,
+      dashboardOrders,
+      dashboardUsers,
+      totalProducts,
+      totalCategories
+    });
   } catch (error) {
     console.error(error);
   }
@@ -21,32 +38,87 @@ module.exports.getAdminDashboard = async (req, res) => {
 
 module.exports.generateSales = async (req, res) => {
   try {
-    const {type} = req.body
-    console.log(type)
-    if(type === 'daily'){
-      const {fromDate,toDate} = req.body
-      const dailySales = await salesHelper.dailySalesHelp(new Date(fromDate),new Date(toDate));
-      if(dailySales.sales.every(value=> value === 0)){
+    const { type } = req.body;
+    console.log(type);
+    if (type === "daily") {
+      const { fromDate, toDate } = req.body;
+      const dailySales = await salesHelper.dailySalesHelp(
+        new Date(fromDate),
+        new Date(toDate)
+      );
+      if (dailySales.sales.every((value) => value === 0)) {
+        return res.json({
+          status: false,
+          message: "No sales",
+        });
+      } else {
+        return res.json({
+          status: true,
+          result: dailySales,
+          description: `Daily sales from ${new Date(fromDate)
+            .toISOString()
+            .substring(0, 10)} to ${new Date(toDate)
+            .toISOString()
+            .substring(0, 10)}`,
+        });
+      }
+    } else if (type === "weekly") {
+      const { fromDate, toDate } = req.body;
+      //console.log(req.body)
+      const weeklySales = await salesHelper.weeklySalesHelp(
+        new Date(fromDate),
+        new Date(toDate)
+      );
+      if (weeklySales.sales.every((value) => value === 0)) {
+        return res.json({
+          status: false,
+          message: "No sales",
+        });
+      } else {
+        return res.json({
+          status: true,
+          result: weeklySales,
+          description: `Weekly sales from ${new Date(fromDate)
+            .toISOString()
+            .substring(0, 10)} to ${new Date(toDate)
+            .toISOString()
+            .substring(0, 10)}`,
+        });
+      }
+    }else if(type === "monthly"){
+      const {year}=req.body
+      const monthlySales = await salesHelper.monthlySalesHelp(year);
+      if(monthlySales.sales.every(sale => sale === 0)){
         return res.json({
           status : false,
           message : "No sales"
+        });
+      }else{
+        return res.json({
+          status : true,
+          result : monthlySales,
+          description : `Monthly sales of the Year ${year}`
+        })
+      }
+    }else if(type === 'yearly'){
+      const {fromYear,toYear}= req.body
+      const yearlySales = await salesHelper.yearlySalesHelp(fromYear,toYear);
+      if(yearlySales.sales.every(sale=> sale === 0)){
+        return res.json({
+          status : false,
+          message : "No Sales Found"
         })
       }else{
         return res.json({
           status : true,
-          result : dailySales,
-          description : `Daily sales from ${new Date(fromDate).toISOString().substring(0,10)} to ${new Date(toDate).toISOString().substring(0,10)}`
+          result : yearlySales,
+          description : `Yearly sales from ${fromYear} to ${toYear}`
         })
       }
-    }else if(type === 'weekly'){
-      const {fromDate,toDate} = req.body
-      //console.log(req.body)
-      const weeklySales = await salesHelper.weeklySalesHelp(fromDate,toDate);
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-
 };
 
 module.exports.getAdminUsers = async (req, res) => {
@@ -380,25 +452,25 @@ module.exports.doEditCoupon = async (req, res) => {
   }
 };
 
-module.exports.doDeleteCoupon = async (req,res)=>{
+module.exports.doDeleteCoupon = async (req, res) => {
   try {
-    const couponId = req.params.id
+    const couponId = req.params.id;
     //console.log(couponId)
-    if(couponId){
-      const deleted = await couponSchema.deleteOne({_id:couponId});
-      if(deleted){
+    if (couponId) {
+      const deleted = await couponSchema.deleteOne({ _id: couponId });
+      if (deleted) {
         return res.status(200).json({
-          status : true,
-          message : "Coupon Deleted"
-        })
-      }else{
+          status: true,
+          message: "Coupon Deleted",
+        });
+      } else {
         return res.json({
-          status : false,
-          message : "something went wrong"
-        })
+          status: false,
+          message: "something went wrong",
+        });
       }
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
