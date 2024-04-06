@@ -124,10 +124,11 @@ module.exports.generateSales = async (req, res) => {
 module.exports.generateSalesReport = async (req,res)=>{
   try {
     const {format,salesData} = req.body
+    //console.log(req.body)
     if(format === "excel"){
     adminHelper.generateExcelDoc(salesData,res);
     }else{
-
+      adminHelper.generatePdfDoc(salesData,res);
     }
   } catch (error) { 
     console.log(error);
