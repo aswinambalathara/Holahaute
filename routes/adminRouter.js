@@ -42,6 +42,12 @@ router.patch('/coupons/editcoupon/:id',authMiddleware.verifyAdmin,adminControlle
 router.delete('/coupons/deletecoupon/:id',authMiddleware.verifyAdmin,adminController.doDeleteCoupon);
 
 
-router.get('/offers',authMiddleware.verifyAdmin,offerController.getAdminOffers)
+router.get('/offers',authMiddleware.verifyAdmin,offerController.getAdminOffers);
+router.get('/offers/addoffer',authMiddleware.verifyAdmin,offerController.getAddOffer);
+router.post('/offers/fetchproductlist',authMiddleware.verifyAdmin,offerController.fetchProductList);
+router.post('/offers/addoffer',authMiddleware.verifyAdmin,offerController.doAddOffer);
+router.get('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.getEditOffer);
+router.patch('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.doEditOffer);
+router.delete('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doDeleteOffer);
 
 module.exports = router;

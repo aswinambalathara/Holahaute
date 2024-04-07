@@ -39,6 +39,7 @@ module.exports.monthlySalesHelp = async (year) => {
 };
 module.exports.dailySalesHelp = async (startDate, endDate) => {
   try {
+    
     const datesArray = [];
     let currentDate = new Date(startDate);
     while (currentDate <= endDate) {

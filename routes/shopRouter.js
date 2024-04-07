@@ -4,6 +4,7 @@ const shopController = require('../controllers/shopController');
 const userController = require('../controllers/userController');
 const cartController = require('../controllers/cartController');
 const orderController = require('../controllers/orderController');
+const offerController = require ('../controllers/offerController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/home',shopController.getHomePage);
@@ -11,6 +12,7 @@ router.get('/productdetail/:id',shopController.getProductDetailPage);
 router.get('/shop',shopController.getProductsPage); 
 router.post('/search',shopController.doSearch);
 router.post('/shop/filter',shopController.doFilter);
+router.get('/offers',offerController.getOffers);
 
 //userRoutes
 router.get('/user/userprofile',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getUserProfile);
@@ -60,6 +62,7 @@ router.post('/wishlist/add',authMiddleware.userStatus,authMiddleware.verifyUser,
 router.patch('/wishlist/remove',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.removeFromWishList);
 router.get('/wishlist/fetchproductoptions/:id',authMiddleware.userStatus,authMiddleware.verifyUser,shopController.fetchProductOptions);
 router.post('/wishlist/addtocart/:id',authMiddleware.userStatus,authMiddleware.verifyUser,cartController.doAddToCart);
+
 
 
 module.exports = router;
