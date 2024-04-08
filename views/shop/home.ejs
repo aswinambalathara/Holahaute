@@ -250,7 +250,23 @@
             </div>
         </section>
 
-
+        <!-- <script>
+            const cartNotify = document.getElementById('cart-notify');
+            const wishlistNotify = document.getElementById('wishlist-notify');
+            let batchCount = {
+                wishlistCount : Number('<%=wishlistCount%>'),
+                cartCount : Number('<%=cartCount%>')
+            }
+            console.log(batchCount)
+           const existBatchCount = JSON.parse(localStorage.getItem('batchCount'))
+           if(existBatchCount){
+            cartNotify.setAttribute('data-notify',existBatchCount.batchCount.cartCount);
+            wishlistNotify.setAttribute('data-notify',existBatchCount.batchCount.wishlistCount);
+           }else{
+            localStorage.setItem('batchCount',JSON.stringify(batchCount));
+           }
+        </script> -->
+        
         <script src="/javascript/script.js"></script>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

@@ -59,6 +59,7 @@ module.exports.orderInfoHelper = async (orderDocId) => {
               shippingAddress: "$address",
               paymentMethod: "$paymentMethod",
               cancelReason: "$cancelReason",
+              returnReason: "$returnReason"
             },
           },
           products: {

@@ -112,6 +112,10 @@ const orderSchema = Schema({
   cancelReason: {
     type: String,
   },
+
+  returnReason:{
+    type : String
+  }
 });
 
 module.exports = mongoose.model("order", orderSchema);

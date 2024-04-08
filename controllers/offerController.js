@@ -2,6 +2,7 @@ const productSchema = require("../models/productModel");
 const categorySchema = require("../models/categoryModel");
 const offerHelper = require("../helpers/offerHelper");
 const offerSchema = require("../models/offerModel");
+const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
 module.exports.getAdminOffers = async (req, res) => {
@@ -61,8 +62,10 @@ module.exports.doAddOffer = async (req, res) => {
           offerProducts: products,
         });
         const addOffer = await newOffer.save();
-        if (addOffer) {
-          req.flash("succes", "Offer Added");
+        console.log(addOffer);
+        const updateProducts = await offerHelper.updateProducts(products,validTo);
+        if (updateProducts) {
+          req.flash("success", "Offer Added");
           return res.redirect("/admin/offers");
         }
       }
@@ -78,7 +81,7 @@ module.exports.doAddOffer = async (req, res) => {
           offerName: offerName,
           validFrom: new Date(validFrom),
           validTo: new Date(validTo),
-          discount: Number(discountPercent),
+          discount: Number(discountPercent), 
           offerType: offerType,
           offerProducts: products,
         });
@@ -93,7 +96,18 @@ module.exports.doAddOffer = async (req, res) => {
     console.error(error);
   }
 };
-module.exports.getEditOffer = (req, res) => {};
+module.exports.getEditOffer = async (req, res) => {
+  try {
+    const offerId = req.params.id
+    const offer = await offerSchema.findOne({_id:offerId});
+    const categories = await categorySchema.find({ status: true });
+    if(offer){
+      res.render('admin/editoffer',{title:"Edit offer",offer:offer,categories:categories})
+    }
+  } catch (error) {
+    console.error(error)
+  }
+};
 module.exports.doEditOffer = (req, res) => {};
 module.exports.doDeleteOffer = (req, res) => {};
 

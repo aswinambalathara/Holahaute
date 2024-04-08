@@ -61,14 +61,14 @@
                                                             <%=item.color%>
                                                         </span></p>
                                                     <p class="mt-4">Price: <span class="fw-bold">₹ <%= item.price%>
-                                                                </span></p>
+                                                        </span></p>
                                                 </div>
                                                 <div class="div d-flex flex-column align-self-center mt-3 mt-md-0">
                                                     <a href="/productdetail/<%=item.productId%>"
                                                         class="btn btn-primary btn-sm mb-2">View Product</a>
                                                     <%if (order.orderStatus[0].orderStatus==='SHIPPED' ||
-                                                        order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' || order.orderStatus[0].orderStatus==='CONFIRMED' )
-                                                        {%>
+                                                        order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' ||
+                                                        order.orderStatus[0].orderStatus==='CONFIRMED' ) {%>
                                                         <button class="btn btn-outline-dark btn-sm mb-2 ">Cancel
                                                             Product</button>
                                                         <%} else {%>
@@ -76,10 +76,15 @@
                                                                 disabled>Cancel Product</button>
                                                             <%} %>
 
-                                                          <%if (order.orderStatus[0].orderStatus==='DELIVERED') {%>
-                                                            <button class="btn btn-primary btn-sm mb-2 rateModal-trigger"
-                                                               data-productName="<%=item.productName%>" data-productId="<%=item.productId%>" data-toggle="modal" data-target="#ratingModal">Rate Product</button>
-                                                            <%} %>  
+                                                                <%if (order.orderStatus[0].orderStatus==='DELIVERED' )
+                                                                    {%>
+                                                                    <button
+                                                                        class="btn btn-primary btn-sm mb-2 rateModal-trigger"
+                                                                        data-productName="<%=item.productName%>"
+                                                                        data-productId="<%=item.productId%>"
+                                                                        data-toggle="modal"
+                                                                        data-target="#ratingModal">Rate Product</button>
+                                                                    <%} %>
                                                 </div>
                                             </div>
                                         </div>
@@ -88,65 +93,84 @@
                             </div>
                         </div>
                         <%- include ('../includes/user/rating.ejs')%>
-                        <div class="card mt-2">
-                            <div class="card-header d-flex align-items-center">
-                                <h6>Payment Method</h6>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="py-3">
-                                    <%= order.orderStatus[0].paymentMethod.method%>
-                                </h6>
-                            </div>
-                        </div>
-                        <div class="card mt-2">
-                            <div class="card-header">
-                                <h6>Billing Address</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mt-2">
-                                    <strong>
-                                        <%= order.orderStatus[0].shippingAddress[0].fullName%>
-                                    </strong>
-                                    <p class="mb-1">
-                                        <%= order.orderStatus[0].shippingAddress[0].address%>
-                                    </p>
-                                    <p class="mb-1">
-                                        <%= order.orderStatus[0].shippingAddress[0].district%>
-                                    </p>
-                                    <p class="mb-1">
-                                        <%= order.orderStatus[0].shippingAddress[0].state%>
-                                    </p>
-                                    <p>
-                                        <%= order.orderStatus[0].shippingAddress[0].pincode%>
-                                    </p>
+                            <div class="card mt-2">
+                                <div class="card-header d-flex align-items-center">
+                                    <h6>Payment Method</h6>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="py-3">
+                                        <%= order.orderStatus[0].paymentMethod.method%>
+                                    </h6>
                                 </div>
                             </div>
-                        </div>
-                        <% if(order.orderStatus[0].orderStatus !=='ORDER CANCELLED' ) {%>
-                            <div class="my-3 d-flex flex-column flex-md-row ">
-                                <a href="/myorders/trackorder/<%=order._id%>"
-                                    class="btn btn-primary px-5 border border-2 border-primary me-md-2 mb-2 mb-md-0">Track Order</a>
-                                <%if (order.orderStatus[0].orderStatus==='SHIPPED' ||
-                                    order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' || order.orderStatus[0].orderStatus==='CONFIRMED') {%>
-                                    <button class="btn btn-outline-dark px-5 border border-dark border-2"
-                                        id="cancelBtn">Cancel Order</button>
-                                    <%} else {%>
-                                        <button class="btn btn-outline-dark px-5 border border-dark border-2"
-                                        id="cancelBtn" disabled>Cancel Order</button>
-                                        <%} %>
+                            <div class="card mt-2">
+                                <div class="card-header">
+                                    <h6>Billing Address</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mt-2">
+                                        <strong>
+                                            <%= order.orderStatus[0].shippingAddress[0].fullName%>
+                                        </strong>
+                                        <p class="mb-1">
+                                            <%= order.orderStatus[0].shippingAddress[0].address%>
+                                        </p>
+                                        <p class="mb-1">
+                                            <%= order.orderStatus[0].shippingAddress[0].district%>
+                                        </p>
+                                        <p class="mb-1">
+                                            <%= order.orderStatus[0].shippingAddress[0].state%>
+                                        </p>
+                                        <p>
+                                            <%= order.orderStatus[0].shippingAddress[0].pincode%>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <%} %>
+                            <% if(order.orderStatus[0].orderStatus !=='ORDER CANCELLED' ) {%>
+                                <div class="my-3 d-flex flex-column flex-md-row ">
+                                    <a href="/myorders/trackorder/<%=order._id%>"
+                                        class="btn btn-primary px-5 border border-2 border-primary me-md-2 mb-2 mb-md-0">Track
+                                        Order</a>
+                                    <%if (order.orderStatus[0].orderStatus==='SHIPPED' ||
+                                        order.orderStatus[0].orderStatus==='PREPARING FOR DISPATCH' ||
+                                        order.orderStatus[0].orderStatus==='CONFIRMED' ) {%>
+                                        <button class="btn btn-outline-dark px-5 border border-dark border-2"
+                                            id="cancelBtn">Cancel Order</button>
+                                        <%} else if(order.orderStatus[0].orderStatus==='DELIVERED' ) {%>
+                                            <button class="btn btn-outline-dark px-5 border border-dark border-2"
+                                                id="returnBtn">Return Order</button>
+                                            <%} else if(order.orderStatus[0].orderStatus==='RETURN REQUESTED'){%>
+                                                <button class="btn btn-outline-dark px-5 border border-dark border-2"
+                                                    id="cancelBtn" disabled>RETURN ORDER</button>
+                                                <%} else {%> 
+                                                <button class="btn btn-outline-dark px-5 border border-dark border-2"
+                                                    id="cancelBtn" disabled>Cancel Order</button>
+                                                <%} %>
+                                </div>
+                                <%} %>
                     </div>
                 </div>
                 <%- include('../includes/user/cancelModal.ejs') %>
+                    <%- include('../includes/user/returnModal.ejs') %>
             </div>
         </div>
 
         <script>
+            const status = '<%=order.orderStatus[0].orderStatus%>'
+            console.log(status)
             const cancelBtn = document.getElementById('cancelBtn');
-            cancelBtn.addEventListener('click', () => {
-                document.getElementById('cancelModal').click()
-            });
+            const returnBtn = document.getElementById('returnBtn');
+
+            if (status === 'DELIVERED') {
+                returnBtn.addEventListener('click', () => {
+                    document.getElementById('returnOrderTrigger').click()
+                })
+            } else {
+                cancelBtn.addEventListener('click', () => {
+                    document.getElementById('cancelModal').click()
+                });
+            }
 
         </script>
 

@@ -226,7 +226,7 @@ module.exports.dashboardOrdersHelp = async () => {
                     { $eq: ["$orderStatus", "ORDER CANCELLED"] },
                     { $eq: ["$orderStatus", "DELIVERED"] },
                     { $eq: ["$orderStatus", "CANCELLATION REQUESTED"] },
-                    { $eq: ["$orderStatus", "RETURNED"] },
+                    { $eq: ["$orderStatus", "ORDER RETURNED"] },
                   ],
                 },
               },
@@ -256,7 +256,7 @@ module.exports.dashboardOrdersHelp = async () => {
         returnedOrders: {
           $sum: {
             $cond: {
-              if: { $eq: ["$orderStatus", "RETURNED"] },
+              if: { $eq: ["$orderStatus", "ORDER RETURNED"] },
               then: 1,
               else: 0,
             },

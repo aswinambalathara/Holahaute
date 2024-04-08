@@ -44,7 +44,7 @@
                                                 <%=order.grandTotal%>
                                             </td>
                                             
-                                            <%if (order.orderStatus === 'CANCELLATION REQUESTED' || order.orderStatus === 'ORDER CANCELLED'){%>
+                                            <%if (order.orderStatus === 'CANCELLATION REQUESTED' || order.orderStatus === 'ORDER CANCELLED' || order.orderStatus === 'ORDER RETURNED' || order.orderStatus === 'RETURN REQUESTED'){%>
                                             <td style="overflow: hidden; color: red;">
                                                 <%=order.orderStatus%>
                                                 </td>

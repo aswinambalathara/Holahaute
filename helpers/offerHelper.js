@@ -4,6 +4,7 @@ const productSchema = require("../models/productModel");
 const { ObjectId } = require("mongodb");
 
 module.exports.categoryOfferProducts = async (categoryIds, discount) => {
+try {
   const products = await productSchema.aggregate([
     {
       $match: { category: { $in: categoryIds.map((id) => new ObjectId(id)) } },
@@ -29,9 +30,13 @@ module.exports.categoryOfferProducts = async (categoryIds, discount) => {
   ]);
   console.log(products);
   return products;
+} catch (error) {
+  console.error(error);
+}
 };
 
 module.exports.productOfferProducts = async (productIds, discount) => {
+try {
   const fetchProducts = await productSchema.find({ _id: { $in: productIds } });
   const products = fetchProducts.map((product) => {
     const offerPrice = product.price - (product.price * discount) / 100;
@@ -40,9 +45,13 @@ module.exports.productOfferProducts = async (productIds, discount) => {
   });
   console.log(products);
   return products;
+} catch (error) {
+  console.error(error);
+}
 };
 
 module.exports.getOffersHelp = async () => {
+try {
   const offers = await offerSchema.aggregate([
     { $match: { isExpired: false } },
     { $unwind: "$offerProducts" },
@@ -75,5 +84,33 @@ module.exports.getOffersHelp = async () => {
 
    console.log(offers[0]);
   return offers
+} catch (error) {
+  console.error(error);
+}
+};
+
+module.exports.updateProducts = async (products, validTill) => {
+  try {
+    const updates = [];
+    products.forEach((product) => {
+      updates.push({
+        updateOne: {
+          filter: { _id: product.productId },
+          update: {
+            $set: {
+              "offer.offerStatus": true,
+              "offer.offerPrice": product.offerPrice,
+              "offer.validTill": new Date(validTill)
+            }
+          }
+        }
+      });
+    });
+
+    const updateProducts = await productSchema.bulkWrite(updates);
+    return updateProducts
+  } catch (error) {
+    console.error(error);
+  }
 };
 

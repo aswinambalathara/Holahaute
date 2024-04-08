@@ -1,7 +1,7 @@
 <%- include('../includes/admin/adminhead')%>
     <!-- Body Wrapper -->
-    <div class="page-wrapper bg-light" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-        data-sidebar-position="fixed" data-header-position="fixed">
+    <div class="page-wrapper bg-light" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6"
+        data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
         <%- include('../includes/admin/adminSidebar')%>
             <!-- Main wraapper -->
             <div class="body-wrapper bg-light">
@@ -41,21 +41,23 @@
                                                 <%=order.orderStatus[0].orderDate%>
                                             </span></p>
 
-                                            <p class="mb-1">Order Date: <span>
+                                        <p class="mb-1">Order Date: <span>
                                                 <%=order.orderStatus[0].updateDate%>
                                             </span></p>
-                                    
-                                        <p class="mb-1">Order Total: <span class="fw-bold">₹
-                                                <%=order.orderStatus[0].orderTotal%></span></p>
 
-                                                <%if (order.orderStatus[0].orderStatus === 'CANCELLATION REQUESTED' || order.orderStatus[0].orderStatus === 'ORDER CANCELLED') {%>
-                                        <p class="mb-1 ">Status: <span class="text-danger">
-                                                <%=order.orderStatus[0].orderStatus%>
+                                        <p class="mb-1">Order Total: <span class="fw-bold">₹
+                                                <%=order.orderStatus[0].orderTotal%>
                                             </span></p>
-                                            <%} else {%>
-                                                <p class="mb-1 ">Status: <span class="text-success">
+
+                                        <%if (order.orderStatus[0].orderStatus==='CANCELLATION REQUESTED' ||
+                                            order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
+                                            <p class="mb-1 ">Status: <span class="text-danger">
                                                     <%=order.orderStatus[0].orderStatus%>
                                                 </span></p>
+                                            <%} else {%>
+                                                <p class="mb-1 ">Status: <span class="text-success">
+                                                        <%=order.orderStatus[0].orderStatus%>
+                                                    </span></p>
                                                 <%} %>
                                     </div>
                                 </div>
@@ -112,7 +114,7 @@
                                                             <%=product.color%>
                                                         </span></p>
                                                     <p class="mt-4">Price: <span class="fw-bolder">₹ <%=product.price%>
-                                                                </span></p>
+                                                        </span></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -127,7 +129,9 @@
                                     <h6 class="py-3 fw-bolder" style="text-transform: capitalize;">
                                         <%=order.orderStatus[0].paymentMethod.method%>
                                     </h6>
-                                    <Strong>Payment Id : <span class="text-success"><%=order.orderStatus[0].paymentMethod.paymentId%></span></Strong>
+                                    <Strong>Payment Id : <span class="text-success">
+                                            <%=order.orderStatus[0].paymentMethod.paymentId%>
+                                        </span></Strong>
                                 </div>
                             </div>
                             <div class="bottom-div d-flex justify-content-between">
@@ -136,55 +140,87 @@
                                         <h6>Order Stages</h6>
                                     </div>
                                     <div class="card-body">
-                                        <%if (order.orderStatus[0].orderStatus === 'ORDER CANCELLED') {%> 
-                                        <select class="form-select text-danger" aria-label="Default select example" id="stages" >
-                                            <option value="ORDER CANCELLED" class="text-danger" selected>ORDER CANCELLED</option>
-                                            <!-- <option value=""></option> -->
-                                        </select>
-                                        <%} else {%>
-                                            <select class="form-select" aria-label="Default select example" id="stages">
-                                                <option value="PREPARING FOR DISPATCH">PREPARING FOR DISPATCH</option>
-                                                <option value="SHIPPED">SHIPPED</option>
-                                                <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
-                                                <option value="DELIVERED">DELIVERED</option>
-                                                <option value="CANCEL ORDER" class="text-danger">CANCEL ORDER</option>
+                                        <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
+                                            <select class="form-select text-danger" aria-label="Default select example"
+                                                id="stages">
+                                                <option value="ORDER CANCELLED" class="text-danger" selected>ORDER
+                                                    CANCELLED</option>
                                                 <!-- <option value=""></option> -->
                                             </select>
-                                            <%} %>
-                                        <div class="d-flex justify-content-end mt-2">
-                                            <%if (order.orderStatus[0].orderStatus === 'ORDER CANCELLED') {%> 
-                                                <button
-                                                class="btn btn-success btn-sm"
-                                                onclick="changeStage('<%=order._id%>')" >Change</button>
+                                            <%} else if(order.orderStatus[0].orderStatus==='ORDER RETURNED'){%>
+                                                <select class="form-select text-danger" aria-label="Default select example"
+                                                id="stages">
+                                                <option value="ORDER RETURNED" class="text-danger" selected>ORDER
+                                                    RETURNED</option>
+                                                <!-- <option value=""></option> -->
+                                            </select>
                                                 <%} else {%>
-                                                    <button
-                                                    class="btn btn-success btn-sm"
-                                                    onclick="changeStage('<%=order._id%>')">Change</button>
-                                                    <%} %>
-                                            
-                                            
-                                            </div>
+                                                <select class="form-select" aria-label="Default select example"
+                                                    id="stages">
+                                                    <option value="PREPARING FOR DISPATCH">PREPARING FOR DISPATCH
+                                                    </option>
+                                                    <option value="SHIPPED">SHIPPED</option>
+                                                    <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+                                                    <option value="DELIVERED">DELIVERED</option>
+                                                    <% if(order.orderStatus[0].orderStatus==='RETURN REQUESTED' ) {%>
+                                                        <option value="RETURN ORDER" class="text-danger">RETURN ORDER
+                                                        </option>
+                                                        <} else {%>
+                                                            <option value="CANCEL ORDER" class="text-danger">CANCEL
+                                                                ORDER</option>
+                                                            <%} %>
+                                                </select>
+                                                <%} %>
+                                                    <div class="d-flex justify-content-end mt-2">
+                                                        <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
+                                                            <button class="btn btn-success btn-sm"
+                                                                onclick="changeStage('<%=order._id%>')">Change</button>
+                                                            <%} else {%>
+                                                                <button class="btn btn-success btn-sm"
+                                                                    onclick="changeStage('<%=order._id%>')">Change</button>
+                                                                <%} %>
+
+
+                                                    </div>
                                     </div>
                                 </div>
 
-                                <%if (order.orderStatus[0].orderStatus === 'ORDER CANCELLED' || order.orderStatus[0].cancelReason) {%> 
-                                <div class="card cancel-request col-5">
-                                    <div class="card-header">
-                                        <h6>Cancel Request</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                Reason For Cancellation
-                                            </div>
-                                            <div class="card-body fw-bold" style="color: red;">
-                                                <%= order.orderStatus[0].cancelReason%>
+                                <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED' ||
+                                    order.orderStatus[0].cancelReason) {%>
+                                    <div class="card cancel-request col-5">
+                                        <div class="card-header">
+                                            <h6>Cancel Request</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    Reason For Cancellation
+                                                </div>
+                                                <div class="card-body fw-bold" style="color: red;">
+                                                    <%= order.orderStatus[0].cancelReason%>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <%} %>
+                                    <%} else if(order.orderStatus[0].orderStatus==='ORDER RETURNED' ||
+                                        order.orderStatus[0].returnReason) {%>
+                                        <div class="card return-request col-5">
+                                            <div class="card-header">
+                                                <h6>Return Request</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        Reason For Return
+                                                    </div>
+                                                    <div class="card-body fw-bold" style="color: red;">
+                                                        <%= order.orderStatus[0].returnReason%>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <%} %>
                             </div>
                         </div>
                     </div>
@@ -207,7 +243,7 @@
             const changeStage = orderStagesSelect.value;
             if (changeStage !== orderStage) {
                 console.log(changeStage)
-                const response = await fetch(`/admin//orders/changestage/${orderDocId}`, {
+                const response = await fetch(`/admin/orders/changestage/${orderDocId}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json"
@@ -221,8 +257,8 @@
                     Swal.fire({
                         text: data.message.toUpperCase(),
                         icon: "success"
-                    }).then(()=>{
-                        location.reload() 
+                    }).then(() => {
+                        location.reload()
                     })
                 }
             }

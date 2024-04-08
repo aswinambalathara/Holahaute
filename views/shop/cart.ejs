@@ -176,7 +176,15 @@
                 <%-include ('../includes/shop/orderModal.ejs') %>
             </div>
         </div>
-        
+        <!-- <script>
+            const existBatchCount = JSON.parse(localStorage.getItem('batchCount'))
+            const cartNotify = document.getElementById('cart-notify');
+            const wishlistNotify = document.getElementById('wishlist-notify');
+
+            cartNotify.setAttribute('data-notify',existBatchCount.batchCount.cartCount);
+            wishlistNotify.setAttribute('data-notify',existBatchCount.batchCount.wishlistCount);
+            
+        </script> -->
         <%-include ('../includes/scripts/cartScript.ejs') %>
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

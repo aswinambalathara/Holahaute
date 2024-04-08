@@ -18,10 +18,11 @@ module.exports.getHomePage = async (req, res) => {
       categories,
       products,
       user: user ? user.userName : undefined,
+      batchCount : req.flash('batchCount'),
       wishlistCount : user? req.session.wishlistCount : 0,
       cartCount : user? req.session.cartCount : 0
     });
-  } catch (error) {
+  } catch (error) { 
     console.log(error);
   }
 };
@@ -137,7 +138,7 @@ module.exports.getWishlist = async (req, res) => {
       title: "Wishlist",
       user: authUser.userName,
       wishlist,
-      wishlistCount :  req.session.wishlistCount,
+      wishlistCount : req.session.wishlistCount,
       cartCount : req.session.cartCount
     });
   } catch (error) {

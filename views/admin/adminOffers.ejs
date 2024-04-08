@@ -52,7 +52,7 @@
               <td class="col-1">
                 <%if (offer.isExpired===false){%>
                 <p class="text-success m-0 fw-semibold">Active</p>
-                - <%} else {%>
+                 <%} else {%>
                 <p class="text-danger m-0 fw-semibold">Expired</p>
                 <%}%>
               </td>
@@ -60,15 +60,15 @@
                 <div
                   class="actions d-flex justify-content-evenly align-items-center"
                 >
-                  <button
-                    class="editCouponBtns"
+                  <a href="/admin/offers/editOffer/<%=offer._id%>"
+                    class="editOfferBtns"
                     style="background: none; border: none"
                     data-couponId=""
                   >
                     <i class="fa-solid fa-pen-to-square text-warning"></i>
-                  </button>
+              </a>
                   <button
-                    class="deleteCouponBtns"
+                    class="deleteOfferBtns"
                     data-couponId=""
                     style="background: none; border: none"
                   >
@@ -99,5 +99,5 @@
   });
 </script>
 
-<%-include('../includes/scripts/offersScript')%> <%-
-include('../includes/admin/adminEnd')%>
+<%-include('../includes/scripts/offersScript')%> 
+<%-include('../includes/admin/adminEnd')%>

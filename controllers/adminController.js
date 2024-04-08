@@ -15,10 +15,10 @@ module.exports.getAdminDashboard = async (req, res) => {
       new Date().getFullYear()
     );
     //const categorySales = await salesHelper.categorySalesHelp()
-    const dashboardOrders = await salesHelper.dashboardOrdersHelp()
-    const dashboardUsers = await adminHelper.dashboardUsersHelp()
-    const totalProducts = await productModel.find({isDeleted:false}).count()
-    const totalCategories = await categorySchema.find({status:true}).count()
+    const dashboardOrders = await salesHelper.dashboardOrdersHelp();
+    const dashboardUsers = await adminHelper.dashboardUsersHelp();
+    const totalProducts = await productModel.find({ isDeleted: false }).count();
+    const totalCategories = await categorySchema.find({ status: true }).count();
     //console.log(totalProducts)
     const monthsArray = defaultSales.monthsArray;
     const salesArray = JSON.stringify(defaultSales.sales);
@@ -29,7 +29,7 @@ module.exports.getAdminDashboard = async (req, res) => {
       dashboardOrders,
       dashboardUsers,
       totalProducts,
-      totalCategories
+      totalCategories,
     });
   } catch (error) {
     console.error(error);
@@ -85,35 +85,35 @@ module.exports.generateSales = async (req, res) => {
             .substring(0, 10)}`,
         });
       }
-    }else if(type === "monthly"){
-      const {year}=req.body
+    } else if (type === "monthly") {
+      const { year } = req.body;
       const monthlySales = await salesHelper.monthlySalesHelp(year);
-      if(monthlySales.sales.every(sale => sale === 0)){
+      if (monthlySales.sales.every((sale) => sale === 0)) {
         return res.json({
-          status : false,
-          message : "No sales"
+          status: false,
+          message: "No sales",
         });
-      }else{
+      } else {
         return res.json({
-          status : true,
-          result : monthlySales,
-          description : `Monthly sales of the Year ${year}`
-        })
+          status: true,
+          result: monthlySales,
+          description: `Monthly sales of the Year ${year}`,
+        });
       }
-    }else if(type === 'yearly'){
-      const {fromYear,toYear}= req.body
-      const yearlySales = await salesHelper.yearlySalesHelp(fromYear,toYear);
-      if(yearlySales.sales.every(sale=> sale === 0)){
+    } else if (type === "yearly") {
+      const { fromYear, toYear } = req.body;
+      const yearlySales = await salesHelper.yearlySalesHelp(fromYear, toYear);
+      if (yearlySales.sales.every((sale) => sale === 0)) {
         return res.json({
-          status : false,
-          message : "No Sales Found"
-        })
-      }else{
+          status: false,
+          message: "No Sales Found",
+        });
+      } else {
         return res.json({
-          status : true,
-          result : yearlySales,
-          description : `Yearly sales from ${fromYear} to ${toYear}`
-        })
+          status: true,
+          result: yearlySales,
+          description: `Yearly sales from ${fromYear} to ${toYear}`,
+        });
       }
     }
   } catch (error) {
@@ -121,19 +121,19 @@ module.exports.generateSales = async (req, res) => {
   }
 };
 
-module.exports.generateSalesReport = async (req,res)=>{
+module.exports.generateSalesReport = async (req, res) => {
   try {
-    const {format,salesData} = req.body
+    const { format, salesData } = req.body;
     //console.log(req.body)
-    if(format === "excel"){
-    adminHelper.generateExcelDoc(salesData,res);
-    }else{
-      adminHelper.generatePdfDoc(salesData,res);
+    if (format === "excel") {
+      adminHelper.generateExcelDoc(salesData, res);
+    } else {
+      adminHelper.generatePdfDoc(salesData, res);
     }
-  } catch (error) { 
+  } catch (error) {
     console.log(error);
   }
-}
+};
 
 module.exports.getAdminUsers = async (req, res) => {
   try {
@@ -220,7 +220,7 @@ module.exports.getAdminOrders = async (req, res) => {
         },
       },
     ]);
-    console.log(orders);
+    //console.log(orders);
     if (orders) {
       res.render("admin/adminOrders", { title: "Orders", orders });
     }
@@ -233,7 +233,7 @@ module.exports.getAdminOrderInfo = async (req, res) => {
   try {
     const orderId = req.params.id;
     const order = await adminHelper.orderInfoHelper(orderId);
-    console.log(order);
+    //console.log(order);
     if (order) {
       res.render("admin/adminOrderManagement.ejs", {
         title: "OrderInfo",
@@ -251,7 +251,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
     const { changeStage } = req.body;
     const order = await orderSchema.findOne({ _id: id });
     //console.log(changeStage);
-    console.log(order);
+    //console.log(order);
     if (changeStage !== order.orderStage) {
       if (changeStage === "CANCEL ORDER") {
         const changed = await orderSchema.updateOne(
@@ -299,7 +299,70 @@ module.exports.doChangeOrderStage = async (req, res) => {
               paymentType: "Deposit",
               amount: returnAmount,
               currentBalance: wallet.balance + returnAmount,
-              remarks: "Amout returned from cancel order",
+              remarks: "Amount returned from cancel order",
+            };
+            const updateWallet = await walletSchema.updateOne(
+              { userId: order.userId },
+              {
+                $inc: { balance: Number(returnAmount) },
+                $push: { history: history },
+              }
+            );
+            if (updateWallet) {
+              return res.status(200).json({
+                status: true,
+                message: "stage changed",
+              });
+            }
+          }
+        }
+      } else if (changeStage === "RETURN ORDER") {
+        const changed = await orderSchema.updateOne(
+          { _id: id, userId: order.userId },
+          {
+            $set: {
+              orderStage: "ORDER RETURNED",
+              orderStatus: "ORDER RETURNED",
+              updatedAt: Date.now(),
+            },
+          }
+        );
+        if (changed) {
+          const paymentMethod = order.paymentMethod.method;
+          const wallet = await walletSchema.findOne({
+            userId: order.userId,
+          });
+          if (paymentMethod === "COD") {
+            if (order.walletApplied) {
+              const returnWalletAmt = order.walletApplied;
+              const history = {
+                paymentType: "Deposit",
+                amount: returnWalletAmt,
+                currentBalance: wallet.balance + returnWalletAmt,
+                remarks: "Amount returned from return order",
+              };
+              const updateWallet = await walletSchema.updateOne(
+                { userId: order.userId },
+                {
+                  $inc: { balance: Number(returnWalletAmt) },
+                  $push: { history: history },
+                }
+              );
+              if (updateWallet) {
+                return res.status(200).json({
+                  status: true,
+                  message: "stage changed",
+                });
+              }
+            }
+          } else {
+            const WalletAmount = order.walletApplied ? order.walletApplied : 0;
+            const returnAmount = order.grandTotal + WalletAmount;
+            const history = {
+              paymentType: "Deposit",
+              amount: returnAmount,
+              currentBalance: wallet.balance + returnAmount,
+              remarks: "Amount returned from return order",
             };
             const updateWallet = await walletSchema.updateOne(
               { userId: order.userId },
@@ -439,7 +502,7 @@ module.exports.doEditCoupon = async (req, res) => {
         });
       }
     } else {
-      const isExpired = new Date(validTo) > Date.now()? false : true
+      const isExpired = new Date(validTo) > Date.now() ? false : true;
       //console.log(isExpired);
       const updated = await couponSchema.updateOne(
         { _id: couponId },
@@ -453,7 +516,7 @@ module.exports.doEditCoupon = async (req, res) => {
             discountPercentage: discount,
             minimumPurchaseAmount: minimumPurchaseAmount,
             maximumDiscount: maximumDiscount,
-            isExpired : isExpired
+            isExpired: isExpired,
           },
         }
       );

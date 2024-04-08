@@ -11,6 +11,15 @@ const sortFilter = document.getElementsByName('sortFilter');
     const addWishlistBtns = document.querySelectorAll('.addWishlistBtn');
      const allInputs = document.querySelectorAll('.sortFilter,.priceFilter,.colorsFilter,.userOptions,.categoryFilter');
      const wishlistNotify = document.querySelector('.wishlist-notify');
+
+    //  const existBatchCount = JSON.parse(localStorage.getItem('batchCount'))
+    //  console.log(existBatchCount)
+    //  const cartNotify = document.querySelector('.cart-notify');
+   
+
+    //  cartNotify.setAttribute('data-notify',existBatchCount.batchCount.cartCount);
+      
+
     let checkedSort;
     let checkedPrice;
     let checkedUserOptions = []; 

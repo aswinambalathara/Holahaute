@@ -50,11 +50,14 @@ const productSchema = Schema({
   },
 
   offer:{
-    status :{
+    offerPrice :{
+      type : Number
+    },
+    offerStatus : {
       type : Boolean,
     },
-    offerPrice : {
-      type : Number
+    validTill :{
+      type : Date
     }
   },
 

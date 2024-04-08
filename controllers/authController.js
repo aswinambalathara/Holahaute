@@ -2,9 +2,11 @@ const bcrypt = require("bcrypt");
 const userSchema = require("../models/userModel");
 const adminSchema = require("../models/adminModel");
 const verificationController = require("../controllers/verificationController");
-const wishlistSchema = require('../models/wishlistModel');
-const cartSchema = require('../models/cartModel');
-const jwt = require('jsonwebtoken');
+const wishlistSchema = require("../models/wishlistModel");
+const cartSchema = require("../models/cartModel");
+const jwt = require("jsonwebtoken");
+const { serialize } = require("cookie");
+const { json } = require("express");
 
 module.exports.getUserSignup = (req, res) => {
   const locals = {
@@ -112,7 +114,7 @@ module.exports.doResendOTP = (req, res) => {
           }
         } else {
           res.json({
-            status : "otpsend",
+            status: "otpsend",
             message: `You can resend OTP after ${Math.floor(
               30 - timeDiff
             )} Seconds `,
@@ -146,18 +148,25 @@ module.exports.doUserLogin = async (req, res) => {
         req.session.userIsBlocked = false;
         const checkPassword = await bcrypt.compare(password, userData.password);
         if (checkPassword) {
-          const wishlist = await wishlistSchema.findOne({userId : userData._id})
-          const cart = await cartSchema.findOne({userId : userData._id});
-          req.session.cartCount = cart? cart.cartItems.length : 0
-          req.session.wishlistCount = wishlist?  wishlist.wishlistItems.length : 0
-          const payLoad = {
-            userName : userData.fullName,
-            userId : userData._id
+          const wishlist = await wishlistSchema.findOne({
+            userId: userData._id,
+          });
+          const cart = await cartSchema.findOne({ userId: userData._id });
+          const batchCount = {
+            wishlistCount : wishlist? wishlist.wishlistItems.length : 0,
+            cartCount : cart ? cart.cartItems.length : 0
           }
-
-        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '24h'})  
-          res.cookie('token',token,{httpOnly:true,secure : true});
-          
+          req.session.cartCount = cart ? cart.cartItems.length : 0;
+          req.session.wishlistCount = wishlist? wishlist.wishlistItems.length : 0;
+          const payLoad = {
+            userName: userData.fullName,
+            userId: userData._id,
+            batchCount : batchCount  
+          };
+          const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
+            expiresIn: "24h",
+          });
+          res.cookie("token", token, { httpOnly: true, secure: true });
           res.redirect("/home");
         } else {
           req.flash("error", "Incorrect Password");
@@ -171,7 +180,6 @@ module.exports.doUserLogin = async (req, res) => {
       req.flash("error", "User Not Found");
       res.redirect("/login");
     }
-  
   } catch (error) {
     console.log(error);
   }
@@ -228,21 +236,30 @@ module.exports.doOtpLogin = async (req, res) => {
     });
     if (user) {
       if (!user.isBlocked) {
-        if(user.isVerified){
-          const wishlist = await wishlistSchema.findOne({userId : user._id})
-          const cart = await cartSchema.findOne({userId : user._id});
-          req.session.cartCount = cart? cart.cartItems.length : 0
-          req.session.wishlistCount = wishlist?  wishlist.wishlistItems.length : 0
+        if (user.isVerified) {
+          const wishlist = await wishlistSchema.findOne({ userId: user._id });
+          const cart = await cartSchema.findOne({ userId: user._id });
+          req.session.cartCount = cart ? cart.cartItems.length : 0;
+          req.session.wishlistCount = wishlist
+            ? wishlist.wishlistItems.length
+            : 0;
+          const batchCount = {
+            wishlistCount: wishlist ? wishlist.wishlistItems.length : 0,
+            cartCount: cancelAnimationFrameart ? cart.cartItems.length : 0,
+          };
+          localStorage.setItem("batchCount", JSON.stringify(batchCount));
           const payLoad = {
-            userName : user.fullName,
-            userId : user._id
-          }
-        const token = jwt.sign(payLoad,process.env.JWT_SECRET,{expiresIn : '1h'})
-          res.cookie('token',token,{httpOnly:true,secure : true});
-        res.redirect("/home");
-        }else{
-          req.flash('error',"user not verified");
-          res.redirect('/otpverification')
+            userName: user.fullName,
+            userId: user._id,
+          };
+          const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+          });
+          res.cookie("token", token, { httpOnly: true, secure: true });
+          res.redirect("/home");
+        } else {
+          req.flash("error", "user not verified");
+          res.redirect("/otpverification");
         }
       } else {
         req.flash("error", "Blocked User");
@@ -279,8 +296,12 @@ module.exports.doAdminLogin = async (req, res) => {
         req.flash("error", "Invalid Credentials");
         res.redirect("/admin/login");
       } else {
-        const token = jwt.sign({adminId : adminData._id},process.env.JWT_SECRET,{expiresIn : '24hr'});
-        res.cookie('adminToken',token,{httpOnly : true, secure : true})
+        const token = jwt.sign(
+          { adminId: adminData._id },
+          process.env.JWT_SECRET,
+          { expiresIn: "24hr" }
+        );
+        res.cookie("adminToken", token, { httpOnly: true, secure: true });
         res.redirect("/admin");
       }
     }
@@ -402,21 +423,21 @@ module.exports.doChangePassword = async (req, res) => {
   }
 };
 
-module.exports.userLogOut = (req,res)=>{
+module.exports.userLogOut = (req, res) => {
   try {
-    res.clearCookie('token')
-    res.redirect('/home');
+    res.clearCookie("token");
+    res.redirect("/home");
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-module.exports.adminLogOut = (req,res)=>{
+module.exports.adminLogOut = (req, res) => {
   try {
-    res.clearCookie('adminToken')
+    res.clearCookie("adminToken");
     //req.session.adminAuth = null;
-    res.redirect('/admin/login');
+    res.redirect("/admin/login");
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};

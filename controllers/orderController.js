@@ -54,14 +54,14 @@ module.exports.doCartPlaceOrder = async (req, res) => {
       }
 
       if (decreaseQuantity) {
-        let couponApplied ;
-        if(couponDiscount !== 0){
+        let couponApplied;
+        if (couponDiscount !== 0) {
           couponApplied = {
-            couponCode : couponCode,
-            couponDiscount : couponDiscount
-          }
+            couponCode: couponCode,
+            couponDiscount: couponDiscount,
+          };
         }
-        const walletApplied = walletAmount !== 0 ? walletAmount : undefined
+        const walletApplied = walletAmount !== 0 ? walletAmount : undefined;
         const orderStatus = paymentOption === "COD" ? "CONFIRMED" : "PENDING";
         const grandTotal = order.subTotal - (walletAmount + couponDiscount);
         const newOrder = new orderSchema({
@@ -70,11 +70,11 @@ module.exports.doCartPlaceOrder = async (req, res) => {
           orderId: orderId,
           orderStatus: orderStatus,
           products: product,
-          subTotal : order.subTotal,
+          subTotal: order.subTotal,
           grandTotal: grandTotal,
           "paymentMethod.method": paymentOption,
           couponApplied: couponApplied,
-          walletApplied : walletApplied
+          walletApplied: walletApplied,
         });
         const ordered = await newOrder.save();
         if (ordered) {
@@ -85,7 +85,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
             { $set: { cartItems: [] } }
           );
           req.session.cartCount = 0;
-          if (paymentOption === "COD" || grandTotal === 0) { 
+          if (paymentOption === "COD" || grandTotal === 0) {
             res.json({
               status: true,
               message: "OrderSuccessfull",
@@ -168,8 +168,8 @@ module.exports.getOrderStatusPage = async (req, res) => {
       user: authUser.userName,
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
     console.log(error);
@@ -199,8 +199,8 @@ module.exports.getMyorders = async (req, res) => {
       title: "My Orders",
       user: authUser.userName,
       orders,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
       //arrivals
     });
   } catch (error) {
@@ -219,8 +219,8 @@ module.exports.getOrderDetail = async (req, res) => {
       user: authUser.userName,
       order: order,
       orderDate: order.orderStatus[0].orderDate.toLocaleDateString(),
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
     console.log(error);
@@ -242,8 +242,8 @@ module.exports.getOrderTracking = async (req, res) => {
       title: "Tracking Order",
       user: authUser.userName,
       orderTrack,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
     console.log(error);
@@ -301,6 +301,45 @@ module.exports.doCancelOrder = async (req, res) => {
         },
       }
     );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.doReturnOrder = async (req, res) => {
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const id = req.params.id;
+    const { returnReason } = req.body;
+    //console.log(id,returnReason)
+    const order = await orderSchema.findOne({
+      _id: id,
+      userId: authUser.userId,
+    });
+    if (order.orderStage === "DELIVERED") {
+      const updateorder = await orderSchema.updateOne(
+        { _id: id, userId: authUser.userId },
+        {
+          $set: {
+            returnReason: returnReason,
+            orderStatus: "RETURN REQUESTED",
+            orderStage: "RETURN REQUESTED",
+          },
+        }
+      );
+      if (updateorder) {
+        return res.json({
+          status: true,
+          stage: "RETURN Requested",
+          message: "Your request is on review",
+        });
+      } else {
+        return res.json({
+          status: false,
+          message: "Something went Wrong",
+        });
+      }
+    }
   } catch (error) {
     console.log(error);
   }
