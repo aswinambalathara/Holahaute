@@ -221,11 +221,11 @@ module.exports.couponHelper = async (userId, code) => {
         $group: {
           _id: "$_id",
           subTotal: { $sum: "$totalPrice" },
-          products: { $push: "$product" },
+          products: { $push: {product:"$product",productTotal:"$totalPrice"} },
         },
       },
       { $unwind: "$products" },
-      { $match: { "products.category": new ObjectId(couponCheck.validFor) } },
+      { $match: { "products.product.category": new ObjectId(couponCheck.validFor) } },
     ]);
     if (validCouponProducts.length === 0) {
       return { status: false, message: "coupon not valid for the products" };

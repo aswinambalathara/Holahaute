@@ -1,0 +1,14 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const success = "<%=success%>"
+    if (success) {
+        Swal.fire({
+            text: success,
+            icon: "success"
+        });
+    }
+    const validToDates = document.querySelectorAll('.validToDates');
+    validToDates.forEach((elem)=>{
+        elem.innerText = moment(new Date(elem.innerText)).format('DD-MM-YYYY');
+    })
+</script>

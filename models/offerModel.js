@@ -15,12 +15,32 @@ const offerSchema = Schema({
     type: Date,
     required: true,
   },
+  discount: {
+    type: Number,
+    required: true,
+  },
   offerType: {
     type: String,
     required: true,
-    enum : ['categoryOffer','productOffer']
+    enum: ["categoryOffer", "productOffer"],
   },
-  
+  offerProducts: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+      },
+      offerPrice: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  isExpired: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
-module.exports = mongoose.model("offer", categorySchema);
+module.exports = mongoose.model("offer", offerSchema);

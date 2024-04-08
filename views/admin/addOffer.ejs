@@ -8,7 +8,7 @@
         <%- include('../includes/admin/adminHeader')%>
           <div class="container-fluid bg-light">
             <h5>Add New Offer</h5>
-            <form action="" class="addOfferForm" id="addOfferForm">
+            <form action="/admin/offers/addoffer" method="post" class="addOfferForm" id="addOfferForm">
               <div class="row justify-content-between mt-4 mb-4">
                 <div class="col-md-6 parent">
                   <label for="OfferName" class="form-label">Offer Name</label>
@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-md-6 mt-4 mt-md-0 parent">
                   <label for="discount" class="form-label">Discount Percentage</label>
-                  <input type="number" class="form-control" id="discount" min="0" max="50">
+                  <input type="number" name="discountPercent" class="form-control" id="discount" min="0" max="50">
                   <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
 
                 </div>
@@ -50,38 +50,43 @@
               <div class="row mb-4 align-items-center justify-content-between" id="offerTypePreview">
                 <!-- product-offer-preview       -->
 
-                <div class="category-type-preview" hidden>
+                <div class="category-type-preview parent" hidden>
                   <label for="category" class="form-label">Categories</label>
                   <div class="category-list-div d-flex flex-wrap border border-secondary-subtle p-2 rounded ">
                     <% categories.forEach(function(category){%>
-                    <div class="form-check me-3">
-                      <label for="<%=category.categoryName%>" class="form-check-label" style="text-transform: capitalize;"><%=category.categoryName%></label>
-                      <input type="checkbox" class="form-check-input" value="<%=category._id%>" id="<%=category.categoryName%>" name="offerCategories">
-                    </div>
-                    <%})%>
+                      <div class="form-check me-3">
+                        <label for="<%=category.categoryName%>" class="form-check-label"
+                          style="text-transform: capitalize;">
+                          <%=category.categoryName%>
+                        </label>
+                        <input type="checkbox" class="form-check-input" value="<%=category._id%>"
+                          id="<%=category.categoryName%>" name="offerCategories">
+                      </div>
+                      <%})%>
                   </div>
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                 </div>
 
-                <div class="col-md-3 product-category-select-preview" hidden>
-                    <small>Select a category</small>
-                    <select name="productCategorySelect" id="productCategorySelect" class="form-select mt-2" style="text-transform: capitalize;">
-                      <option value="" id="default-product-cat" selected>Choose</option>
-                      <% categories.forEach(function(category){%>
-                      <option value="<%=category._id%>" style="text-transform: capitalize;"><%=category.categoryName%></option>
+                <div class="col-md-3 product-category-select-preview parent" hidden>
+                  <small>Select a category</small>
+                  <select name="productCategorySelect" id="productCategorySelect" class="form-select mt-2"
+                    style="text-transform: capitalize;">
+                    <option value="" id="default-product-cat" selected>Choose</option>
+                    <% categories.forEach(function(category){%>
+                      <option value="<%=category._id%>" style="text-transform: capitalize;">
+                        <%=category.categoryName%>
+                      </option>
                       <%})%>
-                    </select>
+                  </select>
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                 </div>
-                
-                <div class="col-md-9 mt-2 mt-md-0 products-list-preview" hidden>
+
+                <div class="col-md-9 mt-2 mt-md-0 products-list-preview parent" hidden>
                   <p class="m-0">Select products</p>
                   <div class="product-list  border border-secondary-subtle align-self-end p-2 rounded mt-2">
-                    <!-- <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="offerProducts">
-                      <label class="form-check-label" for="flexCheckDefault">
-                        Default checkbox
-                      </label>
-                    </div> -->
+
                   </div>
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                 </div>
 
 
@@ -103,53 +108,59 @@
     const discount = document.getElementById('discount');
     const offerTypeSelect = document.getElementById('offerType');
     const categoryTypePreview = document.querySelector('.category-type-preview');
+    const categoryListDiv = document.querySelector('.category-list-div');
     const productCatSelectPreview = document.querySelector('.product-category-select-preview');
     const productCategorySelect = document.getElementById('productCategorySelect');
     const productListPreview = document.querySelector('.products-list-preview');
     let productList = document.querySelector('.product-list');
+    const offerCategories = document.getElementsByName('offerCategories');
+    let hasProductCheckError = false;
 
     offerName.addEventListener('blur', handleInputChange);
     validFrom.addEventListener('blur', handleInputChange);
     validTo.addEventListener('blur', handleInputChange);
     discount.addEventListener('blur', handleInputChange);
     addOfferForm.addEventListener('submit', handleAddOfferFormSubmit);
+    productCategorySelect.addEventListener('blur', handleInputChange);
+
 
     offerTypeSelect.addEventListener('change', async (event) => {
       const offerTypeValue = event.target.value;
-      if(offerTypeValue === "categoryOffer"){
+      if (offerTypeValue === "categoryOffer") {
         productCatSelectPreview.hidden = true;
         productListPreview.hidden = true;
         document.getElementById('default-product-cat').selected = true;
         productList.innerHTML = ''
-        setError(offerTypeSelect,'')
+        setError(offerTypeSelect, '')
         return categoryTypePreview.hidden = false
-      }else if(offerTypeValue === "productOffer"){
+      } else if (offerTypeValue === "productOffer") {
         categoryTypePreview.hidden = true;
-        setError(offerTypeSelect,'')
+        setError(offerTypeSelect, '')
         return productCatSelectPreview.hidden = false;
-      }else if(offerTypeValue === ''){
+      } else if (offerTypeValue === '') {
         productCatSelectPreview.hidden = true;
         productListPreview.hidden = true;
         categoryTypePreview.hidden = true;
-        return setError(offerTypeSelect,"Select a offer type");
+        return setError(offerTypeSelect, "Select a offer type");
       }
     });
 
-    productCategorySelect.addEventListener('change',async (event)=>{
+    productCategorySelect.addEventListener('change', async (event) => {
       const categoryId = event.target.value;
-      if(categoryId === ''){
-        return setError(productCategorySelect,"Choose a category");
-      }else{
+      if (categoryId === '') {
+        productList.innerHTML = ''
+        return setError(productCategorySelect, "Choose a category");
+      } else {
         const url = '/admin/offers/fetchproductlist'
         const method = 'POST'
         const body = {
-          categoryId : categoryId
+          categoryId: categoryId
         }
-        const productsData = await fetchFunction(url,method,body);
+        const productsData = await fetchFunction(url, method, body);
         console.log(productsData);
-        if(productsData.status === true){
+        if (productsData.status === true) {
           productListPreview.hidden = false;
-          productsData.products.forEach((product)=>{
+          productsData.products.forEach((product) => {
             const prod = `<div class="form-check">
                       <input class="form-check-input" type="checkbox" value="${product._id}" id="${product.productName}" name="offerProducts">
                       <label class="form-check-label" for="${product.productName}" style="text-transform : capitalize;">
@@ -157,8 +168,8 @@
                       </label>
                     </div>`
 
-                    productList.innerHTML += prod;
-          })
+            productList.innerHTML += prod;
+          });
         }
       }
     })
@@ -168,6 +179,47 @@
 
       let hasError = false;
       const allInputs = [offerName, validFrom, validTo, discount, offerTypeSelect];
+
+      if (offerTypeSelect.value === 'categoryOffer') {
+
+        let haschecked = false;
+        offerCategories.forEach((elem) => {
+          if (elem.checked) {
+            haschecked = true
+          }
+        });
+
+        if (!haschecked) {
+          hasError = true
+          setError(categoryListDiv, "Check atleast one")
+        } else {
+          setError(categoryListDiv, "")
+        }
+      } else if (offerTypeSelect.value === 'productOffer') {
+        if (productCategorySelect.value === '') {
+          hasError = true
+          setError(productCategorySelect, "Select atleast one");
+        } else {
+          setError(productCategorySelect, "")
+        }
+      }
+
+      if(productCategorySelect.value !== ''){
+        const offerProducts = document.getElementsByName('offerProducts');
+        let haschecked = false
+        offerProducts.forEach((elem)=>{
+          if(elem.checked){
+            haschecked = true
+          }
+        });
+
+        if(!haschecked){
+          hasError = true
+          setError(productList,"check atleast one")
+        }else{
+          setError(productList,"");
+        }
+      }
 
       allInputs.forEach((input) => {
         const type = input.id;
@@ -180,7 +232,11 @@
         } else {
           setError(input, '');
         }
-      })
+      });
+
+      if(!hasError){
+        event.target.submit()
+      }
     }
 
     function handleInputChange(event) {

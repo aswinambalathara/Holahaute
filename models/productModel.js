@@ -49,9 +49,13 @@ const productSchema = Schema({
     required: true,
   },
 
-  offer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "offer",
+  offer:{
+    status :{
+      type : Boolean,
+    },
+    offerPrice : {
+      type : Number
+    }
   },
 
   additionalInformation: {

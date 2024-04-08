@@ -439,6 +439,8 @@ module.exports.doEditCoupon = async (req, res) => {
         });
       }
     } else {
+      const isExpired = new Date(validTo) > Date.now()? false : true
+      //console.log(isExpired);
       const updated = await couponSchema.updateOne(
         { _id: couponId },
         {
@@ -451,6 +453,7 @@ module.exports.doEditCoupon = async (req, res) => {
             discountPercentage: discount,
             minimumPurchaseAmount: minimumPurchaseAmount,
             maximumDiscount: maximumDiscount,
+            isExpired : isExpired
           },
         }
       );

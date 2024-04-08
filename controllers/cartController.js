@@ -236,7 +236,7 @@ module.exports.doApplyCoupon = async (req, res) => {
       authUser.userId,
       couponCode
     );
-    console.log(couponCheck);
+    //console.log(couponCheck);
     if (couponCheck.status === false) {
       return res.json(couponCheck);
     } else {
@@ -247,24 +247,27 @@ module.exports.doApplyCoupon = async (req, res) => {
         minimumPurchaseAmount,
         maximumDiscount,
       } = couponCheck;
+      //console.log(validCouponProducts);
       const totalamount = validCouponProducts.reduce((acc, item) => {
-        acc += item.products.price;
+        acc += item.products.productTotal;
         return acc;
       }, 0);
-      if (totalamount < minimumPurchaseAmount) {
+      //console.log(totalamount);
+      if (totalamount < minimumPurchaseAmount) {  
         return res.json({
           status: false,
           message: `Minimum order value of ₹${minimumPurchaseAmount} required in this category for this coupon to apply.`,
         });
       }
       let discount = Math.ceil((totalamount * discountPercent) / 100);
+      //console.log(discount)
       const finalDiscount =
         discount > maximumDiscount ? maximumDiscount : discount;
       const grandTotal = subTotal - (finalDiscount + walletDiscount);
       //console.log(couponCheck.subTotal,discount);
       res.json({
         status: true,
-        couponDiscount: discount,
+        couponDiscount: finalDiscount,
         grandTotal: grandTotal,
         walletAmount: walletDiscount,
       });
