@@ -20,15 +20,18 @@ module.exports.getAdminOffers = async (req, res) => {
 module.exports.getAddOffer = async (req, res) => {
   try {
     const categories = await categorySchema.find({ status: true });
+    const products = await productSchema.find({ isDeleted: false });
     res.render("admin/addOffer", {
       title: "Add Offer",
       categories: categories,
+      products: products,
       error: req.flash("error"),
     });
   } catch (error) {
     console.error(error);
   }
 };
+
 module.exports.doAddOffer = async (req, res) => {
   try {
     console.log(req.body);
@@ -41,6 +44,7 @@ module.exports.doAddOffer = async (req, res) => {
       }
     }
     if (offerType === "categoryOffer") {
+      let offerCategoriesArray = [];
       const {
         offerName,
         validFrom,
@@ -48,8 +52,15 @@ module.exports.doAddOffer = async (req, res) => {
         offerCategories,
         discountPercent,
       } = req.body;
+
+      if (typeof offerCategories !== "object") {
+        offerCategoriesArray.push(offerCategories);
+      } else {
+        offerCategoriesArray = offerCategories;
+      }
+
       const products = await offerHelper.categoryOfferProducts(
-        offerCategories,
+        offerCategoriesArray,
         Number(discountPercent)
       );
       if (products) {
@@ -59,53 +70,71 @@ module.exports.doAddOffer = async (req, res) => {
           validTo: new Date(validTo),
           discount: Number(discountPercent),
           offerType: offerType,
-          offerProducts: products,
+          offerItems:offerCategoriesArray ,
         });
         const addOffer = await newOffer.save();
-        console.log(addOffer);
-        const updateProducts = await offerHelper.updateProducts(products,validTo);
-        if (updateProducts) {
+        //console.log(addOffer);
+       const offerId = addOffer._id
+        const updateProducts = await offerHelper.updateProducts(products,offerId);
+       // console.log(updateProducts);
+        if(updateProducts){
           req.flash("success", "Offer Added");
-          return res.redirect("/admin/offers");
+        return res.redirect('/admin/offers');
         }
       }
-    } else {
+    }else{
+      let offerProductsArray = [];
       const { offerName, validFrom, validTo, offerProducts, discountPercent } =
         req.body;
-      const products = await offerHelper.productOfferProducts(
-        offerProducts,
-        Number(discountPercent)
-      );
-      if (products) {
-        const newOffer = new offerSchema({
-          offerName: offerName,
-          validFrom: new Date(validFrom),
-          validTo: new Date(validTo),
-          discount: Number(discountPercent), 
-          offerType: offerType,
-          offerProducts: products,
-        });
-        const addOffer = await newOffer.save();
-        if (addOffer) {
-          req.flash("succes", "Offer Added");
-          return res.redirect("/admin/offers");
+
+        if (typeof offerProducts !== "object") {
+          offerProductsArray.push(offerProducts);
+        } else {
+          offerProductsArray = offerProducts;
         }
-      }
+        const products = await offerHelper.productOfferProducts(offerProductsArray,Number(discountPercent));
+        if(products){
+          const newOffer = new offerSchema({
+            offerName: offerName,
+            validFrom: new Date(validFrom),
+            validTo: new Date(validTo),
+            discount: Number(discountPercent),
+            offerType: offerType,
+            offerItems:offerProductsArray,
+          });
+          const addOffer = await newOffer.save();
+          if(addOffer){
+            const offerId = addOffer._id
+            const updateProducts = await offerHelper.updateProducts(products,offerId)
+            if(updateProducts){
+              req.flash('success',"Offer Added");
+              res.redirect('/admin/offers');
+            }
+          }
+        }
     }
   } catch (error) {
     console.error(error);
   }
 };
+
 module.exports.getEditOffer = async (req, res) => {
   try {
-    const offerId = req.params.id
-    const offer = await offerSchema.findOne({_id:offerId});
+    const offerId = req.params.id;
+    const offer = await offerSchema.findOne({ _id: offerId });
     const categories = await categorySchema.find({ status: true });
-    if(offer){
-      res.render('admin/editoffer',{title:"Edit offer",offer:offer,categories:categories})
+    const products = await productSchema.find({isDeleted : false});
+
+    if (offer) {
+      res.render("admin/editoffer", {
+        title: "Edit offer",
+        offer: offer,
+        categories: categories,
+        products : products
+      });
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 };
 module.exports.doEditOffer = (req, res) => {};

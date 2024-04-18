@@ -24,18 +24,7 @@ const offerSchema = Schema({
     required: true,
     enum: ["categoryOffer", "productOffer"],
   },
-  offerProducts: [
-    {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-      },
-      offerPrice: {
-        type: Number,
-        required: true,
-      },
-    },
-  ],
+  offerItems: [mongoose.Schema.Types.ObjectId],
   isExpired: {
     type: Boolean,
     required: true,

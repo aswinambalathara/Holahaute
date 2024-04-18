@@ -33,7 +33,8 @@ module.exports.getProductDetailPage = async (req, res) => {
     if (req.cookies.token) {
       user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     }
-    const product = await productSchema.findOne({ _id: req.params.id });
+    const product = await shopHelper.getProductDetailHelp(req.params.id);
+    //const product = await productSchema.findOne({ _id: req.params.id });
     const relatedProducts = await productSchema.find({
       isDeleted: false,
       _id: { $ne: req.params.id },
@@ -61,9 +62,10 @@ module.exports.getProductsPage = async (req, res) => {
       { status: true },
       { _id: 1, categoryName: 1 }
     );
-    const products = await productSchema
-      .find({ isDeleted: false })
-      .sort({ productName: 1 });
+    const products = await shopHelper.getProductsHelp()
+    // const products = await productSchema
+    //   .find({ isDeleted: false })
+    //   .sort({ productName: 1 });
 
     //console.log(wishlist.wishlistItems);
     res.render("shop/allProducts", {

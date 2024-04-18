@@ -53,12 +53,9 @@ const productSchema = Schema({
     offerPrice :{
       type : Number
     },
-    offerStatus : {
-      type : Boolean,
+    offerId:{
+      type: mongoose.Schema.Types.ObjectId
     },
-    validTill :{
-      type : Date
-    }
   },
 
   additionalInformation: {

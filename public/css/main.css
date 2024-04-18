@@ -3499,3 +3499,7 @@ input{
   background-color: brown;
   color: white;
 }
+
+.product-card{
+  position: relative;
+}

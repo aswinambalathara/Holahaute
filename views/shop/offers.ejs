@@ -1,51 +1,44 @@
 <%- include('../includes/shop/shopHead.ejs') %>
     <%- include('../includes/shop/shopHeader.ejs') %>
-        <div class="p-0 p-md-5">
-            <div class="container-fluid mt-5 font-poppins">
-                <%if(offers.length > 0){%>
-                    <%offers.forEach(function(offer){%>
-                <div class="offers-container">
-                    <div class="bg-info p-2 text-white rounded"><h5 style="text-transform: capitalize;"><%=offer.offerName%></h5></div>
-                    <div class="offer-products-container mt-3 d-flex flex-wrap justify-content-start">
-                        <%offer.products.forEach(function(product){%>
-                        <div class="card me-3 mb-3" style="width: 18rem;">
-                            <div class="card-image-top rounded-top offer-card-image"
-                                style="background-image: url('/images/product-images/<%=product.productImage[0]%>');">
-                                <strong class="offer-ribbon px-2"><span><%=offer.discount%></span>% OFF</strong>
-                            </div>
-                            
-                            <div class="card-body">
-                                <a href="/productdetail/<%=product.productId%>"><h6 class="fw-bold productName text-secondary" style="text-overflow: ellipsis; text-transform: capitalize;"><%=product.productName%></h6></a>
-                                <div class="prices-div mt-3">
-                                    <div class="d-flex">
-                                        <small class="original price">Original Price:</small>
-                                        <small class="ms-2"><s><span>₹</span><%=product.originalPrice%></s></small>
-                                    </div>
-                                    <div class="d-flex">
-                                        <p class="fw-bold text-primary">Offer Price:</p>
-                                        <p class="ms-2 fw-bolder"><span>₹</span><%=product.offerPrice%></p>
-                                    </div>
-                                    
+
+    <div class="p-0 p-md-5">
+        <div class="container-fluid mt-5 font-poppins">
+            <%if(offers.length > 0){%>
+                <%offers.forEach(function(offer){%>
+            <div class="offers-container">
+                <div class="bg-info p-2 text-white rounded"><h5 style="text-transform: capitalize;"><%=offer.offer.offerName%></h5></div>
+                <div class="offer-products-container mt-3 d-flex flex-wrap justify-content-start">
+                    <%offer.products.forEach(function(product){%>
+                    <div class="card me-3 mb-3" style="width: 18rem;">
+                        <div class="card-image-top rounded-top offer-card-image"
+                            style="background-image: url('/images/product-images/<%=product.images[0]%>');">
+                            <strong class="offer-ribbon px-2"><span><%=offer.offer.discount%></span>% OFF</strong>
+                        </div>
+                        
+                        <div class="card-body">
+                            <a href="/productdetail/<%=product.productId%>"><h6 class="fw-bold productName text-secondary" style="text-overflow: ellipsis; text-transform: capitalize;"><%=product.productName%></h6></a>
+                            <div class="prices-div mt-3">
+                                <div class="d-flex">
+                                    <small class="original price">Original Price:</small>
+                                    <small class="ms-2"><s><span>₹</span><%=product.productPrice%></s></small>
                                 </div>
+                                <div class="d-flex">
+                                    <p class="fw-bold text-primary">Offer Price:</p>
+                                    <p class="ms-2 fw-bolder"><span>₹</span><%=product.offerPrice%></p>
+                                </div>
+                                
                             </div>
                         </div>
-                        <%})%>
                     </div>
+                    <%})%>
                 </div>
-                <%})%>
-                <%} else {%>
-                    
-                    <%}%>
             </div>
+            <%})%>
+            <%} else {%>
+                
+                <%}%>
         </div>
-        <!-- <script>
-            const existBatchCount = JSON.parse(localStorage.getItem('batchCount'))
-            const cartNotify = document.getElementById('cart-notify');
-            const wishlistNotify = document.getElementById('wishlist-notify');
+    </div>     
 
-            cartNotify.setAttribute('data-notify',existBatchCount.batchCount.cartCount);
-            wishlistNotify.setAttribute('data-notify',existBatchCount.batchCount.wishlistCount);
-            
-        </script> -->
         <%- include('../includes/shop/shopFooter.ejs') %>
             <%- include('../includes/shop/shopEnd.ejs') %>

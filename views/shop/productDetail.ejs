@@ -10,7 +10,7 @@
                 </a>
 
                 <a href="/shop" class="stext-109 cl8 hov-cl1 trans-04">
-                    Men
+                    <%=product.userType%>
                     <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
                 </a>
 
@@ -54,9 +54,25 @@
                                 <%= product.productName%>
                             </h4>
 
-                            <span class="mtext-106 cl2">
-                                ₹ <%= product.price%>
-                            </span>
+                            <% if (product.offer.currentPrice === product.price){%>
+                                <span class="mtext-106 cl2">
+                                    ₹ <%= product.price%>
+                                </span>
+                                <%}else{%>
+                                    <span class="mtext-104 cl2">
+                                        <s>₹ <%= product.price%></s>
+                                    </span>
+
+                                    <span class="mtext-106 cl2 ms-3 text-primary">
+                                        ₹ <%= product.offer.currentPrice%>
+                                    </span>
+
+                                    <p class="mtext-106 cl2 text-danger">
+                                        <%=product.offer.discount%>
+                                        <span>%OFF</span>
+                                    </p>
+
+                                    <%}%>
 
                             <p class="stext-102 cl3 p-t-23">
                                 <%= product.description%>
