@@ -34,11 +34,11 @@ module.exports.getProductDetailPage = async (req, res) => {
       user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     }
     const product = await shopHelper.getProductDetailHelp(req.params.id);
-    //const product = await productSchema.findOne({ _id: req.params.id });
-    const relatedProducts = await productSchema.find({
-      isDeleted: false,
-      _id: { $ne: req.params.id },
-    });
+    const relatedProducts = await shopHelper.getRelatedProducts(req.params.id);
+    // const relatedProducts = await productSchema.find({
+    //   isDeleted: false,
+    //   _id: { $ne: req.params.id },
+    // });
     res.render("shop/productDetail", {
       title: product.productName,
       product,
@@ -81,28 +81,28 @@ module.exports.getProductsPage = async (req, res) => {
   }
 };
 
-module.exports.doSearch = async (req, res) => {
-  try {
-    const { searchTerm } = req.body;
-    const suggestions = await productSchema.find({
-      isDeleted: false,
-      $or: [
-        { productName: { $regex: searchTerm, $options: "i" } },
-        { description: { $regex: searchTerm, $options: "i" } },
-      ],
-    });
-    res.json({
-      suggestions: suggestions,
-      success: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
+// module.exports.doSearch = async (req, res) => {
+//   try {
+//     const { searchTerm } = req.body;
+//     const suggestions = await productSchema.find({
+//       isDeleted: false,
+//       $or: [
+//         { productName: { $regex: searchTerm, $options: "i" } },
+//         { description: { $regex: searchTerm, $options: "i" } },
+//       ],
+//     });
+//     res.json({
+//       suggestions: suggestions,
+//       success: true,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 module.exports.doFilter = async (req, res) => {
   try {
-    const { colors, userType, sort, price, category } = req.body;
+    const { colors, userType, sort, price, category,searchTerm } = req.body;
     //console.log(colors,userType,sort,price,category);
     if (colors.length > 0 || userType.length > 0) {
       const results = await shopHelper.filterHelp(
@@ -110,7 +110,8 @@ module.exports.doFilter = async (req, res) => {
         colors,
         sort,
         price,
-        category
+        category,
+        searchTerm
       );
       //console.log(results);
       res.json({
@@ -118,7 +119,7 @@ module.exports.doFilter = async (req, res) => {
         results: results,
       });
     } else {
-      const results = await shopHelper.defaultFilterHelp(sort, price, category);
+      const results = await shopHelper.defaultFilterHelp(sort, price, category,searchTerm);
       //console.log(results);
       res.json({
         status: true,

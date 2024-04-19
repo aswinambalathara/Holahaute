@@ -14,12 +14,11 @@
                 <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
                     <!-- Block2 -->
                     <div class="block2">
-                        <div class="block2-pic hov-img0">
+                        <div class="block2-pic hov-img0 product-card">
                             <img src="/images/product-images/<%=product.images[0]%>" alt="IMG-PRODUCT">
-
-                            <!-- <a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-                                Quick View
-                            </a> -->
+                            <% if (product.offerStatus === true){%>
+                                <strong class="offer-ribbon px-2"><span><%=product.offer.discount%></span>% OFF</strong>
+                                <%}%>
                         </div>
 
                         <div class="block2-txt flex-w flex-t p-t-14">
@@ -28,9 +27,24 @@
                                     <%= product.productName %>
                                 </a>
 
-                                <span class="stext-105 cl3">
-                                    ₹ <%= product.price %>
-                                </span>
+                                <% if (product.offer.currentPrice === product.price){%>
+                                    <span class="stext-105 cl3">
+                                        ₹ <%=product.price%>
+                                    </span>
+                                    <%}else{%>
+                                        
+                                        <div class="d-flex align-items-center">
+                                            <span class="stext-105 cl3">
+                                                <s>₹ <%=product.price%></s>
+                                            </span>
+        
+                                            <span class="stext-105 cl2 ms-4 text-primary fw-bolder">
+                                                ₹ <%=product.offer.currentPrice%>
+                                            </span>
+                                        </div>
+    
+                                        <%}%>
+
                             </div>
 
                             <div class="block2-txt-child2 flex-r p-t-3">
