@@ -260,6 +260,7 @@ module.exports.defaultFilterHelp = async (
 };
 
 module.exports.getWishlistHelp = async (userId) => {
+  const today = new Date();
   const wishlist = await wishlistSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     {
@@ -267,12 +268,86 @@ module.exports.getWishlistHelp = async (userId) => {
         from: "products",
         localField: "wishlistItems.productId",
         foreignField: "_id",
-        as: "products",
+        as: "product",
       },
     },
+    {
+      $unwind : "$product"
+    },
+    {
+      $project:{
+        //wishlistItems : 1,
+        products:{
+          $mergeObjects : ["$$ROOT.product","$product.offer"]
+        }
+      } 
+    },
+    {
+      $lookup :{
+        from : "offers",
+        localField : "products.offerId",
+        foreignField : "_id",
+        as: "availableOffer"
+      }
+    },
+    {
+      $addFields :{
+        offerExist: { $ne: ["$availableOffer", []] },
+      }
+    },
+    {
+      $unwind: {
+        path: "$availableOffer",
+        preserveNullAndEmptyArrays: Boolean("$offerExist"),
+      },
+    },
+    {
+      $addFields: {
+        offerStatus: {
+          $cond: {
+            if: { $eq: ["$offer", null] },
+            then: false,
+            else: {
+              $cond: {
+                if: { $gte: ["$availableOffer.validTo", today] },
+                then: true,
+                else: false,
+              }, 
+            },
+          },
+        },
+      },
+    },
+    {
+      $sort: { productName: 1 },
+    },
+    {
+      $project : {
+        productName : "$products.productName",
+        productId : "$products._id",
+        description : "$products.description",
+        quantity : "$products.quantity",
+        price : "$products.price",
+        images : "$products.images",
+        userType : "$products.userType",
+        color : "$products.color",
+        sizeOptions : "$products.sizeOptions",
+        offerStatus : 1,
+        offer: {
+          $cond: {
+            if: { $eq: ["$offerStatus", true] },
+            then: {
+              currentPrice: "$products.offerPrice",
+              discount: "$availableOffer.discount",
+            },
+            else: { currentPrice: "$products.price" },
+          },
+        },
+      }
+    }
   ]);
-
-  return wishlist[0];
+//console.log(wishlist)
+  return wishlist;
 };
 
 module.exports.getProductDetailHelp = async (productId) => {

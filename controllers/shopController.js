@@ -136,11 +136,11 @@ module.exports.getWishlist = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
     const wishlist = await shopHelper.getWishlistHelp(userId);
-    console.log(wishlist.products[0]);
+    //console.log(wishlist);
     res.render("shop/wishlist.ejs", {
       title: "Wishlist",
       user: authUser.userName,
-      wishlist,
+      wishlist: wishlist,
       wishlistCount : req.session.wishlistCount,
       cartCount : req.session.cartCount
     });

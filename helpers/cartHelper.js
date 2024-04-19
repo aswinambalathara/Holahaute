@@ -5,7 +5,62 @@ const orderSchema = require("../models/orderModel");
 const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
-module.exports.getCartHelper = async (userId) => {
+// module.exports.getCartHelper = async (userId) => {
+//   try {
+//     const cart = await cartSchema.aggregate([
+//       { $match: { userId: new ObjectId(userId) } },
+//       { $unwind: "$cartItems" },
+//       {
+//         $lookup: {
+//           from: "products",
+//           localField: "cartItems.productId",
+//           foreignField: "_id",
+//           as: "product",
+//         },
+//       },
+//       {
+//         $unwind: "$product",
+//       },
+//       {
+//         $addFields: {
+//           total: { $multiply: ["$cartItems.quantity", "$product.price"] },
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: "$_id",
+//           grandTotal: { $sum: "$total" },
+//           userId: { $first: "$userId" },
+//           cartItems: {
+//             $push: {
+//               _id: "$cartItems._id",
+//               productId: "$cartItems.productId",
+//               quantity: "$cartItems.quantity",
+//               totalPrice: "$total",
+//               color: "$cartItems.color",
+//               size: "$cartItems.size",
+//               Products: {
+//                 _id: "$product._id",
+//                 productName: "$product.productName",
+//                 price: "$product.price",
+//                 quantity: "$product.quantity",
+//                 images: "$product.images",
+//               },
+//             },
+//           },
+//         },
+//       },
+//     ]);
+//     //console.log(cart)
+//     return cart;
+//   } catch (error) {
+//     console.error(error)
+//   }
+// };
+
+module.exports.getCartHelper = async (userId)=>{
+try {
+  const today = new Date()
   const cart = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
@@ -21,15 +76,76 @@ module.exports.getCartHelper = async (userId) => {
       $unwind: "$product",
     },
     {
-      $addFields: {
-        total: { $multiply: ["$cartItems.quantity", "$product.price"] },
+      $project : {
+        cartItems:1,
+        userId : "$userId",
+        product:{$mergeObjects : ["$$ROOT.product","$product.offer"]}
+      }
+    },
+    {
+      $lookup :{
+        from : "offers",
+        localField : "product.offerId",
+        foreignField : "_id",
+        as: "availableOffer"
+      }
+    },
+    {
+      $addFields :{
+        offerExist: { $ne: ["$availableOffer", []] },
+      }
+    },
+    {
+      $unwind: {
+        path: "$availableOffer",
+        preserveNullAndEmptyArrays: Boolean("$offerExist"),
       },
     },
     {
-      $group: {
-        _id: "$_id",
-        grandTotal: { $sum: "$total" },
-        userId: { $first: "$userId" },
+      $addFields: {
+        offerStatus: {
+          $cond: {
+            if: { $eq: ["$offer", null] },
+            then: false,
+            else: {
+              $cond: {
+                if: { $gte: ["$availableOffer.validTo", today] },
+                then: true,
+                else: false,
+              }, 
+            },
+          },
+        },
+      },
+    },
+    {
+      $project:{
+        cartItems : 1,
+        userId : "$userId",
+        product : 1,
+        offerStatus : 1,
+        offer: {
+          $cond: {
+            if: { $eq: ["$offerStatus", true] },
+            then: {
+              currentPrice: "$product.offerPrice",
+              discount: "$availableOffer.discount",
+            },
+            else: { currentPrice: "$product.price" },
+          },
+        },
+      }
+    },
+    {
+      $addFields: {
+        total: { $multiply: ["$cartItems.quantity", "$offer.currentPrice"] },
+      },
+    },
+    {
+      $group:{
+        _id:"$_id",
+        grandTotal : {$sum:"$total"},
+        userId : {$first : "$userId"},
         cartItems: {
           $push: {
             _id: "$cartItems._id",
@@ -41,17 +157,23 @@ module.exports.getCartHelper = async (userId) => {
             Products: {
               _id: "$product._id",
               productName: "$product.productName",
+              currentPrice : "$offer.currentPrice",
               price: "$product.price",
               quantity: "$product.quantity",
               images: "$product.images",
+              discount : "$offer.discount"
             },
           },
         },
-      },
-    },
+      }
+    }
   ]);
-  return cart;
-};
+  console.log(cart)
+  return cart[0]
+} catch (error) {
+  console.error(error)
+}
+}
 
 module.exports.updateQuantityHelper = async (userId, itemId) => {
   const cart = await cartSchema.aggregate([

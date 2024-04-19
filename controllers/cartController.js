@@ -15,12 +15,13 @@ module.exports.getCart = async (req, res) => {
     const userId = authUser.userId;
     console.log(userId);
     const cart = await cartHelper.getCartHelper(userId);
+    //const cart2 = await cartHelper.getCartHelper2(userId);
     //console.log(cart[0])
     //console.log(cart[0].cartItems[0])
     res.render("shop/cart.ejs", {
       title: "Cart",
       user: authUser.userName,
-      cartData: cart[0],
+      cartData: cart,
       error: req.flash("error"),
       wishlistCount: req.session.wishlistCount,
       cartCount: req.session.cartCount,
