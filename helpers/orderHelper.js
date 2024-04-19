@@ -4,6 +4,8 @@ const { ObjectId } = require("mongodb");
 const productSchema = require("../models/productModel");
 const orderSchema = require("../models/orderModel");
 
+const today = new Date();
+
 module.exports.makeOrderHelper = async (userId) => {
   try {
     const order = await cartSchema.aggregate([
@@ -36,14 +38,80 @@ module.exports.makeOrderHelper = async (userId) => {
       },
       { $unwind: "$product" },
       {
+        $project: {
+          cartItems: 1,
+          totalQuantityByProduct:1,
+          userId: "$userId",
+          product: { $mergeObjects: ["$$ROOT.product", "$product.offer"] },
+        },
+      },
+      {
+        $lookup: {
+          from: "offers",
+          localField: "product.offerId",
+          foreignField: "_id",
+          as: "availableOffer",
+        },
+      },
+      {
         $addFields: {
-          orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
+          offerExist: { $ne: ["$availableOffer", []] },
+        },
+      },
+      {
+        $unwind: {
+          path: "$availableOffer",
+          preserveNullAndEmptyArrays: Boolean("$offerExist"),
+        },
+      },
+      {
+        $addFields: {
+          offerStatus: {
+            $cond: {
+              if: { $eq: ["$offer", null] },
+              then: false,
+              else: {
+                $cond: {
+                  if: { $gte: ["$availableOffer.validTo", today] },
+                  then: true,
+                  else: false,
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          cartItems: 1,
+          userId: "$userId",
+          product: 1,
+          offerStatus: 1,
+          totalQuantityByProduct :1,
+          offer: {
+            $cond: {
+              if: { $eq: ["$offerStatus", true] },
+              then: {
+                currentPrice: "$product.offerPrice",
+                discount: "$availableOffer.discount",
+              },
+              else: { currentPrice: "$product.price" },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          orderTotal: {
+            $multiply: ["$cartItems.quantity", "$offer.currentPrice"],
+          },
         },
       },
       {
         $group: {
           _id: "$userId",
           subTotal: { $sum: "$orderTotal" },
+
           orderInfo: {
             $push: {
               product: {
@@ -51,7 +119,9 @@ module.exports.makeOrderHelper = async (userId) => {
                 size: "$cartItems.size",
                 quantity: "$cartItems.quantity",
                 color: "$cartItems.color",
-                price : "$product.price"
+                price: "$offer.currentPrice",
+                actualPrice: "$product.price",
+                offerStatus: "$offerStatus",
               },
             },
           },
@@ -59,7 +129,7 @@ module.exports.makeOrderHelper = async (userId) => {
         },
       },
     ]);
-
+    console.log(order[0]);
     return order[0];
   } catch (error) {
     console.log(error);
@@ -137,18 +207,19 @@ module.exports.orderStatusHelper = async (userId, orderDocId) => {
               orderTotal: "$grandTotal",
               orderStatus: "$orderStatus",
               shippingAddress: "$address",
-              paymentMethod : "$paymentMethod"
+              paymentMethod: "$paymentMethod",
             },
           },
           products: {
             $push: {
               productName: "$product.productName",
-              productId : "$product._id",
+              productId: "$product._id",
               size: "$products.size",
               color: "$products.color",
-              price: "$product.price",
+              actualPrice : "$product.price",
+              price: "$products.price",
               quantity: "$products.quantity",
-              productImages : "$product.images"
+              productImages: "$product.images",
             },
           },
         },
@@ -160,4 +231,3 @@ module.exports.orderStatusHelper = async (userId, orderDocId) => {
     console.log(error);
   }
 };
-

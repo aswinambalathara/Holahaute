@@ -48,7 +48,7 @@
                     data.cart.cartItems.forEach((cartItem) => {
                         const item = ` <div class="product-card mt-3 border-bottom border-2 p-3">
                                                     <p class="fw-bold text-dark" style="text-transform: capitalize;">
-                                                        ${cartItem.Products.productName} (${cartItem.size}, ${cartItem.color})
+                                                        ${cartItem.product.productName} (${cartItem.size}, ${cartItem.color})
                                                     </p>
 
                                                     <div class="d-flex justify-content-between mt-3">
@@ -59,7 +59,7 @@
                                                         </div>
                                                         <div class="text-end d-flex flex-column">
                                                             <small> <span>₹ </span>
-                                                                ${cartItem.Products.price}
+                                                                ${cartItem.product.currentPrice}
                                                             </small>
                                                             <small>
                                                                 ${cartItem.quantity}
@@ -101,7 +101,7 @@
                     data.cart.cartItems.forEach((cartItem) => {
                         const item = ` <div class="product-card mt-3 border-bottom border-2 p-3">
                                                     <p class="fw-bold text-dark" style="text-transform: capitalize;">
-                                                        ${cartItem.Products.productName} (${cartItem.size}, ${cartItem.color})
+                                                        ${cartItem.product.productName} (${cartItem.size}, ${cartItem.color})
                                                     </p>
 
                                                     <div class="d-flex justify-content-between mt-3">
@@ -112,7 +112,7 @@
                                                         </div>
                                                         <div class="text-end d-flex flex-column">
                                                             <small> <span>₹ </span>
-                                                                ${cartItem.Products.price}
+                                                                ${cartItem.product.currentPrice}
                                                             </small>
                                                             <small>
                                                                 ${cartItem.quantity}

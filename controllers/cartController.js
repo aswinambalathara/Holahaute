@@ -157,10 +157,10 @@ module.exports.doUpdateQuantity = async (req, res) => {
     );
     if (update) {
       const cart = await cartHelper.getCartHelper(authUser.userId);
-      console.log(cart[0]);
+      //console.log(cart);
       res.json({
         status: true,
-        cart: cart[0],
+        cart: cart,
       });
     }
   } catch (error) {
@@ -196,6 +196,7 @@ module.exports.getCartCheckOut = async (req, res) => {
       status: true,
     });
     const cart = await cartHelper.getCheckoutHelper(authUser.userId);
+    //const cartO = await cartHelper.getCheckoutHelper2(authUser.userId);
     const availableCoupons = await cartHelper.availableCouponHelper(
       cart.orderInfo
     );
@@ -303,6 +304,12 @@ module.exports.doApplyWallet = async (req, res) => {
     console.log(req.body);
     const { walletAmount, couponDiscount } = req.body;
     const wallet = await walletSchema.findOne({ userId: authUser.userId });
+    if(!wallet){
+      return res.json({
+        status : false,
+        message : "No wallet found"
+      })
+    }
     const subTotal = await cartHelper.subTotalHelp(authUser.userId);
     const allowedWalletCash = Math.round((subTotal * 80) / 100);
     if (walletAmount > allowedWalletCash) {

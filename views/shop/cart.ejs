@@ -19,9 +19,9 @@
                                                     <div
                                                         class="part-1 col-8 col-md-3 d-flex flex-column align-items-center">
                                                         <div class="image-div"
-                                                            style="height: 8rem ; width: 8rem;  background-size: cover; background-image: url('/images/product-images/<%= item.Products.images[0]%>');">
+                                                            style="height: 8rem ; width: 8rem;  background-size: cover; background-image: url('/images/product-images/<%= item.product.images[0]%>');">
                                                         </div>
-                                                        <% if (item.Products.quantity - item.quantity < 0) {%> 
+                                                        <% if (item.product.quantity - item.quantity < 0) {%> 
                                                             <div class="d-flex mt-2 justify-content-center col-12">
                                                                 <button class="btn btn-secondary btn-sm downBtn "
                                                                     data-itemId="<%= item._id%>" data-productId="<%=item.productId%>" disabled>-</button>
@@ -50,7 +50,7 @@
                                                             class="product-detail-wrapper d-flex flex-column flex-wrap ms-3 mt-3">
                                                             <a href="/productdetail/<%=item.productId%>" class="text-dark">
                                                                 <h6 class="fw-bold " style="text-transform: capitalize;">
-                                                                    <%=item.Products.productName%>
+                                                                    <%=item.product.productName%>
                                                                 </h6>
                                                             </a>
                                                             <small class="m-0">Size : <span
@@ -64,12 +64,26 @@
                                                         </div>
                                                         <div
                                                             class="d-flex justify-content-between align-items-center mt-3 ms-3">
-                                                            <div class="d-flex align-self-start">
-                                                                <strong>Price : </strong>
-                                                                <p class="m-0"><span>₹ </span>
-                                                                    <%= item.Products.price%>
-                                                                </p>
-                                                            </div>
+                                                            
+                                                            <% if (item.offerStatus === true ){%>
+                                                                <div class="d-flex align-self-start">
+                                                                    <strong>Price : </strong>
+                                                                    <p class="m-0">
+                                                                        <s><span>₹ </span>
+                                                                            <%= item.product.price%></s>
+                                                                    </p>
+                                                                    <p class="ms-3 fw-bolder text-primary"><span>₹ </span>
+                                                                        <%= item.product.currentPrice%>
+                                                                    </p>
+                                                                </div>
+                                                                <%}else{%>
+                                                                    <div class="d-flex align-self-start">
+                                                                        <strong>Price : </strong>
+                                                                        <p class="m-0"><span>₹ </span>
+                                                                            <%= item.product.price%>
+                                                                        </p>
+                                                                    </div>
+                                                                    <%}%>
                                                             <div class="d-flex justify-content-end">
                                                                 <button
                                                                     class="btn btn-outline-danger btn-sm me-2 removeBtn"
@@ -81,7 +95,7 @@
                                                         <div class="error ms-3 mt-2"
                                                             style="color: red;  font-size: small; font-weight: 700;"
                                                             data-itemId="<%=item._id%>"></div>
-                                                            <% if (item.Products.quantity - item.quantity < 0) {%> 
+                                                            <% if (item.product.quantity - item.quantity < 0) {%> 
                                                                 <div class="stockNotify ms-3 mt-2"
                                                             style="color: red;  font-size: small; font-weight: 700;"
                                                             data-itemId="<%=item._id%>">OUT OF STOCK</div>
@@ -128,7 +142,7 @@
                                             <% cartData.cartItems.forEach(function(item) {%>
                                                 <div class="product-card mt-3 border-bottom border-2 p-3">
                                                     <p class="fw-bold text-dark" style="text-transform: capitalize;">
-                                                        <%= item.Products.productName%> (<%= item.size %>, <%=
+                                                        <%= item.product.productName%> (<%= item.size %>, <%=
                                                                     item.color%>)
                                                     </p>
 
@@ -140,7 +154,7 @@
                                                         </div>
                                                         <div class="text-end d-flex flex-column">
                                                             <small> <span>₹ </span>
-                                                                <%= item.Products.price%>
+                                                                <%= item.product.currentPrice%>
                                                             </small>
                                                             <small>
                                                                 <%= item.quantity%>

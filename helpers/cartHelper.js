@@ -154,21 +154,22 @@ try {
             totalPrice: "$total",
             color: "$cartItems.color",
             size: "$cartItems.size",
-            Products: {
+            offerStatus : "$offerStatus",
+            product: {
               _id: "$product._id",
               productName: "$product.productName",
               currentPrice : "$offer.currentPrice",
               price: "$product.price",
               quantity: "$product.quantity",
               images: "$product.images",
-              discount : "$offer.discount"
+              discount : "$offer.discount",
             },
           },
         },
       }
     }
   ]);
-  console.log(cart)
+  console.log(cart[0].cartItems[0])
   return cart[0]
 } catch (error) {
   console.error(error)
@@ -193,7 +194,68 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
   return cart;
 };
 
-module.exports.getCheckoutHelper = async (userId) => {
+// module.exports.getCheckoutHelper = async (userId) => {
+//   const cart = await cartSchema.aggregate([
+//     { $match: { userId: new ObjectId(userId) } },
+//     { $unwind: "$cartItems" },
+//     {
+//       $group: {
+//         _id: "$cartItems.productId",
+//         totalQuantityByProduct: { $sum: "$cartItems.quantity" },
+//         cartItems: { $push: "$cartItems" },
+//         userId: { $first: "$userId" },
+//       },
+//     },
+//     {
+//       $addFields: {
+//         totalQuantityByProduct: {
+//           productId: "$_id",
+//           quantity: "$totalQuantityByProduct",
+//         },
+//       },
+//     },
+//     { $unwind: "$cartItems" },
+//     {
+//       $lookup: {
+//         from: "products",
+//         localField: "cartItems.productId",
+//         foreignField: "_id",
+//         as: "product",
+//       },
+//     },
+//     { $unwind: "$product" },
+//     {
+//       $addFields: {
+//         orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: "$userId",
+//         grandTotal: { $sum: "$orderTotal" },
+//         orderInfo: {
+//           $push: {
+//             product: {
+//               productName: "$product.productName",
+//               price: "$product.price",
+//               category: "$product.category",
+//               productId: "$cartItems.productId",
+//               size: "$cartItems.size",
+//               quantity: "$cartItems.quantity",
+//               orderTotal: "$orderTotal",
+//               color: "$cartItems.color",
+//             },
+//           },
+//         },
+//         totalQuantityByProduct: { $addToSet: "$totalQuantityByProduct" },
+//       },
+//     },
+//   ]);
+//   return cart[0];
+// };
+
+module.exports.getCheckoutHelper = async (userId) =>{
+  const today = new Date()
   const cart = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
@@ -224,19 +286,83 @@ module.exports.getCheckoutHelper = async (userId) => {
     },
     { $unwind: "$product" },
     {
-      $addFields: {
-        orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
+      $project : {
+        cartItems:1,
+        totalQuantityByProduct : 1,
+        userId : "$userId",
+        product:{$mergeObjects : ["$$ROOT.product","$product.offer"]}
+      }
+    },
+    {
+      $lookup :{
+        from : "offers",
+        localField : "product.offerId",
+        foreignField : "_id",
+        as: "availableOffer"
+      }
+    },
+    {
+      $addFields :{
+        offerExist: { $ne: ["$availableOffer", []] },
+      }
+    },
+    {
+      $unwind: {
+        path: "$availableOffer",
+        preserveNullAndEmptyArrays: Boolean("$offerExist"),
       },
     },
     {
-      $group: {
-        _id: "$userId",
-        grandTotal: { $sum: "$orderTotal" },
+      $addFields: {
+        offerStatus: {
+          $cond: {
+            if: { $eq: ["$offer", null] },
+            then: false,
+            else: {
+              $cond: {
+                if: { $gte: ["$availableOffer.validTo", today] },
+                then: true,
+                else: false,
+              }, 
+            },
+          },
+        },
+      },
+    },
+    {
+      $project:{
+        cartItems : 1,
+        totalQuantityByProduct:1,
+        userId : "$userId",
+        product : 1,
+        offerStatus : 1,
+        offer: {
+          $cond: {
+            if: { $eq: ["$offerStatus", true] },
+            then: {
+              currentPrice: "$product.offerPrice",
+              discount: "$availableOffer.discount",
+            },
+            else: { currentPrice: "$product.price" },
+          },
+        },
+      }
+    },
+    {
+      $addFields: {
+        orderTotal: { $multiply: ["$cartItems.quantity", "$offer.currentPrice"] },
+      },
+    },
+    {
+      $group:{
+        _id:"$userId",
+        grandTotal : {$sum:"$orderTotal"},
+        totalQuantityByProduct: { $addToSet: "$totalQuantityByProduct" },
         orderInfo: {
           $push: {
             product: {
               productName: "$product.productName",
-              price: "$product.price",
+              price: "$offer.currentPrice",
               category: "$product.category",
               productId: "$cartItems.productId",
               size: "$cartItems.size",
@@ -246,12 +372,12 @@ module.exports.getCheckoutHelper = async (userId) => {
             },
           },
         },
-        totalQuantityByProduct: { $addToSet: "$totalQuantityByProduct" },
-      },
-    },
+      }
+    }
   ]);
+  console.log(cart[0].orderInfo[0])
   return cart[0];
-};
+}
 
 module.exports.availableCouponHelper = async (products) => {
   const updateCoupons = await couponSchema.updateMany(
@@ -300,8 +426,9 @@ module.exports.addCartQuantityCheck = (cart, productId) => {
 
 module.exports.couponHelper = async (userId, code) => {
   try {
+    const today = new Date()
     const couponCheck = await couponSchema.findOne({ couponCode: code });
-    console.log(couponCheck);
+    //console.log(couponCheck);
     if (couponCheck === " ") {
       return { status: false, message: "invalid coupon" };
     }
@@ -324,35 +451,104 @@ module.exports.couponHelper = async (userId, code) => {
 
     const validCouponProducts = await cartSchema.aggregate([
       { $match: { userId: new ObjectId(userId) } },
-      { $unwind: "$cartItems" },
-      {
-        $lookup: {
-          from: "products",
-          localField: "cartItems.productId",
-          foreignField: "_id",
-          as: "product",
+    { $unwind: "$cartItems" },
+    {
+      $lookup: {
+        from: "products",
+        localField: "cartItems.productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    {
+      $unwind: "$product",
+    },
+    {
+      $project : {
+        cartItems:1,
+        userId : "$userId",
+        product:{$mergeObjects : ["$$ROOT.product","$product.offer"]}
+      }
+    },
+    {
+      $lookup :{
+        from : "offers",
+        localField : "product.offerId",
+        foreignField : "_id",
+        as: "availableOffer"
+      }
+    },
+    {
+      $addFields :{
+        offerExist: { $ne: ["$availableOffer", []] },
+      }
+    },
+    {
+      $unwind: {
+        path: "$availableOffer",
+        preserveNullAndEmptyArrays: Boolean("$offerExist"),
+      },
+    },
+    {
+      $addFields: {
+        offerStatus: {
+          $cond: {
+            if: { $eq: ["$offer", null] },
+            then: false,
+            else: {
+              $cond: {
+                if: { $gte: ["$availableOffer.validTo", today] },
+                then: true,
+                else: false,
+              }, 
+            },
+          },
         },
       },
-      { $unwind: "$product" },
-      {
-        $addFields: {
-          totalPrice: { $multiply: ["$cartItems.quantity", "$product.price"] },
+    },
+    {
+      $project:{
+        cartItems : 1,
+        userId : "$userId",
+        product : 1,
+        offerStatus : 1,
+        offer: {
+          $cond: {
+            if: { $eq: ["$offerStatus", true] },
+            then: {
+              currentPrice: "$product.offerPrice",
+              discount: "$availableOffer.discount",
+            },
+            else: { currentPrice: "$product.price" },
+          },
         },
+      }
+    },
+    {
+      $addFields: {
+        total: { $multiply: ["$cartItems.quantity", "$offer.currentPrice"] },
       },
-      {
-        $group: {
-          _id: "$_id",
-          subTotal: { $sum: "$totalPrice" },
-          products: { $push: {product:"$product",productTotal:"$totalPrice"} },
-        },
-      },
-      { $unwind: "$products" },
-      { $match: { "products.product.category": new ObjectId(couponCheck.validFor) } },
+    },
+    {
+      $group:{
+        _id:"$_id",
+        subTotal : {$sum : "$total" },
+        products : {$push:{product:"$product",productTotal:"$total"}}
+      }
+    },
+    {
+      $unwind :"$products"
+    },
+    {
+      $match:{"products.product.category": new ObjectId(couponCheck.validFor)}
+    }
     ]);
+    //console.log(validCouponProducts2);
+
     if (validCouponProducts.length === 0) {
       return { status: false, message: "coupon not valid for the products" };
     } else {
-      //console.log(validCouponProducts);
+      console.log(validCouponProducts);
       return {
         discountPercent: couponCheck.discountPercentage,
         validCouponProducts: validCouponProducts,
@@ -367,6 +563,7 @@ module.exports.couponHelper = async (userId, code) => {
 };
 
 module.exports.subTotalHelp = async (userId) => {
+  const today = new Date()
   const subtotal = await cartSchema.aggregate([
     { $match: { userId: new ObjectId(userId) } },
     { $unwind: "$cartItems" },
@@ -380,8 +577,69 @@ module.exports.subTotalHelp = async (userId) => {
     },
     { $unwind: "$product" },
     {
+      $project : {
+        cartItems:1,
+        userId : "$userId",
+        product:{$mergeObjects : ["$$ROOT.product","$product.offer"]}
+      }
+    },
+    {
+      $lookup :{
+        from : "offers",
+        localField : "product.offerId",
+        foreignField : "_id",
+        as: "availableOffer"
+      }
+    },
+    {
+      $addFields :{
+        offerExist: { $ne: ["$availableOffer", []] },
+      }
+    },
+    {
+      $unwind: {
+        path: "$availableOffer",
+        preserveNullAndEmptyArrays: Boolean("$offerExist"),
+      },
+    },
+    {
       $addFields: {
-        orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
+        offerStatus: {
+          $cond: {
+            if: { $eq: ["$offer", null] },
+            then: false,
+            else: {
+              $cond: {
+                if: { $gte: ["$availableOffer.validTo", today] },
+                then: true,
+                else: false,
+              }, 
+            },
+          },
+        },
+      },
+    },
+    {
+      $project:{
+        cartItems : 1,
+        userId : "$userId",
+        product : 1,
+        offerStatus : 1,
+        offer: {
+          $cond: {
+            if: { $eq: ["$offerStatus", true] },
+            then: {
+              currentPrice: "$product.offerPrice",
+              discount: "$availableOffer.discount",
+            },
+            else: { currentPrice: "$product.price" },
+          },
+        },
+      }
+    },
+    {
+      $addFields: {
+        orderTotal: { $multiply: ["$cartItems.quantity", "$offer.currentPrice"] },
       },
     },
     { $group: { _id: "$_id", subTotal: { $sum: "$orderTotal" } } },
