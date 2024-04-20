@@ -2,8 +2,29 @@
     const moneyInput = document.getElementById('money-input');
     const addMoneyBtn = document.getElementById('addMoneyBtn');
     const walletHistorBtn = document.getElementById('walletHistoryBtn');
-    const wallettrigger = document.getElementById('walletHistoryTrigger')
+    const wallettrigger = document.getElementById('walletHistoryTrigger');
+    const generateReferal = document.getElementById('generateReferal');
+    const referalPreview = document.querySelector('.referral-Preview')
+    const referralCode = document.getElementById('referralCode');
     let tableBody = document.querySelector('.table-body');
+
+    const existCode = "<%=userdetail.referralCode%>"
+
+    if(existCode === 'null'){
+        generateReferal.addEventListener('click',async()=>{
+        const url = '/user/generate_referral' ;
+        const method = "GET"
+        const data = await getFetchFunction(url,method);
+        console.log(data);
+        if(data.status === true){
+            generateReferal.hidden = true;
+            referralCode.innerText = data.referralCode;
+            referalPreview.hidden = false;
+            return referalPreview.classList.add('d-flex')
+        }
+    })
+    }
+    
 
     function setPrimary(addressId) {
         fetch(`http://localhost:3000/user/userprofile/setprimary/${addressId}`, {

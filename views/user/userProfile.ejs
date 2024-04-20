@@ -116,7 +116,8 @@
 
                         </div>
                     </div>
-                    <div class="inner-last p-4 font-poppins">
+
+                    <div class="inner-second-last p-4 font-poppins border-top-0 border-start-0 border-end-0 border">
                         <h5>Wallet</h5>
                         <div class="wallet-wrapper mt-4">
                             <div class="inner-wrapper ms-1 d-flex align-items-center justify-content-between pe-5 mb-4">
@@ -142,14 +143,38 @@
                             </div>
                         </div>
                     </div>
-                    
+
+                    <div class="inner-last p-4 font-poppins">
+                        <h5>Refferal Program</h5>
+                        <div class="referral-wrapper mt-4 ">
+                            <div class="inner-wrapper d-flex align-items-center justify-content-between ps-1 pe-5 mb-4">
+                                <p>Get ₹100 in your wallet for every friend you refer who signs up! They'll also get
+                                    ₹100.</p>
+                                <% if (userdetail.referralCode === 'null'){%>
+                                    <button class="btn btn-success btn-sm" id="generateReferal">Generate Referal
+                                        Code</button>
+                                    <%}%>
+                            </div>
+                        </div>
+                        <% if (userdetail.referralCode !== 'null'){%>
+                            <div class="d-flex align-items-center mb-4 referral-Preview">
+                                <h5 class="me-3">Your Refferal Code:</h5>
+                                <h4 style="letter-spacing: 5px; color: blueviolet;" id="referralCode"><%=userdetail.referralCode%></h4>
+                            </div>
+                            <%}%>
+                            <div class="align-items-center mb-4 referral-Preview" hidden>
+                                <h5 class="me-3">Your Refferal Code:</h5>
+                                <h4 style="letter-spacing: 5px; color: blueviolet;" id="referralCode"><%=userdetail.referralCode%></h4>
+                            </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-        
+
         <%-include('../includes/user/walletHistory.ejs')%>
             <%- include('../includes/shop/shopFooter.ejs') %>
                 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
                 <%- include('../includes/scripts/userProfileScript.ejs') %>
-                <%- include('../includes/shop/shopEnd.ejs') %>
+                    <%- include('../includes/shop/shopEnd.ejs') %>

@@ -43,6 +43,12 @@ const userSchema = Schema({
         generatedTime:{
             type:Date
         }
+    },
+
+    referralCode :{
+        type : String,
+        required : true,
+        default : "null"
     }
 })
 

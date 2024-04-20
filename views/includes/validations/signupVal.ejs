@@ -4,6 +4,7 @@
   const userMobile = document.getElementById("userMobile");
   const password = document.getElementById("loginPassword");
   const confirmPassword = document.getElementById("confirmPassword");
+  const referralCode = document.getElementById('referralCode');
 
   document.querySelector("#signupForm").addEventListener("submit", (e) => {
     e.preventDefault(); //prevent form form submitting
@@ -13,9 +14,24 @@
     }
   });
 
-  document.querySelector('#signupForm').addEventListener('input',()=>{
+  document.querySelector('#signupForm').addEventListener('input', () => {
     validateInputs()
-  })
+  });
+
+  referralCode.addEventListener('blur', (e) => {
+    const code = e.target.value.trim();
+    if (code === '') {
+      setError(referralCode, '')
+    } else {
+      let referalRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z\d]{6}$/;
+      if (!referalRegex.test(code)) {
+        setError(referralCode, "Invalid Regex");
+      } else {
+        setError(referralCode, '')
+      }
+    }
+
+  });
 
   const setError = (element, message) => {
     const inputParent = element.parentElement;
@@ -30,6 +46,9 @@
     const userMobileValue = userMobile.value.trim();
     const passwordValue = password.value.trim();
     const confirmPasswordValue = confirmPassword.value.trim();
+    const code = referralCode.value.trim();
+
+    let referalRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z\d]{6}$/;
 
     let hasError = false;
 
@@ -76,8 +95,8 @@
       setError(password, "This field is required");
       hasError = true;
     } else {
-        let passwordRegex =
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      let passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
       if (!passwordRegex.test(passwordValue)) {
         setError(
           password,
@@ -97,6 +116,15 @@
       hasError = true;
     } else {
       setError(confirmPassword, " ");
+    }
+
+    if (code === '') {
+      setError(referralCode, '')
+    } else if (!referalRegex.test(code)) {
+      hasError = true
+      setError(referralCode, "Invalid Regex");
+    } else {
+      setError(referralCode, '')
     }
 
     if (!hasError) {

@@ -9,6 +9,8 @@ const paymentHelper = require("../helpers/paymentHelper");
 const ratingsSchema = require("../models/ratingsModel");
 const walletSchema = require("../models/walletmodel");
 
+
+
 module.exports.getUserProfile = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -467,3 +469,24 @@ module.exports.getWalletHistory = async (req, res) => {
     console.log(error)
   }
 };
+
+module.exports.generateReferralCode = async (req,res)=>{
+  try {
+    const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const { userId } = authUser;
+    const referralCode = userHelper.generateReferralCode()
+    if(referralCode){
+      const update = await userSchema.updateOne({_id:userId},{$set:{
+        referralCode : referralCode.toString()
+      }});
+      if(update){
+        return res.json({
+          status : true,
+          referralCode : referralCode
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}

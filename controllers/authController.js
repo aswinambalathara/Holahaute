@@ -4,9 +4,11 @@ const adminSchema = require("../models/adminModel");
 const verificationController = require("../controllers/verificationController");
 const wishlistSchema = require("../models/wishlistModel");
 const cartSchema = require("../models/cartModel");
+const walletSchema = require("../models/walletmodel");
 const jwt = require("jsonwebtoken");
 const { serialize } = require("cookie");
 const { json } = require("express");
+const e = require("connect-flash");
 
 module.exports.getUserSignup = (req, res) => {
   const locals = {
@@ -18,18 +20,25 @@ module.exports.getUserSignup = (req, res) => {
 module.exports.doUserSignup = async (req, res) => {
   try {
     // console.log(req.body);
-    const userData = await userSchema.findOne({ email: req.body.email });
+    const { email, password, fullName, phone, referralCode } = req.body;
+    const userData = await userSchema.findOne({ email: email });
     if (userData) {
       req.flash("error", "User already exist");
       return res.redirect("/signup");
     } else {
-      const otp = verificationController.sendEmail(req.body.email);
-      const password = await bcrypt.hash(req.body.password, 10);
+      const referralCheck = await userSchema.findOne({
+        referralCode: referralCode,
+      });
+      if (referralCheck) {
+        req.session.referredUser = referralCheck._id;
+      }
+      const otp = verificationController.sendEmail(email);
+      const hashPassword = await bcrypt.hash(password, 10);
       const user = {
-        fullName: req.body.fullName,
-        email: req.body.email,
-        phone: req.body.phone,
-        password: password,
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        password: hashPassword,
         token: {
           otp: otp,
           generatedTime: Date.now(),
@@ -64,11 +73,59 @@ module.exports.doSignupverification = async (req, res) => {
       if (timeDiff < 30) {
         req.session.unVerifiedUser.isVerified = true;
         const verifedUser = new userSchema(req.session.unVerifiedUser);
-        await verifedUser.save().then(() => {
+        const newUser = await verifedUser.save();
+        if (newUser) {
+          const userId = newUser._id;
+
+          const newWallet = new walletSchema({
+            userId: userId,
+            balance: 100,
+            history: [
+              {
+                paymentType: "Deposit",
+                paymentId: "Refferal",
+                amount: 100,
+                currentBalance: 100,
+              },
+            ],
+          });
+          await newWallet.save();
+          const referedUser = req.session.referredUser;
+          const wallet = await walletSchema.findOne({ userId: referedUser });
+          if (!wallet) {
+            const newWallet = new walletSchema({
+              userId: referedUser,
+              balance: 100,
+              history: [
+                {
+                  paymentType: "Deposit",
+                  paymentId: "Refferal",
+                  amount: 100,
+                  currentBalance: 100,
+                },
+              ],
+            });
+            await newWallet.save()
+          } else {
+            const history = {
+              paymentType: "Deposit",
+              paymentId: "Referral",
+              amount: 100,
+              currentBalance: wallet.balance + 100,
+            };
+            const updateWallet = await walletSchema.updateOne(
+              { userId: referedUser },
+              {
+                $inc: { balance: 100 },
+                $push: { history: history },
+              }
+            );
+          }
+          req.session.referredUser = null;
           req.session.unVerifiedEmail = null;
           req.session.unVerifiedUser = null;
-          res.redirect("/login");
-        });
+          return res.redirect("/login");
+        }
       } else {
         req.flash("error", "Time Out Please enter the new OTP received");
         const otp = verificationController.sendEmail(
@@ -153,15 +210,17 @@ module.exports.doUserLogin = async (req, res) => {
           });
           const cart = await cartSchema.findOne({ userId: userData._id });
           const batchCount = {
-            wishlistCount : wishlist? wishlist.wishlistItems.length : 0,
-            cartCount : cart ? cart.cartItems.length : 0
-          }
+            wishlistCount: wishlist ? wishlist.wishlistItems.length : 0,
+            cartCount: cart ? cart.cartItems.length : 0,
+          };
           req.session.cartCount = cart ? cart.cartItems.length : 0;
-          req.session.wishlistCount = wishlist? wishlist.wishlistItems.length : 0;
+          req.session.wishlistCount = wishlist
+            ? wishlist.wishlistItems.length
+            : 0;
           const payLoad = {
             userName: userData.fullName,
             userId: userData._id,
-            batchCount : batchCount  
+            batchCount: batchCount,
           };
           const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
             expiresIn: "24h",

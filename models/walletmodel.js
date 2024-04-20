@@ -27,6 +27,7 @@ const walletSchema = Schema({
       amount: {
         type: Number,
         required: true,
+        default : 0
       },
       date: {
         type: Date,

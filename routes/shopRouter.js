@@ -31,6 +31,8 @@ router.patch('/user/editaddress/:id',authMiddleware.userStatus,authMiddleware.ve
 router.post('/user/wallet/addmoney',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doAddWalletMoney);
 router.post('/user/wallet/verifywalletpayment',authMiddleware.userStatus,authMiddleware.verifyUser,userController.doVerifyWalletPayment);
 router.get('/user/wallet/history',authMiddleware.userStatus,authMiddleware.verifyUser,userController.getWalletHistory);
+
+router.get('/user/generate_referral',authMiddleware.userStatus,authMiddleware.verifyUser,userController.generateReferralCode);
  
 //cartRoutes
 
