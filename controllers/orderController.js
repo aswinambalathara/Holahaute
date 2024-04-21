@@ -118,34 +118,37 @@ module.exports.doverifyPayment = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
-    const { response, order } = req.body;
-    console.log(req.body);
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
-      response;
-    let sign = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
-    sign.update(razorpay_order_id + "|" + razorpay_payment_id);
-    sign = sign.digest("hex");
-    if (sign === razorpay_signature) {
+    const { response, paymentData } = req.body;
+    //console.log(req.body);
+    const verify = await paymentHelper.verifyPayment(response);
+    if (verify.status === true) {
       const orderUpdate = await orderSchema.updateOne(
-        { orderId: order.notes.order_Id },
+        { orderId: paymentData.notes.order_Id },
         {
           $set: {
             orderStatus: "CONFIRMED",
-            "paymentMethod.paymentId": razorpay_payment_id,
+            "paymentMethod.paymentId": verify.paymentId,
           },
         }
       );
-
       if (orderUpdate) {
-        res.json({
+      return res.json({
           paid: true,
+          message : "Payment Successfull"
         });
       }
     } else {
-      res.json({
+     return res.json({
         paid: false,
       });
     }
+
+    // const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+    //   response;
+    // let sign = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
+    // sign.update(razorpay_order_id + "|" + razorpay_payment_id);
+    // sign = sign.digest("hex");
+
   } catch (error) {
     console.log(error);
   }
@@ -185,15 +188,15 @@ module.exports.getMyorders = async (req, res) => {
       .populate("products.productId")
       .exec();
     //console.log(orders);
-    const arrivals = orders.map((order) => {
-      const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      };
-      return order.estimatedArrival.toLocaleDateString(undefined, options);
-    });
+    // const arrivals = orders.map((order) => {
+    //   const options = {
+    //     weekday: "long",
+    //     year: "numeric",
+    //     month: "long",
+    //     day: "numeric",
+    //   };
+    //   return order.estimatedArrival.toLocaleDateString(undefined, options);
+    // });
     //console.log(arrivals);
     res.render("user/myorders.ejs", {
       title: "My Orders",
@@ -224,6 +227,23 @@ module.exports.getOrderDetail = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+  }
+};
+
+module.exports.doRetryPayment = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    //console.log(orderId);
+    const order = await orderSchema.findOne({ _id: orderId });
+    if (order) {
+      const payment = await paymentHelper.createPayment(order.orderId,order.grandTotal);
+      return res.json({
+        status : false,
+        payment : payment
+      });
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 

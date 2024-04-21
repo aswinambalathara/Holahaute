@@ -10,25 +10,39 @@
                             <div class="card-header">
                                 <h6>Summary</h6>
                             </div>
-                            <div class="card-body ">
-                                <p class="mb-1">Order#: <span>
-                                        <%= order.orderStatus[0].orderId%>
-                                    </span></p>
-                                <p class="mb-1">Order Date: <span>
-                                        <%= orderDate%>
-                                    </span></p>
-                                <p class="mb-1">Order Total: <span class="fw-bold">₹ <%=
-                                            order.orderStatus[0].orderTotal%></span></p>
-                                <% if(order.orderStatus[0].orderStatus==='CANCELLATION REQUESTED' ||
-                                    order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
-                                    <p class="mb-1 ">Status: <span class="text-danger">
-                                            <%= order.orderStatus[0].orderStatus%>
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div class="orderDetail-div">
+                                    <p class="mb-1">Order#: <span>
+                                            <%= order.orderStatus[0].orderId%>
                                         </span></p>
-                                    <%} else {%>
-                                        <p class="mb-1 ">Status: <span class="text-success">
+                                    <p class="mb-1">Order Date: <span>
+                                            <%= orderDate%>
+                                        </span></p>
+                                    <p class="mb-1">Order Total: <span class="fw-bold">₹ <%=
+                                                order.orderStatus[0].orderTotal%></span></p>
+                                    <% if(order.orderStatus[0].orderStatus==='CANCELLATION REQUESTED' ||
+                                        order.orderStatus[0].orderStatus==='ORDER CANCELLED' ||
+                                        order.orderStatus[0].orderStatus==='PENDING' ) {%>
+                                        <p class="mb-1 ">Status: <span class="text-danger">
                                                 <%= order.orderStatus[0].orderStatus%>
                                             </span></p>
-                                        <%}%>
+                                        <%} else {%>
+                                            <p class="mb-1 ">Status: <span class="text-success">
+                                                    <%= order.orderStatus[0].orderStatus%>
+                                                </span></p>
+                                            <%}%>
+                                                <%if(order.orderStatus[0].orderStatus==='PENDING'){%>
+                                                    <p class="mb-1 fw-semibold text-danger">Your payment failed or in
+                                                        pending state retry payment</p>
+                                                    <%}%>
+                                </div>
+                                <%if (order.orderStatus[0].orderStatus==='PENDING' ){%>
+                                    <div>
+                                        <button class="btn btn-warning" id="retryPayment"
+                                            data-orderId="<%=order._id%>">Retry Payment</button>
+                                    </div>
+
+                                    <%}%>
                             </div>
                         </div>
                         <div class="card mt-2">
@@ -140,13 +154,14 @@
                                         <%} else if(order.orderStatus[0].orderStatus==='DELIVERED' ) {%>
                                             <button class="btn btn-outline-dark px-5 border border-dark border-2"
                                                 id="returnBtn">Return Order</button>
-                                            <%} else if(order.orderStatus[0].orderStatus==='RETURN REQUESTED'){%>
+                                            <%} else if(order.orderStatus[0].orderStatus==='RETURN REQUESTED' ){%>
                                                 <button class="btn btn-outline-dark px-5 border border-dark border-2"
                                                     id="cancelBtn" disabled>RETURN ORDER</button>
-                                                <%} else {%> 
-                                                <button class="btn btn-outline-dark px-5 border border-dark border-2"
-                                                    id="cancelBtn" disabled>Cancel Order</button>
-                                                <%} %>
+                                                <%} else {%>
+                                                    <button
+                                                        class="btn btn-outline-dark px-5 border border-dark border-2"
+                                                        id="cancelBtn" disabled>Cancel Order</button>
+                                                    <%} %>
                                 </div>
                                 <%} %>
                     </div>
@@ -155,23 +170,90 @@
                     <%- include('../includes/user/returnModal.ejs') %>
             </div>
         </div>
-
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>
             const status = '<%=order.orderStatus[0].orderStatus%>'
             console.log(status)
             const cancelBtn = document.getElementById('cancelBtn');
             const returnBtn = document.getElementById('returnBtn');
+            const retryPayBtn = document.getElementById('retryPayment');
+
+            if (status === "PENDING") {
+                retryPayBtn.addEventListener('click', async () => {
+                    const orderId = retryPayBtn.getAttribute('data-orderId');
+                    console.log(orderId);
+                    const url = `/myorders/order/retrypayment/${orderId}`
+                    const method = 'POST';
+                    const body = {}
+                    const data = await fetchFunction(url, method, body);
+                    console.log(data);
+                    if (data?.payment !== '') {
+                        return razorpayPayment(data.payment)
+                    }
+                })
+            }
 
             if (status === 'DELIVERED') {
                 returnBtn.addEventListener('click', () => {
                     document.getElementById('returnOrderTrigger').click()
-                })
+                });
             } else {
                 cancelBtn.addEventListener('click', () => {
                     document.getElementById('cancelModal').click()
                 });
             }
 
+            async function fetchFunction(url, method, body) {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+                return data;
+            }
+
+            function razorpayPayment(paymentData) {
+                const RZY_KEY = "<%=process.env.RAZORPAY_KEY_ID%>"
+                let options = {
+                    "key": RZY_KEY, // Enter the Key ID generated from the Dashboard
+                    "amount": paymentData.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                    "currency": "INR",
+                    "name": "Hola Haute",
+                    "description": "Wallet Transaction",
+                    "image": "/images/logo/logo_1.png",
+                    "order_id": paymentData.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                    "handler": function (response) {
+                        verifyPayment(response, paymentData)
+                    },
+                    "notes": {
+                        "address": "Hola Haute Corporate Office"
+                    },
+                    "theme": {
+                        "color": "#3399cc"
+                    }
+                };
+
+                let rzp2 = new Razorpay(options);
+                rzp2.open()
+            }
+
+            async function verifyPayment(response, paymentData) {
+                console.log(response)
+                const url = '/verifypayment'
+                const method = 'POST'
+                const body = {
+                    response,
+                    paymentData
+                }
+                const data = await fetchFunction(url, method, body);
+                if (data.paid === true) {
+                    location.reload()
+                }
+            }
         </script>
 
         <%- include('../includes/shop/shopFooter.ejs') %>

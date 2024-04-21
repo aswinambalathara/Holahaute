@@ -53,6 +53,7 @@ router.post('/checkout/uncheckwallet',authMiddleware.userStatus,authMiddleware.v
 router.get('/orderstatus',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderStatusPage);
 router.get('/myorders',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getMyorders);
 router.get('/myorders/order/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderDetail);
+router.post('/myorders/order/retrypayment/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doRetryPayment);
 router.get('/myorders/trackorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.getOrderTracking);
 router.patch('/myorder/cancelorder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doCancelOrder);
 router.patch('/myorder/returnOrder/:id',authMiddleware.userStatus,authMiddleware.verifyUser,orderController.doReturnOrder);
