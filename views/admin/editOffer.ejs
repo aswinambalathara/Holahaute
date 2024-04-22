@@ -7,8 +7,8 @@
             <div class="body-wrapper">
                 <%- include('../includes/admin/adminHeader')%>
                     <div class="container-fluid bg-light">
-                        <h5>Add New Offer</h5>
-                        <form action="/admin/offers/addoffer" method="post" class="addOfferForm" id="addOfferForm">
+                        <h5>Edit Offer</h5>
+                        <form action="/admin/offers/editoffer/<%=offer._id%>?_method=PATCH" method="post" class="addOfferForm" id="editOfferForm">
                             <div class="row justify-content-between mt-4 mb-4">
                                 <div class="col-md-6 parent">
                                     <label for="OfferName" class="form-label">Offer Name</label>
@@ -43,7 +43,7 @@
                             <div class="row justify-content-between mb-4">
                                 <div class="offer-Type-Div parent">
                                     <label for="offerType" class="form-label">Offer Type</label>
-                                    <select name="editofferType" id="editofferType" disabled class="form-select">
+                                    <select id="editofferType" name="offerType" disabled class="form-select">
                                         <option value="">choose</option>
                                         <option value="categoryOffer">Category Offer</option>
                                         <option disabled value="productOffer">Product Offer</option>
@@ -73,35 +73,34 @@
                                     <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                                 </div>
 
-                                <div class="col-md-3 product-category-select-preview parent" hidden>
-                                    <small>Select a category</small>
-                                    <select name="productCategorySelect" id="productCategorySelect"
-                                        class="form-select mt-2" style="text-transform: capitalize;">
-                                        <option value="" id="default-product-cat" selected>Choose</option>
-                                        <% categories.forEach(function(category){%>
-                                            <option value="<%=category._id%>" style="text-transform: capitalize;">
-                                                <%=category.categoryName%>
-                                            </option>
-                                            <%})%>
-                                    </select>
-                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                <div class="mt-2 mt-md-0 products-list-preview parent" hidden>
+                                  <p class="m-0">Select products</p>
+                                  <div class="product-list border border-secondary-subtle align-self-end p-2 rounded mt-2">
+                                    <%products.forEach(function(product){%>
+                                      <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="<%=product._id%>"
+                                          id="<%=product.productName%>" name="offerProducts">
+                                        <label class="form-check-label" for="<%=product.productName%>"
+                                          style="text-transform : capitalize;">
+                                          <%=product.productName%>
+                                        </label>
+                                      </div>
+                                      <%})%>
+                                  </div>
+                                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                                 </div>
 
-                                <div class="col-md-9 mt-2 mt-md-0 products-list-preview parent" hidden>
-                                    <p class="m-0">Select products</p>
-                                    <div
-                                        class="product-list  border border-secondary-subtle align-self-end p-2 rounded mt-2">
-
-                                    </div>
-                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
-                                </div>
+                                
 
 
                             </div>
-                            <div class="d-flex align-items-center justify-content-center">
+                            <div class="d-flex align-items-center justify-content-center flex-column">
                                 <button class="btn btn-primary" type="submit" id="addOfferBtn">Edit Offer</button>
-                                <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                <%if (error.length > 0){%>
+                                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"><%=error%></div>
+                                  <%}%>
                             </div>
+                            
                         </form>
                     </div>
             </div>
@@ -112,16 +111,37 @@
         const editValidTo = document.getElementById('validTo');
         const editValidFrom = document.getElementById('validFrom');
         const categoryPreview = document.querySelector('.category-type-preview');
+        const productsPreview = document.querySelector('.products-list-preview');
         const formattedValidTo = moment(new Date('<%=offer.validTo%>')).format('YYYY-MM-DD');
         const formattedValidFrom = moment(new Date("<%=offer.validFrom%>")).format('YYYY-MM-DD');
         const offerCategories = document.getElementsByName('offerCategories');
+        //const categories = document.getElementsByName('offerCategories');
+        const offerProducts = document.getElementsByName('offerProducts');
         editValidTo.value = formattedValidTo;
         editValidFrom.value = formattedValidFrom;
         const serverOfferType = "<%=offer.offerType%>"
+        const selectedItems = '<%=offer.offerItems%>'
 
         const offerType = document.getElementById('editofferType');
+
         if(serverOfferType === 'categoryOffer'){
           categoryPreview.hidden = false;
+          offerCategories.forEach((checkbox)=>{
+            if(selectedItems.includes(checkbox.value)){
+              checkbox.checked = true;
+            }else{
+              checkbox.checked = false;
+            }
+          })
+        }else{
+          productsPreview.hidden = false;
+          offerProducts.forEach((checkbox)=>{
+            if(selectedItems.includes(checkbox.value)){
+              checkbox.checked = true
+            }else{
+              checkbox.checked = false;
+            }
+          })
         }
         Array.from(offerType.options).forEach((option)=>{
           if(option.value.toLowerCase() == serverOfferType.toLowerCase()){
@@ -131,112 +151,30 @@
 
     </script>
 
-    <!-- <script>
-    const addOfferForm = document.getElementById('addOfferForm');
+    <script>
+    const editOfferForm = document.getElementById('editOfferForm');
     const offerName = document.getElementById('offerName');
-    const validFrom = document.getElementById('validFrom');
-    const validTo = document.getElementById('validTo');
     const discount = document.getElementById('discount');
-    const offerTypeSelect = document.getElementById('offerType');
-    const categoryTypePreview = document.querySelector('.category-type-preview');
-    const categoryListDiv = document.querySelector('.category-list-div');
-    const productCatSelectPreview = document.querySelector('.product-category-select-preview');
-    const productCategorySelect = document.getElementById('productCategorySelect');
-    const productListPreview = document.querySelector('.products-list-preview');
-    let productList = document.querySelector('.product-list');
-    const offerCategories = document.getElementsByName('offerCategories');
+    //const offerTypeSelect = document.getElementById('offerType');
     let hasProductCheckError = false;
 
     offerName.addEventListener('blur', handleInputChange);
     validFrom.addEventListener('blur', handleInputChange);
     validTo.addEventListener('blur', handleInputChange);
     discount.addEventListener('blur', handleInputChange);
-    addOfferForm.addEventListener('submit', handleAddOfferFormSubmit);
-    productCategorySelect.addEventListener('blur', handleInputChange);
+    editOfferForm.addEventListener('submit', handleEditOfferFormSubmit);
 
 
-    offerTypeSelect.addEventListener('change', async (event) => {
-      const offerTypeValue = event.target.value;
-      if (offerTypeValue === "categoryOffer") {
-        productCatSelectPreview.hidden = true;
-        productListPreview.hidden = true;
-        document.getElementById('default-product-cat').selected = true;
-        productList.innerHTML = ''
-        setError(offerTypeSelect, '')
-        return categoryTypePreview.hidden = false
-      } else if (offerTypeValue === "productOffer") {
-        categoryTypePreview.hidden = true;
-        setError(offerTypeSelect, '')
-        return productCatSelectPreview.hidden = false;
-      } else if (offerTypeValue === '') {
-        productCatSelectPreview.hidden = true;
-        productListPreview.hidden = true;
-        categoryTypePreview.hidden = true;
-        return setError(offerTypeSelect, "Select a offer type");
-      }
-    });
+    
 
-    productCategorySelect.addEventListener('change', async (event) => {
-      const categoryId = event.target.value;
-      if (categoryId === '') {
-        productList.innerHTML = ''
-        return setError(productCategorySelect, "Choose a category");
-      } else {
-        const url = '/admin/offers/fetchproductlist'
-        const method = 'POST'
-        const body = {
-          categoryId: categoryId
-        }
-        const productsData = await fetchFunction(url, method, body);
-        console.log(productsData);
-        if (productsData.status === true) {
-          productListPreview.hidden = false;
-          productsData.products.forEach((product) => {
-            const prod = `<div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="${product._id}" id="${product.productName}" name="offerProducts">
-                      <label class="form-check-label" for="${product.productName}" style="text-transform : capitalize;">
-                        ${product.productName}
-                      </label>
-                    </div>`
 
-            productList.innerHTML += prod;
-          });
-        }
-      }
-    })
-
-    function handleAddOfferFormSubmit(event) {
+    function handleEditOfferFormSubmit(event) {
       event.preventDefault();
 
       let hasError = false;
-      const allInputs = [offerName, validFrom, validTo, discount, offerTypeSelect];
+      const allInputs = [offerName, validFrom, validTo, discount];
 
-      if (offerTypeSelect.value === 'categoryOffer') {
-
-        let haschecked = false;
-        offerCategories.forEach((elem) => {
-          if (elem.checked) {
-            haschecked = true
-          }
-        });
-
-        if (!haschecked) {
-          hasError = true
-          setError(categoryListDiv, "Check atleast one")
-        } else {
-          setError(categoryListDiv, "")
-        }
-      } else if (offerTypeSelect.value === 'productOffer') {
-        if (productCategorySelect.value === '') {
-          hasError = true
-          setError(productCategorySelect, "Select atleast one");
-        } else {
-          setError(productCategorySelect, "")
-        }
-      }
-
-      if(productCategorySelect.value !== ''){
-        const offerProducts = document.getElementsByName('offerProducts');
+      if (offerType.value === 'productOffer') {
         let haschecked = false
         offerProducts.forEach((elem)=>{
           if(elem.checked){
@@ -246,12 +184,28 @@
 
         if(!haschecked){
           hasError = true
-          setError(productList,"check atleast one")
+          setError(productsPreview,"check atleast one")
         }else{
-          setError(productList,"");
+          setError(productsPreview,"")
+        }
+
+      }else{
+        let haschecked = false;
+        offerCategories.forEach((elem) => {
+          if (elem.checked) {
+            haschecked = true
+          }
+        });
+
+        if(!haschecked){
+          hasError = true
+          setError(categoryPreview,"check atleast one")
+        }else{
+          setError(categoryPreview,"")
         }
       }
 
+    
       allInputs.forEach((input) => {
         const type = input.id;
         const value = input.value;
@@ -331,9 +285,7 @@
           dates = validateDate(Date.parse(value), validToValue);
           if (dates.parsedDate >= dates.parsedOtherDate) {
             return errorMessage.invalid
-          } else if (dates.parsedDate < dates.today) {
-            return errorMessage.invalid2
-          }
+          } 
           break;
         case 'validTo':
           dates = validateDate(Date.parse(value), validFromValue);
@@ -381,5 +333,5 @@
       return data;
     }
 
-  </script> -->
+  </script>
     <%- include('../includes/admin/adminEnd')%>

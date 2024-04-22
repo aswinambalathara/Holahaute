@@ -24,11 +24,19 @@ module.exports.categoryOfferProducts = async (categoryIds, discount) => {
       {
         $addFields: {
           roundedOfferPrice: { $ceil: "$offerPrice" },
+          offerStatus: {
+            $cond: { if: { $eq: ["$offer", null] }, then: false, else: true },
+          },
         },
       },
       {
         $match: {
-          $expr: { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
+          $expr: {
+            $and: [
+              { $eq: ["$offerStatus", true] },
+              { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
+            ]
+          }
         },
       },
       {
@@ -72,7 +80,12 @@ module.exports.productOfferProducts = async (productIds, discount) => {
       },
       {
         $match: {
-          $expr: { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
+          $expr: {
+            $gte: [
+              { $ifNull: ["$offer.offerPrice", "$roundedOfferPrice"] },
+              "$roundedOfferPrice"
+            ]
+          }
         },
       },
       {
@@ -121,23 +134,24 @@ module.exports.getOffersHelp = async () => {
               discount: "$availableOffer.discount",
             },
           },
-          products : {$push:{
-            productName : "$productName",
-            offerPrice : "$offer.offerPrice",
-            productId : "$_id",
-            productPrice : "$price",
-            images : "$images",
-
-          }}
+          products: {
+            $push: {
+              productName: "$productName",
+              offerPrice: "$offer.offerPrice",
+              productId: "$_id",
+              productPrice: "$price",
+              images: "$images",
+            },
+          },
         },
       },
       {
-        $project:{
-          _id:0,
-          offer : {$arrayElemAt:["$offer",0]},
-          products : 1
-        }
-      }
+        $project: {
+          _id: 0,
+          offer: { $arrayElemAt: ["$offer", 0] },
+          products: 1,
+        },
+      },
     ]);
     console.log(offers);
     return offers;
@@ -169,3 +183,15 @@ module.exports.updateProducts = async (products, offerId) => {
     console.error(error);
   }
 };
+
+module.exports.updateOffers = async ()=>{
+  try {
+    const today = new Date()
+    await offerSchema.updateMany({validTo:{$lt:today}},{$set:{
+      isExpired : true
+    }
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}

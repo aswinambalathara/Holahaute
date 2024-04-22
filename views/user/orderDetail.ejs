@@ -37,12 +37,23 @@
                                                     <%}%>
                                 </div>
                                 <%if (order.orderStatus[0].orderStatus==='PENDING' ){%>
+
                                     <div>
                                         <button class="btn btn-warning" id="retryPayment"
                                             data-orderId="<%=order._id%>">Retry Payment</button>
                                     </div>
 
                                     <%}%>
+
+                                        <% if (order.orderStatus[0].orderStatus==="DELIVERED" ||
+                                            order.orderStatus[0].paymentMethod.method==='razorpay' ) {%>
+
+                                            <div>
+                                                <button class="btn btn-primary btn-sm" id="downloadInvoice"
+                                                    data-orderId="<%=order._id%>">Download Invoice</button>
+                                            </div>
+
+                                            <%} %>
                             </div>
                         </div>
                         <div class="card mt-2">
@@ -177,6 +188,7 @@
             const cancelBtn = document.getElementById('cancelBtn');
             const returnBtn = document.getElementById('returnBtn');
             const retryPayBtn = document.getElementById('retryPayment');
+            const downloadInvoice = document.getElementById('downloadInvoice');
 
             if (status === "PENDING") {
                 retryPayBtn.addEventListener('click', async () => {
@@ -254,6 +266,41 @@
                     location.reload()
                 }
             }
+
+            if (downloadInvoice) {
+                downloadInvoice.addEventListener('click', async () => {
+                    const orderId = downloadInvoice.getAttribute('data-orderId');
+                    //console.log(orderId)
+                    const url = `/myorders/order/downloadinvoice/${orderId}`;
+                    const method = 'POST';
+                    const body = {}
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': "application/json"
+                        },
+                        body: JSON.stringify(body)
+                    });
+                    console.log(response);
+                    if (response.status === 200) {
+                        const blob = await response.blob();
+                        downloadFile(blob)
+                    }
+                })
+            }
+
+
+            function downloadFile(blob) {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "invoice.pdf"
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+            
         </script>
 
         <%- include('../includes/shop/shopFooter.ejs') %>

@@ -19,7 +19,10 @@ module.exports.getAdminDashboard = async (req, res) => {
     const dashboardUsers = await adminHelper.dashboardUsersHelp();
     const totalProducts = await productModel.find({ isDeleted: false }).count();
     const totalCategories = await categorySchema.find({ status: true }).count();
-    //console.log(totalProducts)
+    const topSelling = await adminHelper.topSellHelp()
+    const topSellingProducts = topSelling.bestSellingProducts
+    const topSellingCategories = topSelling.bestSellingCategories
+    //console.log(topSellingProducts)
     const monthsArray = defaultSales.monthsArray;
     const salesArray = JSON.stringify(defaultSales.sales);
     res.render("admin/dashboard", {
@@ -30,6 +33,8 @@ module.exports.getAdminDashboard = async (req, res) => {
       dashboardUsers,
       totalProducts,
       totalCategories,
+      topSellingCategories,
+      topSellingProducts
     });
   } catch (error) {
     console.error(error);

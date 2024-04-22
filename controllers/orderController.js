@@ -2,6 +2,7 @@ const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const addressSchema = require("../models/addressModel");
 const orderHelper = require("../helpers/orderHelper");
+const userHelper = require('../helpers/userHelper');
 const paymentHelper = require("../helpers/paymentHelper");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
@@ -229,6 +230,18 @@ module.exports.getOrderDetail = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.doGenerateInvoice = async (req,res)=>{
+  try {
+    const orderId = req.params.id
+    console.log(orderId);
+    const order = await orderHelper.orderInvoiceHelp(orderId);
+    console.log(order);
+    orderHelper.generateInvoicePDF(order,res);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 module.exports.doRetryPayment = async (req, res) => {
   try {
