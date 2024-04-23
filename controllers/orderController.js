@@ -20,6 +20,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
       walletAmount,
       couponDiscount,
       couponCode,
+      deliveryCharge,
     } = req.body;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -44,6 +45,7 @@ module.exports.doCartPlaceOrder = async (req, res) => {
           paymentType: "Withdrawal",
           amount: walletAmount,
           currentBalance: wallet.balance - walletAmount,
+          remarks : orderId
         };
         const updateWallet = await walletSchema.updateOne(
           { userId: userId },
@@ -64,7 +66,14 @@ module.exports.doCartPlaceOrder = async (req, res) => {
         }
         const walletApplied = walletAmount !== 0 ? walletAmount : undefined;
         const orderStatus = paymentOption === "COD" ? "CONFIRMED" : "PENDING";
-        const grandTotal = order.subTotal - (walletAmount + couponDiscount);
+        const grandTotal = (order.subTotal + deliveryCharge) - (walletAmount + couponDiscount);
+        if((grandTotal-deliveryCharge) > 1000 && paymentOption === "COD"){
+          return res.json({
+            status : false,
+            payment : '',
+            message : "COD is not available for grandTotal above ₹1000"
+          })
+        }
         const newOrder = new orderSchema({
           userId: userId,
           addressId: addressId,
@@ -120,7 +129,7 @@ module.exports.doverifyPayment = async (req, res) => {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
     const { response, paymentData } = req.body;
-    //console.log(req.body);
+    console.log(req.body);
     const verify = await paymentHelper.verifyPayment(response);
     if (verify.status === true) {
       const orderUpdate = await orderSchema.updateOne(
@@ -183,6 +192,7 @@ module.exports.getOrderStatusPage = async (req, res) => {
 module.exports.getMyorders = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const updateOrders = await orderHelper.updateOrderStatus(authUser.userId)
     const orders = await orderSchema
       .find({ userId: new ObjectId(authUser.userId) })
       .sort({ orderedAt: -1 })

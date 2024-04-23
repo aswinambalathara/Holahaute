@@ -45,8 +45,8 @@
 
                                     <%}%>
 
-                                        <% if (order.orderStatus[0].orderStatus==="DELIVERED" ||
-                                            order.orderStatus[0].paymentMethod.method==='razorpay' ) {%>
+                                        <% if (order.orderStatus[0].orderStatus==="DELIVERED" || 
+                                            order.orderStatus[0].paymentMethod.method==='razorpay' && order.orderStatus[0].orderStatus !== "PENDING" && order.orderStatus[0].orderStatus !== "ORDER CANCELLED") {%>
 
                                             <div>
                                                 <button class="btn btn-primary btn-sm" id="downloadInvoice"

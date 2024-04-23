@@ -12,6 +12,7 @@
     const couponPreview = document.querySelector('.coupon-discount-preview');
     const grandTotalPreview = document.querySelector('.grandTotal-preview');
     const walletDiscountPreview = document.querySelector('.wallet-discount-preview');
+    const deliveryCharge = document.querySelector('.deliveryCharge-preview');
     const walletCheck = document.getElementById('walletCheck');
     const walletCashInput = document.getElementById('walletCashInput');
     const applyWalletCash = document.getElementById('applyWalletCash');
@@ -44,6 +45,7 @@
     placeOrderBtn.addEventListener('click', () => {
         const couponDiscount = couponPreview.getAttribute('data-couponDiscount');
         const walletAmount = walletDiscountPreview.getAttribute('data-walletAmount');
+        const deliveryChargeVal = deliveryCharge.getAttribute('data-deliveryCharge');
         const couponCode = couponInput.value.trim()
         paymentOption.forEach((option) => {
             if (option.checked) {
@@ -51,32 +53,38 @@
                     const paymentOptionVal = option.value;
                     const deliveryAddressVal = deliveryAddress.value
                     //console.log(paymentOptionVal," ",deliveryAddressVal)
-                    placeOrder(deliveryAddressVal, paymentOptionVal,walletAmount,couponDiscount,couponCode);
+                    placeOrder(deliveryAddressVal, paymentOptionVal, walletAmount, couponDiscount, couponCode, deliveryChargeVal);
                 }
             }
         })
     })
 
-    async function placeOrder(addressId, paymentOption,walletAmount,couponDiscount,couponCode) {
+    async function placeOrder(addressId, paymentOption, walletAmount, couponDiscount, couponCode, deliveryCharge) {
         const url = '/placeorder';
         const method = 'POST';
         const body = {
             addressId: addressId,
             paymentOption: paymentOption,
-            walletAmount : walletAmount? Number(walletAmount) : 0,
-            couponDiscount : couponDiscount? Number(couponDiscount) : 0,
-            couponCode : couponCode? couponCode : undefined
+            walletAmount: walletAmount ? Number(walletAmount) : 0,
+            couponDiscount: couponDiscount ? Number(couponDiscount) : 0,
+            couponCode: couponCode ? couponCode : undefined,
+            deliveryCharge: Number(deliveryCharge)
         }
         const data = await fetchFunction(url, method, body)
         if (data.status === false) {
             if (data.payment !== '') {
                 console.log(data.payment);
                 razorpayPayment(data.payment)
-            } else {
+            } else if (data.product) {
                 const errorDiv = document.querySelector('.error-modal')
                 errorDiv.querySelector('.errorProducts').innerText = data.product
                 errorDiv.querySelector('.errorMessage').innerText = data.message
                 document.getElementById('orderErrorModal').click()
+            } else {
+                Swal.fire({
+                    text: data.message,
+                    icon: "error"
+                });
             }
         } else {
             document.getElementById('orderSuccessModal').click()
@@ -110,10 +118,18 @@
             },
             "theme": {
                 "color": "#3399cc"
+            },
+            "modal":{
+                "ondismiss":function(){
+                    location.assign('/myorders');
+                }
             }
         };
         let rzp1 = new Razorpay(options);
         rzp1.open()
+        rzp1.on('payment.failed', async function (response) {
+            location.assign('/myorders');
+        })
     }
 
     async function verifyPayment(response, order) {
@@ -121,7 +137,7 @@
         const method = 'POST'
         const body = {
             response,
-            order
+            paymentData : order
         }
         const data = await fetchFunction(url, method, body);
         if (data.paid === true) {
@@ -182,12 +198,14 @@
             return
         } else {
             const walletDiscount = walletDiscountPreview.getAttribute('data-walletAmount');
+            const deliveryChargeVal = deliveryCharge.getAttribute('data-deliveryCharge')
             console.log(walletDiscount)
             const url = '/checkout/applycoupon'
             const method = 'POST'
             const body = {
                 couponCode: couponCode,
-                walletDiscount : walletDiscount? Number(walletDiscount) : 0
+                walletDiscount: walletDiscount ? Number(walletDiscount) : 0,
+                deliveryCharge: Number(deliveryChargeVal)
             }
             const data = await fetchFunction(url, method, body);
             console.log(data)
@@ -208,25 +226,27 @@
     })
 
     removeCoupon.addEventListener('click', async () => {
-        const walletDiscount =  walletDiscountPreview.getAttribute('data-walletAmount');
-           const couponDiscount = couponPreview.getAttribute('data-couponDiscount')
-           const url = '/checkout/removecoupon'
-           const method = 'POST'
-           const body = {
-            walletDiscount : walletDiscount? Number(walletDiscount) : 0,
-            couponDiscount : couponDiscount? Number(couponDiscount) : 0
-           }
-           const data = await fetchFunction(url,method,body);
-           console.log(data); 
-           if(data.status === true){
+        const walletDiscount = walletDiscountPreview.getAttribute('data-walletAmount');
+        const couponDiscount = couponPreview.getAttribute('data-couponDiscount');
+        const deliveryChargeVal = deliveryCharge.getAttribute('data-deliveryCharge');
+        const url = '/checkout/removecoupon'
+        const method = 'POST'
+        const body = {
+            walletDiscount: walletDiscount ? Number(walletDiscount) : 0,
+            couponDiscount: couponDiscount ? Number(couponDiscount) : 0,
+            deliveryCharge: Number(deliveryChargeVal)
+        }
+        const data = await fetchFunction(url, method, body);
+        console.log(data);
+        if (data.status === true) {
             couponPreview.innerHTML = `<span>- ₹ </span>${data.couponDiscount}`
-                grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
-                walletDiscountPreview.innerHTML = `<span>₹ </span>${data.walletAmount}`
-                couponPreview.setAttribute('data-couponDiscount',data.couponDiscount);
-                couponInput.value = ''
-                applyCoupon.disabled = false
-                couponInput.disabled = false
-           }    
+            grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
+            walletDiscountPreview.innerHTML = `<span>₹ </span>${data.walletAmount}`
+            couponPreview.setAttribute('data-couponDiscount', data.couponDiscount);
+            couponInput.value = ''
+            applyCoupon.disabled = false
+            couponInput.disabled = false
+        }
     })
 
     applyWalletCash.addEventListener('click', async () => {
@@ -247,21 +267,23 @@
 
         if (!hasError) {
             const couponDiscount = couponPreview.getAttribute('data-couponDiscount');
+            const deliveryChargeVal = deliveryCharge.getAttribute('data-deliveryCharge');
             const url = '/checkout/applywallet'
             const method = 'POST'
             const body = {
                 walletAmount: Number(cashInputValue),
-                couponDiscount: couponDiscount ? Number(couponDiscount) : 0
+                couponDiscount: couponDiscount ? Number(couponDiscount) : 0,
+                deliveryCharge: Number(deliveryChargeVal)
             }
             const data = await fetchFunction(url, method, body);
             if (data.status === false) {
-                setError(walletCashInput,data.message);
-            }else{
+                setError(walletCashInput, data.message);
+            } else {
                 console.log(data)
                 couponPreview.innerHTML = `<span>- ₹ </span>${data.couponDiscount}`
                 grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
                 walletDiscountPreview.innerHTML = `<span>- ₹ </span>${data.walletAmount}`
-                walletDiscountPreview.setAttribute('data-walletAmount',data.walletAmount);
+                walletDiscountPreview.setAttribute('data-walletAmount', data.walletAmount);
             }
         }
     })
@@ -277,25 +299,27 @@
         return data;
     }
 
-    walletCheck.addEventListener('change', async ()=>{
-        if(!walletCheck.checked){
-          const walletDiscount =  walletDiscountPreview.getAttribute('data-walletAmount');
-           const couponDiscount = couponPreview.getAttribute('data-couponDiscount')
-           const url = '/checkout/uncheckwallet'
-           const method = 'POST'
-           const body = {
-            walletDiscount : walletDiscount? Number(walletDiscount) : 0,
-            couponDiscount : couponDiscount? Number(couponDiscount) : 0
-           }
-           const data = await fetchFunction(url,method,body);
-           console.log(data); 
-           if(data.status === true){
-            couponPreview.innerHTML = `<span>- ₹ </span>${data.couponDiscount}`
+    walletCheck.addEventListener('change', async () => {
+        if (!walletCheck.checked) {
+            const walletDiscount = walletDiscountPreview.getAttribute('data-walletAmount');
+            const couponDiscount = couponPreview.getAttribute('data-couponDiscount');
+            const deliveryChargeVal = deliveryCharge.getAttribute('data-deliveryCharge');
+            const url = '/checkout/uncheckwallet'
+            const method = 'POST'
+            const body = {
+                walletDiscount: walletDiscount ? Number(walletDiscount) : 0,
+                couponDiscount: couponDiscount ? Number(couponDiscount) : 0,
+                deliveryCharge: Number(deliveryChargeVal)
+            }
+            const data = await fetchFunction(url, method, body);
+            console.log(data);
+            if (data.status === true) {
+                couponPreview.innerHTML = `<span>- ₹ </span>${data.couponDiscount}`
                 grandTotalPreview.innerHTML = `<span>₹ </span>${data.grandTotal}`
                 walletDiscountPreview.innerHTML = `<span>₹ </span>${data.walletAmount}`
-                walletDiscountPreview.setAttribute('data-walletAmount',data.walletAmount);
+                walletDiscountPreview.setAttribute('data-walletAmount', data.walletAmount);
                 walletCashInput.value = ''
-           }    
+            }
         }
     })
 

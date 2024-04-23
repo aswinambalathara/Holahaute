@@ -139,6 +139,7 @@
                                     <div class="card-header">
                                         <h6>Order Stages</h6>
                                     </div>
+
                                     <div class="card-body">
                                         <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
                                             <select class="form-select text-danger" aria-label="Default select example"
@@ -147,41 +148,48 @@
                                                     CANCELLED</option>
                                                 <!-- <option value=""></option> -->
                                             </select>
-                                            <%} else if(order.orderStatus[0].orderStatus==='ORDER RETURNED'){%>
-                                                <select class="form-select text-danger" aria-label="Default select example"
-                                                id="stages">
-                                                <option value="ORDER RETURNED" class="text-danger" selected>ORDER
-                                                    RETURNED</option>
-                                                <!-- <option value=""></option> -->
-                                            </select>
-                                                <%} else {%>
-                                                <select class="form-select" aria-label="Default select example"
-                                                    id="stages">
-                                                    <option value="PREPARING FOR DISPATCH">PREPARING FOR DISPATCH
-                                                    </option>
-                                                    <option value="SHIPPED">SHIPPED</option>
-                                                    <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
-                                                    <option value="DELIVERED">DELIVERED</option>
-                                                    <% if(order.orderStatus[0].orderStatus==='RETURN REQUESTED' ) {%>
+                                            <%} else if(order.orderStatus[0].orderStatus==='ORDER RETURNED' ){%>
+                                                <select class="form-select text-danger"
+                                                    aria-label="Default select example" id="stages">
+                                                    <option value="ORDER RETURNED" class="text-danger" selected>ORDER
+                                                        RETURNED</option>
+                                                    <!-- <option value=""></option> -->
+                                                </select>
+                                                <%} else if(order.orderStatus[0].orderStatus==='RETURN REQUESTED'
+                                                    ) {%>
+                                                    <select class="form-select" aria-label="Default select example"
+                                                        id="stages">
+                                                        <option value="PREPARING FOR DISPATCH">PREPARING FOR DISPATCH
+                                                        </option>
+                                                        <option value="SHIPPED">SHIPPED</option>
+                                                        <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+                                                        <option value="DELIVERED">DELIVERED</option>
                                                         <option value="RETURN ORDER" class="text-danger">RETURN ORDER
                                                         </option>
-                                                        <} else {%>
+                                                    </select>
+                                                    <%} else {%>
+                                                        <select class="form-select" aria-label="Default select example"
+                                                            id="stages">
+                                                            <option value="PREPARING FOR DISPATCH">PREPARING FOR
+                                                                DISPATCH
+                                                            </option>
+                                                            <option value="SHIPPED">SHIPPED</option>
+                                                            <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+                                                            <option value="DELIVERED">DELIVERED</option>
                                                             <option value="CANCEL ORDER" class="text-danger">CANCEL
                                                                 ORDER</option>
-                                                            <%} %>
-                                                </select>
-                                                <%} %>
-                                                    <div class="d-flex justify-content-end mt-2">
-                                                        <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED' ) {%>
-                                                            <button class="btn btn-success btn-sm"
-                                                                onclick="changeStage('<%=order._id%>')">Change</button>
-                                                            <%} else {%>
-                                                                <button class="btn btn-success btn-sm"
-                                                                    onclick="changeStage('<%=order._id%>')">Change</button>
-                                                                <%} %>
-
-
-                                                    </div>
+                                                        </select>
+                                                        <%} %>
+                                                            <div class="d-flex justify-content-end mt-2">
+                                                                <%if (order.orderStatus[0].orderStatus==='ORDER CANCELLED'
+                                                                    ) {%>
+                                                                    <button class="btn btn-success btn-sm"
+                                                                        onclick="changeStage('<%=order._id%>')">Change</button>
+                                                                    <%} else {%>
+                                                                        <button class="btn btn-success btn-sm"
+                                                                            onclick="changeStage('<%=order._id%>')">Change</button>
+                                                                        <%} %>
+                                                            </div>
                                     </div>
                                 </div>
 

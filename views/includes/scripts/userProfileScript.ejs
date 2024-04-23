@@ -174,9 +174,10 @@
             tableBody.innerHTML = ''
             data.walletHistory.forEach((elem) => {
                 const formattedDate = moment(new Date(elem.date)).format('DD-MM-YYYY');
+                let paymentDetail = elem.paymentId !== null ? elem.paymentId : elem.remarks
                 let transaction = `<tr>
             <th scope="row" class="transaction">${elem.paymentType}</th>
-            <td>${elem.paymentId}</td>
+            <td>${paymentDetail}</td>
             <td>${elem.amount}</td>
             <td>${formattedDate}</td>
             <td>${elem.currentBalance}</td>

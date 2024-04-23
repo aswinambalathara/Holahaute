@@ -205,6 +205,12 @@ module.exports.getCartCheckOut = async (req, res) => {
     const stock = await cartHelper.checkProductQuantity(
       cart.totalQuantityByProduct
     );
+    let deliveryCharge = 0
+    const subTotal = cart.grandTotal
+    if(subTotal < 5000){
+      deliveryCharge = 100
+      cart.grandTotal += deliveryCharge 
+    }
     //console.log(stock)
     if (stock === true) {
       res.render("shop/checkout.ejs", {
@@ -217,6 +223,8 @@ module.exports.getCartCheckOut = async (req, res) => {
         walletBalance: wallet ? wallet.balance : undefined,
         wishlistCount: req.session.wishlistCount,
         cartCount: req.session.cartCount,
+        deliveryCharge : deliveryCharge,
+        subTotal:subTotal
       });
     } else {
       req.flash(
@@ -233,7 +241,7 @@ module.exports.getCartCheckOut = async (req, res) => {
 module.exports.doApplyCoupon = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const { couponCode, walletDiscount } = req.body;
+    const { couponCode, walletDiscount,deliveryCharge} = req.body;
     const couponCheck = await cartHelper.couponHelper(
       authUser.userId,
       couponCode
@@ -265,7 +273,7 @@ module.exports.doApplyCoupon = async (req, res) => {
       //console.log(discount)
       const finalDiscount =
         discount > maximumDiscount ? maximumDiscount : discount;
-      const grandTotal = subTotal - (finalDiscount + walletDiscount);
+      const grandTotal = (subTotal + deliveryCharge) - (finalDiscount + walletDiscount);
       //console.log(couponCheck.subTotal,discount);
       res.json({
         status: true,
@@ -283,10 +291,10 @@ module.exports.doRemoveCoupon = async (req, res) => {
   try {
     console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const { walletDiscount, couponDiscount } = req.body;
+    const { walletDiscount, couponDiscount,deliveryCharge } = req.body;
     const subTotal = await cartHelper.subTotalHelp(authUser.userId);
     let grandTotal = subTotal - (walletDiscount + couponDiscount);
-    grandTotal = grandTotal + couponDiscount;
+    grandTotal = grandTotal + couponDiscount + deliveryCharge;
     return res.json({
       status: true,
       grandTotal: grandTotal,
@@ -302,7 +310,7 @@ module.exports.doApplyWallet = async (req, res) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     console.log(req.body);
-    const { walletAmount, couponDiscount } = req.body;
+    const { walletAmount, couponDiscount , deliveryCharge} = req.body;
     const wallet = await walletSchema.findOne({ userId: authUser.userId });
     if(!wallet){
       return res.json({
@@ -323,7 +331,7 @@ module.exports.doApplyWallet = async (req, res) => {
         message: "Insufficient Balance",
       });
     }
-    const grandTotal = subTotal - (walletAmount + couponDiscount);
+    const grandTotal = (subTotal + deliveryCharge) - (walletAmount + couponDiscount);
     return res.json({
       status: true,
       grandTotal: grandTotal,
@@ -339,10 +347,10 @@ module.exports.doUncheckWallet = async (req, res) => {
   try {
     console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const { walletDiscount, couponDiscount } = req.body;
+    const { walletDiscount, couponDiscount,deliveryCharge } = req.body;
     const subTotal = await cartHelper.subTotalHelp(authUser.userId);
     let grandTotal = subTotal - (walletDiscount + couponDiscount);
-    grandTotal = grandTotal + walletDiscount;
+    grandTotal = grandTotal + walletDiscount + deliveryCharge;
     return res.json({
       status: true,
       grandTotal: grandTotal,

@@ -224,7 +224,10 @@ module.exports.getAdminOrders = async (req, res) => {
           as: "user",
         },
       },
-    ]);
+      {
+        $sort:{orderedAt:-1}
+      }
+    ])
     //console.log(orders);
     if (orders) {
       res.render("admin/adminOrders", { title: "Orders", orders });
@@ -240,7 +243,7 @@ module.exports.getAdminOrderInfo = async (req, res) => {
     const order = await adminHelper.orderInfoHelper(orderId);
     //console.log(order);
     if (order) {
-      res.render("admin/adminOrderManagement.ejs", {
+      res.render("admin/adminOrderManagement.ejs", { 
         title: "OrderInfo",
         order,
       });
@@ -255,8 +258,8 @@ module.exports.doChangeOrderStage = async (req, res) => {
     const id = req.params.id;
     const { changeStage } = req.body;
     const order = await orderSchema.findOne({ _id: id });
-    //console.log(changeStage);
-    //console.log(order);
+    console.log(changeStage);
+    console.log(order);
     if (changeStage !== order.orderStage) {
       if (changeStage === "CANCEL ORDER") {
         const changed = await orderSchema.updateOne(
@@ -281,7 +284,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
                 paymentType: "Deposit",
                 amount: returnWalletAmt,
                 currentBalance: wallet.balance + returnWalletAmt,
-                remarks: "Amout returned from cancel order",
+                remarks: "Amount returned from cancel order",
               };
               const updateWallet = await walletSchema.updateOne(
                 { userId: order.userId },
@@ -296,6 +299,11 @@ module.exports.doChangeOrderStage = async (req, res) => {
                   message: "stage changed",
                 });
               }
+            }else{
+              return res.status(200).json({
+                status: true,
+                message: "stage changed",
+              });
             }
           } else {
             const WalletAmount = order.walletApplied ? order.walletApplied : 0;
@@ -359,6 +367,11 @@ module.exports.doChangeOrderStage = async (req, res) => {
                   message: "stage changed",
                 });
               }
+            }else{
+              return res.status(200).json({
+                status: true,
+                message: "stage changed",
+              });
             }
           } else {
             const WalletAmount = order.walletApplied ? order.walletApplied : 0;

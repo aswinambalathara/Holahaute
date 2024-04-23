@@ -327,11 +327,11 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
         product.price,
       ];
     });
-    const subTotal = order[0].products.reduce((acc,product)=>{
-      acc += product.price
-      return acc
-    },0);
-    console.log(subTotal)
+    const subTotal = order[0].products.reduce((acc, product) => {
+      acc += product.price;
+      return acc;
+    }, 0);
+    console.log(subTotal);
     //console.log(productsData);
     //console.log(order[0]);
     return {
@@ -340,7 +340,7 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
       grandTotal: order[0].grandTotal,
       walletApplied: order[0].walletApplied,
       couponDiscount: order[0].couponDiscount,
-      subTotal : subTotal
+      subTotal: subTotal,
     };
   } catch (error) {
     console.error(error);
@@ -364,12 +364,12 @@ module.exports.generateInvoicePDF = (order, res) => {
 
       items: {
         tableHeaders: ["Description", "size & color", "quantity", "Price"],
-        tableData: order.tableData
+        tableData: order.tableData,
       },
-      subTotal : order.subTotal,
+      subTotal: order.subTotal,
       grandTotal: order.grandTotal,
-      walletApplied : order.walletApplied,
-      couponDiscount : order.couponDiscount
+      walletApplied: order.walletApplied,
+      couponDiscount: order.couponDiscount,
     };
     createInvoice(doc, invoiceData);
 
@@ -396,7 +396,9 @@ function createInvoice(doc, invoiceData) {
     .font("Helvetica")
     .fontSize(11)
     .text(`${invoiceData.user.name}`, 50, 110, { align: "left" });
-  doc.text(`${invoiceData.user.address.addressLine}`, 50, 130, { align: "left" });
+  doc.text(`${invoiceData.user.address.addressLine}`, 50, 130, {
+    align: "left",
+  });
   doc.text(`${invoiceData.user.address.district}`, 50, 150, { align: "left" });
   doc.text(`${invoiceData.user.address.state}`, 50, 170, { align: "left" });
   doc.text(`${invoiceData.user.address.pincode}`, 50, 190, { align: "left" });
@@ -412,7 +414,7 @@ function createInvoice(doc, invoiceData) {
 
   let yPos = 250;
 
-   yPos = createTable(
+  yPos = createTable(
     doc,
     invoiceData.items.tableHeaders,
     invoiceData.items.tableData,
@@ -439,8 +441,7 @@ function createInvoice(doc, invoiceData) {
   doc.end();
 }
 
-function createTable(doc, tableHeaders, tableData,yPos) {
-
+function createTable(doc, tableHeaders, tableData, yPos) {
   // Draw table headers
   doc.font("Helvetica-Bold").fontSize(12);
   tableHeaders.forEach((header, i) => {
@@ -459,3 +460,25 @@ function createTable(doc, tableHeaders, tableData,yPos) {
 
   return yPos;
 }
+
+module.exports.updateOrderStatus = async (userId) => {
+  try {
+    const oneHourInMs = 60 * 60 * 1000; // One hour in milliseconds
+    const pendingOrders = await orderSchema.find({
+      userId: userId,
+      orderStatus: "PENDING",
+      orderedAt: { $lt: new Date(Date.now() - oneHourInMs) },
+    });
+
+    console.log(pendingOrders);
+    if (pendingOrders) {
+    const updateCount =  await orderSchema.updateMany(
+        { _id: { $in: pendingOrders.map((order) => order._id) } },
+        { $set: { orderStatus: "ORDER CANCELLED", orderStage: "ORDER CANCELLED"} }
+      );
+      //console.log(updateCount)
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const userSchema = require('../models/userModel');
 
 module.exports.isUserLoggedOut = (req, res, next) => {
   //console.log(req.session.userAuth);
@@ -42,6 +43,10 @@ module.exports.forgotuser = (req, res, next) => {
 };
 
 module.exports.userStatus = (req, res, next) => {
+  
+  // if(req.session.userIsBlocked === undefined){
+  //   const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  // }
   if (!req.session.userIsBlocked) { 
     next();
   } else {
