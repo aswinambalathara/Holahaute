@@ -169,7 +169,7 @@ try {
       }
     }
   ]);
-  console.log(cart[0].cartItems[0])
+  //console.log(cart[0].cartItems[0])
   return cart[0]
 } catch (error) {
   console.error(error)

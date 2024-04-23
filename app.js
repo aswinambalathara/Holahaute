@@ -13,7 +13,8 @@ const nocache = require('nocache');
 
 const authRouter = require('./routes/authRouter')
 const shopRouter = require('./routes/shopRouter')
-const adminRouter = require('./routes/adminRouter')
+const adminRouter = require('./routes/adminRouter');
+const batchCount = require('./middlewares/batchCount');
 
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','ejs');
@@ -42,7 +43,7 @@ app.use( session ({
 
 //routeHandlers
 app.use('/',authRouter); 
-app.use('/',shopRouter); 
+app.use('/',batchCount.updateBatchCount,shopRouter); 
 app.use('/admin',adminRouter); 
 const PORT = process.env.PORT || 3000
 app.listen(PORT,()=>{

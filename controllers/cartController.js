@@ -24,7 +24,7 @@ module.exports.getCart = async (req, res) => {
       cartData: cart,
       error: req.flash("error"),
       wishlistCount: req.session.wishlistCount,
-      cartCount: req.session.cartCount,
+      cartCount: req.session.cartCount, 
     });
   } catch (error) {
     console.log(error);

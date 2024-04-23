@@ -12,7 +12,7 @@ module.exports.getHomePage = async (req, res) => {
       user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     }
     const products = await productSchema.find({ isDeleted: false });
-    const categories = await categorySchema.find({ status: true });
+    const categories = await categorySchema.find({ status: true }); 
     res.render("shop/home", {
       title: "Home",
       categories,
@@ -21,7 +21,7 @@ module.exports.getHomePage = async (req, res) => {
       batchCount : req.flash('batchCount'),
       wishlistCount : user? req.session.wishlistCount : 0,
       cartCount : user? req.session.cartCount : 0
-    });
+    }); 
   } catch (error) { 
     console.log(error);
   }

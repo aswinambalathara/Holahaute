@@ -76,14 +76,17 @@ module.exports.productOfferProducts = async (productIds, discount) => {
       {
         $addFields: {
           roundedOfferPrice: { $ceil: "$offerPrice" },
+          offerStatus: {
+            $cond: { if: { $eq: ["$offer", null] }, then: false, else: true },
+          },
         },
       },
       {
         $match: {
           $expr: {
-            $gte: [
-              { $ifNull: ["$offer.offerPrice", "$roundedOfferPrice"] },
-              "$roundedOfferPrice"
+            $and: [
+              { $eq: ["$offerStatus", true] },
+              { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
             ]
           }
         },
