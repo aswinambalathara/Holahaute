@@ -6,9 +6,7 @@ const wishlistSchema = require("../models/wishlistModel");
 const cartSchema = require("../models/cartModel");
 const walletSchema = require("../models/walletmodel");
 const jwt = require("jsonwebtoken");
-const { serialize } = require("cookie");
-const { json } = require("express");
-const e = require("connect-flash");
+const authHelper = require('../helpers/authHelper');
 
 module.exports.getUserSignup = (req, res) => {
   const locals = {
@@ -105,7 +103,7 @@ module.exports.doSignupverification = async (req, res) => {
                 },
               ],
             });
-            await newWallet.save()
+            await newWallet.save();
           } else {
             const history = {
               paymentType: "Deposit",
@@ -302,11 +300,6 @@ module.exports.doOtpLogin = async (req, res) => {
           req.session.wishlistCount = wishlist
             ? wishlist.wishlistItems.length
             : 0;
-          const batchCount = {
-            wishlistCount: wishlist ? wishlist.wishlistItems.length : 0,
-            cartCount: cancelAnimationFrameart ? cart.cartItems.length : 0,
-          };
-          localStorage.setItem("batchCount", JSON.stringify(batchCount));
           const payLoad = {
             userName: user.fullName,
             userId: user._id,
@@ -332,6 +325,18 @@ module.exports.doOtpLogin = async (req, res) => {
     console.log(error);
   }
 };
+
+module.exports.doGoogleLogin = async (req,res) =>{
+  try {
+      //console.log(req.body);
+  const {googleResponse} = req.body; 
+  const token = googleResponse.credential
+  const payload = await authHelper.verifyGoogleToken(token);
+  console.log(payload);
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 module.exports.getAdminLogin = (req, res) => {
   res.render("auth/adminLogin", {

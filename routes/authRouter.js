@@ -11,6 +11,8 @@ router.get('/',(req,res)=>{
 router.get('/login',authMiddleware.isUserLoggedOut,authController.getUserLogin); 
 router.post('/login',authMiddleware.isUserLoggedOut,authController.doUserLogin);
 
+router.post('/auth/googlesignin',authMiddleware.isUserLoggedOut,authController.doGoogleLogin)
+
 //userLogin_with_OTP
 router.get('/otplogin',authMiddleware.isUserLoggedOut,authController.getOtpLogin)
 router.post('/sendotp',authController.sendOtpLogin) 

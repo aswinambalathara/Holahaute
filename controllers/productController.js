@@ -23,13 +23,13 @@ module.exports.getAdminProducts = async (req, res) => {
 module.exports.getAddProducts = async (req, res) => {
   try {
     const categories = await categorySchema.find({ status: true });
-  res.render("admin/addProduct", {
-    title: "Add Product",
-    categories,
-    err: req.flash("error"),
-  });
+    res.render("admin/addProduct", {
+      title: "Add Product",
+      categories,
+      err: req.flash("error"),
+    });
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 };
 
@@ -38,7 +38,7 @@ module.exports.doAddProducts = async (req, res) => {
     const images = productHelper.imageNameArray(req.files);
     //console.log(images);
     const newProductName = req.body.productName.toLowerCase();
-    const colors = JSON.parse(req.body.colors) ;
+    const colors = JSON.parse(req.body.colors);
     //console.log(req.body.colors);
     //console.log(colors)
     const productCheck = await productSchema.findOne({
@@ -133,14 +133,13 @@ module.exports.doEditProducts = async (req, res) => {
     const existedImages = JSON.parse(req.body.existedImages);
     const colors = JSON.parse(req.body.colors);
 
-
     const productCheck = await productSchema.findOne({
       productName: newProductName,
     });
 
     const product = await productSchema.findOne({ _id: req.params.id });
-    const files = req.files.length > 0 ? req.files : undefined
-    let images = await productHelper.editImagesArray(files,existedImages)
+    const files = req.files.length > 0 ? req.files : undefined;
+    let images = await productHelper.editImagesArray(files, existedImages);
 
     console.log(images);
 
@@ -167,33 +166,49 @@ module.exports.doEditProducts = async (req, res) => {
             }
           });
         }
-        await productSchema.deleteOne({ productName: newProductName ,isDeleted : true });
+        await productSchema.deleteOne({
+          productName: newProductName,
+          isDeleted: true,
+        });
 
-          for (let image of product.images) {
-            if(!existedImages.includes(image)){
-              fs.unlink(`public/images/product-images/${image}`,(error)=>{
-                if(error){
-                  console.log(error)
-                }else{
-                  console.log(`${image} is deleted part c`)
-                }
-              })
-            }
+        for (let image of product.images) {
+          if (!existedImages.includes(image)) {
+            fs.unlink(`public/images/product-images/${image}`, (error) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(`${image} is deleted part c`);
+              }
+            });
           }
+        }
 
         await productSchema.updateOne(
           { _id: req.params.id },
           {
             $set: {
-              productName: req.body.productName !== ''? req.body.productName.toLowerCase() : undefined,
-              category: req.body.category !== ''? req.body.category : undefined,
-              price: req.body.price !== ''? req.body.price : undefined,
-              quantity: req.body.quantity !== ''? req.body.quantity : undefined,
-              userType: req.body.userType !== ''? req.body.userType : undefined,
-              color: colors !== ''? colors : undefined,
-              sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
-              description: req.body.description !== ''? req.body.description : undefined,
-              additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,
+              productName:
+                req.body.productName !== ""
+                  ? req.body.productName.toLowerCase()
+                  : undefined,
+              category:
+                req.body.category !== "" ? req.body.category : undefined,
+              price: req.body.price !== "" ? req.body.price : undefined,
+              quantity:
+                req.body.quantity !== "" ? req.body.quantity : undefined,
+              userType:
+                req.body.userType !== "" ? req.body.userType : undefined,
+              color: colors !== "" ? colors : undefined,
+              sizeOptions:
+                req.body.sizeOptions.length !== 0
+                  ? req.body.sizeOptions
+                  : undefined,
+              description:
+                req.body.description !== "" ? req.body.description : undefined,
+              additionalInformation:
+                req.body.additionalInformation !== ""
+                  ? req.body.additionalInformation
+                  : undefined,
               images: images.length !== 0 ? images : undefined,
             },
           }
@@ -202,29 +217,39 @@ module.exports.doEditProducts = async (req, res) => {
       }
     } else {
       for (let image of product.images) {
-        if(!existedImages.includes(image)){
-          fs.unlink(`public/images/product-images/${image}`,(error)=>{
-            if(error){
-              console.log(error)
-            }else{
-              console.log(`${image} is deleted part c`)
+        if (!existedImages.includes(image)) {
+          fs.unlink(`public/images/product-images/${image}`, (error) => {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log(`${image} is deleted part c`);
             }
-          })
+          });
         }
       }
       await productSchema.updateOne(
         { _id: req.params.id },
         {
           $set: {
-            productName: req.body.productName !== ''? req.body.productName.toLowerCase() : undefined,
-            category: req.body.category !== ''? req.body.category : undefined,
-            price: req.body.price !== ''? req.body.price : undefined,
-            quantity: req.body.quantity !== ''? req.body.quantity : undefined,
-            userType: req.body.userType !== ''? req.body.userType : undefined,
-            color: colors !== ''? colors : undefined,
-            sizeOptions: req.body.sizeOptions.length !== 0 ? req.body.sizeOptions : undefined,
-            description: req.body.description !== ''? req.body.description : undefined,
-            additionalInformation: req.body.additionalInformation !== ''? req.body.additionalInformation : undefined,
+            productName:
+              req.body.productName !== ""
+                ? req.body.productName.toLowerCase()
+                : undefined,
+            category: req.body.category !== "" ? req.body.category : undefined,
+            price: req.body.price !== "" ? req.body.price : undefined,
+            quantity: req.body.quantity !== "" ? req.body.quantity : undefined,
+            userType: req.body.userType !== "" ? req.body.userType : undefined,
+            color: colors !== "" ? colors : undefined,
+            sizeOptions:
+              req.body.sizeOptions.length !== 0
+                ? req.body.sizeOptions
+                : undefined,
+            description:
+              req.body.description !== "" ? req.body.description : undefined,
+            additionalInformation:
+              req.body.additionalInformation !== ""
+                ? req.body.additionalInformation
+                : undefined,
             images: images.length !== 0 ? images : undefined,
           },
         }

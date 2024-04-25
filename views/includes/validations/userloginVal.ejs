@@ -1,3 +1,4 @@
+
 <script>
     const email = document.getElementById("loginEmail");
     const password = document.getElementById("loginPassword");
@@ -51,4 +52,28 @@
         return true
       }
     }
-  </script>
+ 
+   async function handleToken(response){
+      const url = '/auth/googlesignin'
+      const method = "POST"
+      const body = {
+        googleResponse : response
+      }
+      const data = await fetchFunction(url,method,body);
+      console.log(data);
+    }
+
+
+    async function fetchFunction(url, method,body) {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(body)
+        });
+        const data = await response.json()
+        return data;
+    }
+ </script>
+ <script src="https://accounts.google.com/gsi/client" async defer></script>

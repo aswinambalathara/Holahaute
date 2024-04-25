@@ -19,9 +19,9 @@ module.exports.getAdminDashboard = async (req, res) => {
     const dashboardUsers = await adminHelper.dashboardUsersHelp();
     const totalProducts = await productModel.find({ isDeleted: false }).count();
     const totalCategories = await categorySchema.find({ status: true }).count();
-    const topSelling = await adminHelper.topSellHelp()
-    const topSellingProducts = topSelling.bestSellingProducts
-    const topSellingCategories = topSelling.bestSellingCategories
+    const topSelling = await adminHelper.topSellHelp();
+    const topSellingProducts = topSelling.bestSellingProducts;
+    const topSellingCategories = topSelling.bestSellingCategories;
     //console.log(topSellingProducts)
     const monthsArray = defaultSales.monthsArray;
     const salesArray = JSON.stringify(defaultSales.sales);
@@ -34,7 +34,7 @@ module.exports.getAdminDashboard = async (req, res) => {
       totalProducts,
       totalCategories,
       topSellingCategories,
-      topSellingProducts
+      topSellingProducts,
     });
   } catch (error) {
     console.error(error);
@@ -225,9 +225,9 @@ module.exports.getAdminOrders = async (req, res) => {
         },
       },
       {
-        $sort:{orderedAt:-1}
-      }
-    ])
+        $sort: { orderedAt: -1 },
+      },
+    ]);
     //console.log(orders);
     if (orders) {
       res.render("admin/adminOrders", { title: "Orders", orders });
@@ -243,7 +243,7 @@ module.exports.getAdminOrderInfo = async (req, res) => {
     const order = await adminHelper.orderInfoHelper(orderId);
     //console.log(order);
     if (order) {
-      res.render("admin/adminOrderManagement.ejs", { 
+      res.render("admin/adminOrderManagement.ejs", {
         title: "OrderInfo",
         order,
       });
@@ -299,7 +299,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
                   message: "stage changed",
                 });
               }
-            }else{
+            } else {
               return res.status(200).json({
                 status: true,
                 message: "stage changed",
@@ -367,7 +367,7 @@ module.exports.doChangeOrderStage = async (req, res) => {
                   message: "stage changed",
                 });
               }
-            }else{
+            } else {
               return res.status(200).json({
                 status: true,
                 message: "stage changed",

@@ -4,7 +4,7 @@ const fs = require("fs");
 const { error } = require("console");
 module.exports.getAdminCategory = async (req, res) => {
   const data = await categorySchema.find({ status: true });
-   //console.log(data);
+  //console.log(data);
 
   res.render("admin/adminCategory", { title: "Category", data });
 };
@@ -30,21 +30,29 @@ module.exports.doAddCategory = async (req, res) => {
         await category.save();
         res.redirect("/admin/category");
       } else {
-        if(categoryCheck.status === false){
-          await categorySchema.updateOne({categoryName},{$set:{
-            categoryName : categoryName,
-            image : fileName,
-            status:true
-          }})
-          fs.unlink(`public/images/categoryImages/${categoryCheck.image}`,(error)=>{
-            if(error){
-              console.log(error)
-            }else{
-              console.log(`${categoryCheck.image} is deleted`);
+        if (categoryCheck.status === false) {
+          await categorySchema.updateOne(
+            { categoryName },
+            {
+              $set: {
+                categoryName: categoryName,
+                image: fileName,
+                status: true,
+              },
             }
-          })
-          res.redirect('/admin/category');
-        }else{
+          );
+          fs.unlink( 
+            `public/images/categoryImages/${categoryCheck.image}`,
+            (error) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(`${categoryCheck.image} is deleted`);
+              }
+            }
+          );
+          res.redirect("/admin/category");
+        } else {
           req.flash("error", "Category already exist");
           fs.unlink(`public/images/categoryImages/${fileName}`, (error) => {
             if (error) {
@@ -82,38 +90,54 @@ module.exports.doEditCategory = async (req, res) => {
     const categoryName = req.body.catName.toLowerCase();
     const category = await categorySchema.findOne({ _id: req.params.id });
     const categoryCheck = await categorySchema.findOne({ categoryName });
-    let image = null
-    if(req.file){
+    let image = null;
+    if (req.file) {
       image = req.file.filename;
     }
     if (categoryCheck && category.categoryName !== categoryName) {
       if (categoryCheck.status === false) {
-        fs.unlink(`public/images/categoryImages/${categoryCheck.image}`,(error)=>{
-          if(error){
-            console.log(error);
-          }else{
-            console.log(`${categoryCheck.image} is deleted`);
-          }
-        });
-        await categorySchema.deleteOne({categoryName,status:false});
-        if(image){
-          await categorySchema.updateOne({_id:req.params.id},{$set:{
-            categoryName : categoryName,
-            image : image
-          }})
-          fs.unlink(`public/images/categoryImages/${category.image}`,(error)=>{
-            if(error){
+        fs.unlink(
+          `public/images/categoryImages/${categoryCheck.image}`,
+          (error) => {
+            if (error) {
               console.log(error);
-            }else{
-              console.log(`${category.image} is deleted`);
+            } else {
+              console.log(`${categoryCheck.image} is deleted`);
             }
-          });
-          res.redirect('/admin/category');
-        }else{
-          await categorySchema.updateOne({_id:req.params.id},{$set:{
-            categoryName:categoryName
-          }})
-          res.redirect('/admin/category');
+          }
+        );
+        await categorySchema.deleteOne({ categoryName, status: false });
+        if (image) {
+          await categorySchema.updateOne(
+            { _id: req.params.id },
+            {
+              $set: {
+                categoryName: categoryName,
+                image: image,
+              },
+            }
+          );
+          fs.unlink(
+            `public/images/categoryImages/${category.image}`,
+            (error) => {
+              if (error) {
+                console.log(error);
+              } else {
+                console.log(`${category.image} is deleted`);
+              }
+            }
+          );
+          res.redirect("/admin/category");
+        } else {
+          await categorySchema.updateOne(
+            { _id: req.params.id },
+            {
+              $set: {
+                categoryName: categoryName,
+              },
+            }
+          );
+          res.redirect("/admin/category");
         }
       } else {
         req.flash("error", "Category already Exists");
@@ -178,7 +202,6 @@ module.exports.doEditCategory = async (req, res) => {
         res.redirect("/admin/category");
       }
     }
-  
   } catch (error) {
     console.log(error);
   }
