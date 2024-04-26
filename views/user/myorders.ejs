@@ -6,6 +6,7 @@
                 <div class="main-wrapper mt-5">
                     <h6>My Orders</h6>
                     <div class="products d-flex flex-column mt-3 p-md-4 p-0">
+                        <% if (orders.length > 0) {%>
                         <div class="vstack gap-2">
                             <%orders.forEach(function(item){%>
                                 <div class="card col-12">
@@ -44,6 +45,11 @@
                                 </div>
                                 <%})%>
                         </div>
+                        <%} else {%>
+                            <div class="d-flex align-items-center justify-content-center py-5">
+                                <div class="my-5"><h4> No orders yet :( </h4></div>
+                            </div>
+                            <%} %>
                     </div>
                 </div>
             </div>

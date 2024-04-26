@@ -12,16 +12,6 @@ const addressSchema = Schema({
         required : true
     },
 
-    // landmark :{
-    //     type : String,
-    //     required : true
-    // },
-
-    // street : {
-    //     type : String,
-    //     required : true
-    // },
-
     address : {
         type : String,
         required : true

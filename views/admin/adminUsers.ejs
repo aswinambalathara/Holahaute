@@ -30,7 +30,7 @@
                                 <tbody>
                                     <% users.forEach(function(user){ %>
                                         <tr class="mt-3 border border-rounded">
-                                            <th scope="row">
+                                            <th scope="row" class="col-2">
                                                 <%= user.fullName%>
                                             </th>
                                             <td>
@@ -39,8 +39,8 @@
                                             <td>
                                                 <%= user.phone%>
                                             </td>
-                                            <td>ADDRESS</td>
-                                            <td style="overflow: hidden">
+                                            <td>Address</td>
+                                            <td style="overflow: hidden" class="joinedDates col-2">
                                                 <%= user.joinedDate%>
                                             </td>
                                             <td>
@@ -79,8 +79,11 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 
     <script>
+        const joinedDates = document.querySelectorAll('.joinedDates');
+
         new DataTable("#product-table", {
             responsive: true,
         });
@@ -117,5 +120,9 @@
                     }
                 });
         }
+    
+    joinedDates.forEach((element)=>{
+        element.innerText = moment(new Date(element.innerText)).format('DD-MM-YYYY');
+    })
     </script>
     <%- include('../includes/admin/adminEnd')%>

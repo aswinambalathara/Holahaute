@@ -3,9 +3,10 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const productController = require('../controllers/productController');
 const offerController = require('../controllers/offerController');
-const categoryController = require('../controllers/categoryController')
+const bannerController = require ('../controllers/bannerController');
+const categoryController = require('../controllers/categoryController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer')
+const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer');
 
 router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard);
 router.post('/generatesaleschart',authMiddleware.verifyAdmin,adminController.generateSales);
@@ -48,6 +49,9 @@ router.post('/offers/fetchproductlist',authMiddleware.verifyAdmin,offerControlle
 router.post('/offers/addoffer',authMiddleware.verifyAdmin,offerController.doAddOffer);
 router.get('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.getEditOffer);
 router.patch('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.doEditOffer);
-router.delete('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doDeleteOffer);
+router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doDeleteOffer);
+
+//banners
+router.get('/banners',authMiddleware.verifyAdmin,bannerController.getAdminManagement);
 
 module.exports = router;

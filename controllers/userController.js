@@ -261,7 +261,9 @@ module.exports.doAddAddress = async (req, res) => {
   try {
     //  console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const addresses = await addressSchema.find({userId:authUser.userId});
     if (authUser.userId) {
+      const isPrimary = addresses.length === 0? true : undefined
       const address = new addressSchema({
         fullName: req.body.fullName,
         mobile: req.body.mobile,
@@ -270,6 +272,7 @@ module.exports.doAddAddress = async (req, res) => {
         state: req.body.state,
         pincode: req.body.pincode,
         userId: authUser.userId,
+        isPrimary : isPrimary
       });
       const result = await address.save();
       await userSchema.updateOne(

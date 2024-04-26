@@ -28,46 +28,49 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   <%if(orders.length > 0) {%>
-                                    <%orders.forEach(function(order){%>
-                                        <tr class="mt-3 border border-rounded">
-                                            <th scope="row">
-                                               <%= order.orderId%>
-                                            </th>
-                                            <td>
-                                               <%=order.user[0].fullName%>
-                                            </td>
-                                            <td>
-                                                <%=order.orderedAt%>
-                                            </td>
-                                            <td>
-                                                <%=order.grandTotal%>
-                                            </td>
-                                            
-                                            <%if (order.orderStatus === 'CANCELLATION REQUESTED' || order.orderStatus === 'ORDER CANCELLED' || order.orderStatus === 'ORDER RETURNED' || order.orderStatus === 'RETURN REQUESTED'){%>
-                                            <td style="overflow: hidden; color: red;">
-                                                <%=order.orderStatus%>
+                                    <%if(orders.length> 0) {%>
+                                        <%orders.forEach(function(order){%>
+                                            <tr class="mt-3 border border-rounded">
+                                                <th scope="row">
+                                                    <%= order.orderId%>
+                                                </th>
+                                                <td>
+                                                    <%=order.user[0].fullName%>
                                                 </td>
-                                                <%} else {%> 
-                                                    <td style="overflow: hidden; color: green;">
+                                                <td class="orderedDates">
+                                                    <%=order.orderedAt%>
+                                                </td>
+                                                <td>
+                                                    <%=order.grandTotal%>
+                                                </td>
+
+                                                <%if (order.orderStatus==='CANCELLATION REQUESTED' ||
+                                                    order.orderStatus==='ORDER CANCELLED' ||
+                                                    order.orderStatus==='ORDER RETURNED' ||
+                                                    order.orderStatus==='RETURN REQUESTED' ){%>
+                                                    <td style="overflow: hidden; color: red;">
                                                         <%=order.orderStatus%>
+                                                    </td>
+                                                    <%} else {%>
+                                                        <td style="overflow: hidden; color: green;">
+                                                            <%=order.orderStatus%>
                                                         </td>
-                                                    <%} %>
-                                            <td>
-                                                <div class="d-flex justify-content-center">
-                                                    <a href="/admin/orders/orderinfo/<%=order._id%>">
-                                                        <i class="fa-solid fa-circle-info"></i>
-                                                    </a>
-                                                </div>
-                                                
-                                            </td>
-                                        </tr>
-                                        <%} )%>
-                                        <%} else {%>
-                                            <tr>
-                                                <td>No orders Found</td>
+                                                        <%} %>
+                                                            <td>
+                                                                <div class="d-flex justify-content-center">
+                                                                    <a href="/admin/orders/orderinfo/<%=order._id%>">
+                                                                        <i class="fa-solid fa-circle-info"></i>
+                                                                    </a>
+                                                                </div>
+
+                                                            </td>
                                             </tr>
-                                            <%} %>
+                                            <%} )%>
+                                                <%} else {%>
+                                                    <tr>
+                                                        <td>No orders Found</td>
+                                                    </tr>
+                                                    <%} %>
                                 </tbody>
                             </table>
                         </div>
@@ -80,12 +83,17 @@
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script>
+        const orderedDates = document.querySelectorAll('.orderedDates');
+
         new DataTable("#product-table", {
             responsive: true,
         });
 
+        orderedDates.forEach((elem) => {
+            elem.innerText = moment(new Date(elem.innerText)).format('DD-MM-YYYY');
+        });
 
     </script>
     <%- include('../includes/admin/adminEnd')%>

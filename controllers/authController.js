@@ -328,7 +328,7 @@ module.exports.doGoogleLogin = async (req, res) => {
     const { googleResponse } = req.body;
     const token = googleResponse.credential;
     const googlePayload = await authHelper.verifyGoogleToken(token);
-    console.log(googlePayload);
+    //console.log(googlePayload);
     const { name, sub, email, email_verified, picture } = googlePayload;
     const user = await userSchema.findOne({ googleId: sub });
     if (user) {
