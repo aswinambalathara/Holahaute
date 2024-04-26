@@ -2,7 +2,8 @@
 <script>
     const email = document.getElementById("loginEmail");
     const password = document.getElementById("loginPassword");
-  
+    const flashDiv = document.querySelector('.flash-div');
+
     document.querySelector("#loginForm").addEventListener("submit", (e) => {
       e.preventDefault(); //preventing form from submitting
   
@@ -54,6 +55,7 @@
     }
  
    async function handleToken(response){
+    console.log(response);
       const url = '/auth/googlesignin'
       const method = "POST"
       const body = {
@@ -61,6 +63,12 @@
       }
       const data = await fetchFunction(url,method,body);
       console.log(data);
+      if(data.status === true){
+        return location.assign('/home');
+      }else {
+        flashDiv.hidden = false;
+       return flashDiv.innerText = data.message
+      }
     }
 
 

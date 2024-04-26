@@ -6,7 +6,8 @@ const wishlistSchema = require("../models/wishlistModel");
 const cartSchema = require("../models/cartModel");
 const walletSchema = require("../models/walletmodel");
 const jwt = require("jsonwebtoken");
-const authHelper = require('../helpers/authHelper');
+const authHelper = require("../helpers/authHelper");
+const { response, json } = require("express");
 
 module.exports.getUserSignup = (req, res) => {
   const locals = {
@@ -207,10 +208,6 @@ module.exports.doUserLogin = async (req, res) => {
             userId: userData._id,
           });
           const cart = await cartSchema.findOne({ userId: userData._id });
-          const batchCount = {
-            wishlistCount: wishlist ? wishlist.wishlistItems.length : 0,
-            cartCount: cart ? cart.cartItems.length : 0,
-          };
           req.session.cartCount = cart ? cart.cartItems.length : 0;
           req.session.wishlistCount = wishlist
             ? wishlist.wishlistItems.length
@@ -218,7 +215,6 @@ module.exports.doUserLogin = async (req, res) => {
           const payLoad = {
             userName: userData.fullName,
             userId: userData._id,
-            batchCount: batchCount,
           };
           const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
             expiresIn: "24h",
@@ -230,7 +226,7 @@ module.exports.doUserLogin = async (req, res) => {
           res.redirect("/login");
         }
       } else {
-        req.flash("error", "User Blocked");
+        req.flash("error", "You have been blocked");
         res.redirect("/login");
       }
     } else {
@@ -305,7 +301,7 @@ module.exports.doOtpLogin = async (req, res) => {
             userId: user._id,
           };
           const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: "24h",
           });
           res.cookie("token", token, { httpOnly: true, secure: true });
           res.redirect("/home");
@@ -314,7 +310,7 @@ module.exports.doOtpLogin = async (req, res) => {
           res.redirect("/otpverification");
         }
       } else {
-        req.flash("error", "Blocked User");
+        req.flash("error", "You have been blocked");
         res.status(401).redirect("/otplogin");
       }
     } else {
@@ -326,17 +322,86 @@ module.exports.doOtpLogin = async (req, res) => {
   }
 };
 
-module.exports.doGoogleLogin = async (req,res) =>{
+module.exports.doGoogleLogin = async (req, res) => {
   try {
-      //console.log(req.body);
-  const {googleResponse} = req.body; 
-  const token = googleResponse.credential
-  const payload = await authHelper.verifyGoogleToken(token);
-  console.log(payload);
+    //console.log(req.body);
+    const { googleResponse } = req.body;
+    const token = googleResponse.credential;
+    const googlePayload = await authHelper.verifyGoogleToken(token);
+    console.log(googlePayload);
+    const { name, sub, email, email_verified, picture } = googlePayload;
+    const user = await userSchema.findOne({ googleId: sub });
+    if (user) {
+      //if user exist
+      if (user.isBlocked) {
+        return res.json({
+          status: false,
+          blockStatus : true,
+          message: "You have been blocked",
+        });
+      }
+      const payLoad = {
+        userId: user._id,
+        userName: user.fullName,
+      };
+      const wishlist = await wishlistSchema.findOne({ userId: user._id });
+      const cart = await cartSchema.findOne({ userId: user._id });
+      req.session.cartCount = cart ? cart.cartItems.length : 0;
+      req.session.wishlistCount = wishlist ? wishlist.wishlistItems.length : 0;
+
+      const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
+      res.cookie("token", token, { httpOnly: true, secure: true });
+      return res.json({
+        status: true,
+        message: "User verified",
+      });
+    } else {
+      //if user doesn't exist
+      const existUser = await userSchema.findOne({ email: email });
+      if (existUser) {
+        return res.json({
+          status: false,
+          message: `Account exist with this email! \n Try Sign in or reset password`,
+        });
+      }
+      const newGoogleUser = new userSchema({
+        fullName: name,
+        googleId: sub,
+        email: email,
+        isVerified: email_verified,
+        image: picture,
+      });
+      const saveUser = await newGoogleUser.save();
+      if (saveUser) {
+        const payLoad = {
+          userId: saveUser._id,
+          userName: saveUser.fullName,
+        };
+        const wishlist = await wishlistSchema.findOne({ userId: saveUser._id });
+        const cart = await cartSchema.findOne({ userId: saveUser._id });
+        req.session.cartCount = cart ? cart.cartItems.length : 0;
+        req.session.wishlistCount = wishlist
+          ? wishlist.wishlistItems.length
+          : 0;
+
+        const token = jwt.sign(payLoad, process.env.JWT_SECRET, {
+          expiresIn: "24h",
+        });
+
+        res.cookie("token", token, { httpOnly: true, secure: true });
+        return res.json({
+          status: true,
+          message: "User verified",
+        });
+      }
+    }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 module.exports.getAdminLogin = (req, res) => {
   res.render("auth/adminLogin", {
