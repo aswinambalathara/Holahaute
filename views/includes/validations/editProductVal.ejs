@@ -25,6 +25,12 @@
   const colorsInput = document.getElementById('colors-input');
 
   existedColors = Array.from(existedColors.split(','));
+
+  const imageToCrop = document.getElementById('cropImage')
+  const cropContainer = document.querySelector('.cropper-card');
+  const cropBtn = document.getElementById('crop-btn');
+  const closeCropper = document.getElementById('close-cropper');
+
   //console.log(existedColors)
 
   existedColors.forEach((color) => {
@@ -126,8 +132,8 @@
           imgframe.appendChild(closeBtn);
           InputImagesPreview.appendChild(imgframe);
 
-          closeBtn.addEventListener('click',()=>{
-            clearSelectedImages(image,imgframe)
+          closeBtn.addEventListener('click', () => {
+            clearSelectedImages(image, imgframe)
           })
         };
         reader.readAsDataURL(image);
@@ -136,36 +142,39 @@
   });
 
 
-  function clearSelectedImages(file,imgframe){
+  function clearSelectedImages(file, imgframe) {
     const files = Array.from(imageInput.files);
     const index = files.indexOf(file);
-    if(index !== -1){
+    if (index !== -1) {
       const dataTransfer = new DataTransfer();
-      files.splice(index,1)
-      for(let file of files){
+      files.splice(index, 1)
+      for (let file of files) {
         dataTransfer.items.add(file);
       }
       imageInput.files = dataTransfer.files
       imgframe.style.display = 'none';
-      if(imageInput.files.length === 0){
+      if (imageInput.files.length === 0) {
         InputImagesPreview.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
                         class="fa-solid fa-upload me-3"></i>Upload Image</label>`
       }
-      
+
     }
   }
 
-  includedImagesNames.forEach((image) => {
+  includedImagesNames.forEach((image, index) => {
     const imageFrame = document.createElement('div');
     imageFrame.classList.add('img-frame');
     const img = document.createElement('img');
     const closeBtn = document.createElement('i');
+    const cropBtn = document.createElement('i');
+    cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
     closeBtn.classList.add('fa-regular', 'fa-rectangle-xmark', 'img-close');
     img.src = `/images/product-images/${image}`
     img.classList.add("me-2", "border", "rounded");
     img.style.cssText = "width : 150px; height: 150px";
     imageFrame.appendChild(img);
     imageFrame.append(closeBtn);
+    imageFrame.append(cropBtn);
     previewImg.appendChild(imageFrame);
 
     closeBtn.addEventListener('click', () => {
@@ -176,11 +185,25 @@
       });
       existedImages.value = JSON.stringify(includedImagesNames);
       previewImg.removeChild(removeImageFrame);
-      if(includedImagesNames.length === 0){
+      if (includedImagesNames.length === 0) {
         document.querySelector('.exist-image-container').hidden = true
       }
-    })
+    });
+
+    cropBtn.addEventListener('click', () => {
+      existImageCrop(image, imageFrame, img, index)
+    });
+
   })
+
+  function existImageCrop(image, imageFrame, img, index) {
+    imageToCrop.src = img.src
+    const cropper = new Cropper(imageToCrop,{
+      aspectRatio: 3 / 4,
+        viewMode: 2,
+    });
+    cropContainer.hidden = false
+  }
 
   //console.log(includedImagesNames)
 
@@ -230,14 +253,14 @@
       setError(priceParent, ""); // Clear error message if input is valid
     }
 
-    if((includedImagesNames.length + imageInput.files.length) === 0){
+    if ((includedImagesNames.length + imageInput.files.length) === 0) {
       hasError = true
-      setError(images,"This field cannot be empty");
-    }else if((includedImagesNames.length + imageInput.files.length) > 4 ){
+      setError(images, "This field cannot be empty");
+    } else if ((includedImagesNames.length + imageInput.files.length) > 4) {
       hasError = true
-      setError(images,"Maximum 4 images is allowed");
-    }else{
-      setError(images,'');
+      setError(images, "Maximum 4 images is allowed");
+    } else {
+      setError(images, '');
     }
     // const lettersOnlyRegex = /^[A-Za-z\s]*$/;
     // if (!lettersOnlyRegex.test(colorValue)) {

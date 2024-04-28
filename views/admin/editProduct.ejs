@@ -7,11 +7,13 @@
       <div class="body-wrapper">
         <%- include('../includes/admin/adminHeader')%>
           <div class="container-fluid bg-light">
+
             <div class="add-prd-form-container">
               <h3 class="mt-3">Edit Product</h3>
 
               <form action="/admin/products/editproduct/<%=product._id %>?_method=PATCH" enctype="multipart/form-data"
                 method="post" id="addproductForm">
+
                 <div class="d-flex justify-content-between flex-column flex-md-row">
                   <div class="mt-3 col-md-5">
                     <label for="Product Name" class="form-label">Product Name</label>
@@ -36,6 +38,7 @@
                     <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                   </div>
                 </div>
+
                 <div class="d-flex justify-content-between flex-column flex-md-row">
                   <div class="mt-3 col-md-5">
                     <label for="Price" class="form-label">Price</label>
@@ -69,7 +72,8 @@
                   <div class="mt-3 col-md-5">
                     <label for="Color Options" class="form-label">Color</label>
                     <div class="color-input-wrapper">
-                      <button class="btn  rounded  btn-primary" type="button" id="addbtn"><i class="fa-solid fa-circle-plus"></i></button>
+                      <button class="btn  rounded  btn-primary" type="button" id="addbtn"><i
+                          class="fa-solid fa-circle-plus"></i></button>
                       <input type="text" class="form-control" id="colorinput" />
                     </div>
                     <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
@@ -77,7 +81,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4 flex-column-reverse flex-md-row ">
-                
+
                   <div class="mt-3 col-12 col-md-5">
                     <label for="Product Name" class="form-label">Size Options</label>
                     <div class="form-group d-flex mt-1 flex-wrap" id="size-Parent">
@@ -139,102 +143,73 @@
                   </div>
                   <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                 </div>
-            </div>
 
-            <div class="mt-5">
-              <label for="" class="form-label">Additional Information</label>
-              <div class="addl-container d-flex align-items-center p-3">
-                <textarea id="additionalInformation" cols="150" rows="7"
-                  class=" border border-info rounded p-2 form-control" style="width: 100%;"
-                  name="additionalInformation"><%= product.additionalInformation %></textarea>
-              </div>
-              <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
-            </div>
 
-            <div class="mt-5">
-              <label for="" class="form-label">Images</label>
-              <div class="images-container d-flex flex-column p-2 ">
-                <div class="border-1 border-info border rounded px-3 py-2 mb-2 ">
-                  <div class="d-flex flex-column">
-                    <div class="mb-2 exist-image-container">
-                    <h6 class="text-start">Existed Images</h6>
-                  <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded" id="preview-image" >
-                    <input type="hidden" name="existedImages" id="existedImages">
+                <div class="mt-5">
+                  <label for="" class="form-label">Additional Information</label>
+                  <div class="addl-container d-flex align-items-center p-3">
+                    <textarea id="additionalInformation" cols="150" rows="7"
+                      class=" border border-info rounded p-2 form-control" style="width: 100%;"
+                      name="additionalInformation"><%= product.additionalInformation %></textarea>
                   </div>
+                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
                 </div>
-                <div>
-                  <h6 class="text-start">New Images</h6>
-                
-                  <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded" id="InputImagesPreview">
-                    <!-- <div class="img-frame">
+
+                <div class="mt-5">
+                  <label for="" class="form-label">Images</label>
+                  <div class="images-container d-flex flex-column p-2 ">
+                    <div class="border-1 border-info border rounded px-3 py-2 mb-2 ">
+                      <div class="d-flex flex-column">
+                        <div class="mb-2 exist-image-container">
+                          <h6 class="text-start">Existed Images</h6>
+                          <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded"
+                            id="preview-image">
+                            <input type="hidden" name="existedImages" id="existedImages">
+                          </div>
+                        </div>
+                        <div>
+                          <h6 class="text-start">New Images</h6>
+
+                          <div class="d-flex mb-2 align-items-center flex-wrap border border-dark p-2 rounded"
+                            id="InputImagesPreview">
+                            <!-- <div class="img-frame">
                       <img src="/images/sampleImages/gallery-02.jpg" alt="" class="me-2 border rounded"
                         style="width: 150px; height: 150px;">
                     <i class="fa-regular fa-rectangle-xmark img-close"></i>
                    </div> -->
 
-                    <label class="form-label text-dark m-1 image-label" for="images"><i
-                        class="fa-solid fa-upload me-3"></i>Upload Image</label>
+                            <label class="form-label text-dark m-1 image-label" for="images"><i
+                                class="fa-solid fa-upload me-3"></i>Upload Image</label>
+                          </div>
+                        </div>
+                      </div>
+                      <input type="file" class="form-control" multiple id="images" name="images"
+                        accept=".jpg, .jpeg, .webp, .png" />
+                      <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                    </div>
+
                   </div>
                 </div>
-                </div>
-                  <input type="file" class="form-control" multiple id="images" name="images"
-                    accept=".jpg, .jpeg, .webp, .png" />
-                  <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+
+                <div class="mt-5 align-items-center justify-content-center d-flex flex-column">
+                  <button type="submit" class="btn btn-primary rounded "
+                    onclick="return confirm('Are you sure the entered details are correct ?')">Edit Product</button>
+                  <%if (err) {%>
+                    <div class="mt-2" style="color: red;  font-size: small; text-align: center;">
+                      <%= err %>
+                    </div>
+                    <%} %>
                 </div>
 
-              </div>
+                <%- include ("../includes/admin/cropperModal.ejs")%>
+
+              </form>
+
             </div>
-
-            <div class="mt-5 align-items-center justify-content-center d-flex flex-column">
-              <button type="submit" class="btn btn-primary rounded "
-                onclick="return confirm('Are you sure the entered details are correct ?')">Edit Product</button>
-              <%if (err) {%>
-                <div class="mt-2" style="color: red;  font-size: small; text-align: center;">
-                  <%= err %>
-                </div>
-                <%} %>
-            </div>
-
-            </form>
           </div>
       </div>
   </div>
-  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <%- include('../includes/validations/editProductVal')%>
-  <!-- <script>
-    const selectedSizeOptions = document.getElementById('sizeOptionsData').value.split(',')
-    const checkBoxes = document.getElementsByName('sizeOptions');
-    const selectedUserType = "<%=product.userType%>"
-    const includedImages = "<%= product.images%>";
-    const includedImagesNames = includedImages.split(',')
-
-    includedImagesNames.forEach((image) => {
-      const imageFrame = document.createElement('div');
-      imageFrame.classList.add('img-frame');
-      const img = document.createElement('img');
-      img.src = `/images/product-images/${image}`
-      img.classList.add("me-2", "border", "rounded");
-      img.style.cssText = "width : 150px; height: 150px";
-      imageFrame.appendChild(img);
-      previewImg.appendChild(imageFrame);
-    })
-
-    console.log(includedImagesNames)
-
-    Array.from(userTypes.options).forEach((option) => {
-      if (selectedUserType.includes(option.value)) {
-        option.selected = true
-      }
-    })
-
-    checkBoxes.forEach((checkBox) => {
-      if (selectedSizeOptions.includes(checkBox.value)) {
-        checkBox.checked = true;
-      } else {
-        checkBox.checked = false;
-      }
-    })
-
-  </script> -->
-  
     <%- include('../includes/admin/adminEnd')%>
