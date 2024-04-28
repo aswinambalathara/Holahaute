@@ -113,10 +113,19 @@
     color: rgb(255, 0, 0);
     background-color: rgb(255, 255, 255);
     top: 5px;
-    left: 125px;
+    right: 15px;
     cursor: pointer;
 }
 
+.img-crop{
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background-color: white;
+    padding: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+}
 .vh-130{
     height: 130vh;
 }
@@ -131,5 +140,16 @@
     top: 1px;
 }
 
-
+.cropImageTag{
+    display: block;
+    max-width: 100%;
+}
   
+
+.crop-body{
+    height: 250px;
+}
+
+.close-cropper{
+    font-size:20px ;
+}

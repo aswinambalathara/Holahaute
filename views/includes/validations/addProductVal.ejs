@@ -14,53 +14,59 @@
   const additionalInformation = document.getElementById(
     "additionalInformation"
   );
+  const imageToCrop = document.getElementById('cropImage')
+  const cropContainer = document.querySelector('.cropper-card');
+  const cropBtn = document.getElementById('crop-btn');
+  const closeCropper = document.getElementById('close-cropper');
+
+
+
   const imageInput = document.getElementById("images");
   const previewImg = document.getElementById("preview-image")
   // const imageArray = [];
 
-const addColorBtn = document.getElementById('addbtn');
-const colorsPreview = document.querySelector('.inputColors');
-const colorsInput = document.getElementById('colors-input');
+  const addColorBtn = document.getElementById('addbtn');
+  const colorsPreview = document.querySelector('.inputColors');
+  const colorsInput = document.getElementById('colors-input');
 
 
-addColorBtn.addEventListener('click',()=>{
-  const newColor = colorInput.value.trim()
+  addColorBtn.addEventListener('click', () => {
+    const newColor = colorInput.value.trim()
 
-  if(newColor){
-    const colorList = document.createElement('div')
-    colorList.classList.add("border", "border-2", "shadow", "px-2", "py-1", "rounded", "d-flex", "align-items-center", "me-2")
-    const color = document.createElement('p');
-    const close = document.createElement('i');
-    color.classList.add('m-0');
-    color.textContent = newColor;
-    color.style = "text-transform : capitalise"
-    close.classList.add("fa-regular","fa-circle-xmark","ms-2","text-danger" )
-    close.style = "cursor : pointer ;"
-    colorList.appendChild(color);
-    colorList.appendChild(close);
-    colorsPreview.appendChild(colorList);
+    if (newColor) {
+      const colorList = document.createElement('div')
+      colorList.classList.add("border", "border-2", "shadow", "px-2", "py-1", "rounded", "d-flex", "align-items-center", "me-2")
+      const color = document.createElement('p');
+      const close = document.createElement('i');
+      color.classList.add('m-0');
+      color.textContent = newColor;
+      color.style = "text-transform : capitalise"
+      close.classList.add("fa-regular", "fa-circle-xmark", "ms-2", "text-danger")
+      close.style = "cursor : pointer ;"
+      colorList.appendChild(color);
+      colorList.appendChild(close);
+      colorsPreview.appendChild(colorList);
 
-    let colors = colorsInput.value ? JSON.parse(colorsInput.value) : [];
-    colors.push(newColor.toLowerCase());
-    colorsInput.value = JSON.stringify(colors);
-    colorInput.value = '';
-    close.addEventListener('click',()=>{
-      const removeColor = color.textContent;
-
-      colors = colors.filter(color => color !== removeColor);
+      let colors = colorsInput.value ? JSON.parse(colorsInput.value) : [];
+      colors.push(newColor.toLowerCase());
       colorsInput.value = JSON.stringify(colors);
-      colorsPreview.removeChild(colorList);
-    })
-    
-  }
-})
+      colorInput.value = '';
+      close.addEventListener('click', () => {
+        const removeColor = color.textContent;
 
+        colors = colors.filter(color => color !== removeColor);
+        colorsInput.value = JSON.stringify(colors);
+        colorsPreview.removeChild(colorList);
+      })
 
-  imageInput.addEventListener('change',(e)=>{
+    }
+  })
+
+  imageInput.addEventListener('change', (e) => {
 
     previewImg.innerHTML = ''
     const files = e.target.files;
-    
+
     if (files.length > 4) {
       return setError(imageInput, "Maximum 4 files can be uploaded");
     } else {
@@ -68,50 +74,57 @@ addColorBtn.addEventListener('click',()=>{
     }
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
 
-    for(let image of files){
-      if (!allowedExtensions.exec(image.name)) {
-           return setError(imageInput, "Check the file type");
-         }
-      const reader = new FileReader();
 
-      reader.onload = function (event){
+    files.forEach((image, index) => {
+      if (!allowedExtensions.exec(image.name)) {
+        return setError(imageInput, "Check the file type");
+      }
+      const reader = new FileReader();
+      reader.onload = function (event) {
         const imgframe = document.createElement("div");
-          imgframe.classList.add("img-frame");
-          const img = document.createElement("img");
-          img.src = event.target.result;
-          img.classList.add("me-2", "border", "rounded");
-          img.style.cssText = "width : 150px; height: 150px";
-          const closebtn = document.createElement('i');
-          closebtn.addEventListener('click',()=>{
-            clearSelectedImages(image,imgframe)
-          });
-          closebtn.classList.add("fa-regular","fa-rectangle-xmark","img-close")
-          imgframe.appendChild(img);
-          imgframe.appendChild(closebtn);
-          previewImg.appendChild(imgframe);
+        imgframe.classList.add("img-frame");
+        const img = document.createElement("img");
+        img.src = event.target.result;
+        img.classList.add("me-2", "border", "rounded");
+        img.style.cssText = "width : 150px; height: 150px";
+        const cropBtn = document.createElement('i');
+        cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
+        const closebtn = document.createElement('i');
+        closebtn.addEventListener('click', () => {
+          clearSelectedImages(image, imgframe, index);
+        });
+        cropBtn.addEventListener('click', () => {
+          cropImage(image, imgframe ,img,index);
+        })
+        closebtn.classList.add("fa-regular", "fa-rectangle-xmark", "img-close")
+        imgframe.appendChild(img);
+        imgframe.appendChild(closebtn);
+        imgframe.appendChild(cropBtn);
+        previewImg.appendChild(imgframe);
       }
       reader.readAsDataURL(image);
-    }
+
+    });
   });
 
-
- 
-  function clearSelectedImages(file,imgframe){
+  function clearSelectedImages(file, imgframe, index) {
+    console.log(imageInput.files)
+    console.log(file);
     const files = Array.from(imageInput.files);
-    const index = files.indexOf(file);
-    if(index !== -1){
+    //const index = files.indexOf(file);
+    if (index !== -1) {
       const dataTransfer = new DataTransfer();
-      files.splice(index,1)
-      for(let file of files){
+      files.splice(index, 1)
+      for (let file of files) {
         dataTransfer.items.add(file);
       }
       imageInput.files = dataTransfer.files
       imgframe.style.display = 'none';
-      if(imageInput.files.length === 0){
+      if (imageInput.files.length === 0) {
         previewImg.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
                         class="fa-solid fa-upload me-3"></i>Upload Image</label>`
       }
-      
+
     }
   }
 
@@ -193,7 +206,7 @@ addColorBtn.addEventListener('click',()=>{
       setError(desParent, "");
     }
 
-   
+
     //   const lettersOnlyRegex = /^[A-Za-z\s]*$/;
     //   if (!lettersOnlyRegex.test(colorValue)) {
     //     setError(color, "Only letters are allowed");
@@ -247,4 +260,50 @@ addColorBtn.addEventListener('click',()=>{
 
     errorDisplay.innerText = message;
   }
+
+  function cropImage(image, imageFrame, img , index) {
+    console.log(imageInput.files)
+    console.log(img);
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onloadend = function () {
+      const dataUrl = reader.result;
+      //console.log(dataUrl)
+      imageToCrop.src = dataUrl
+      const cropper = new Cropper(imageToCrop, {
+        aspectRatio: 3 / 4,
+        viewMode: 2,
+      });
+      cropContainer.hidden = false
+      closeCropper.addEventListener('click',()=>{
+        cropper.destroy();
+        cropContainer.hidden = true;
+      })
+      cropBtn.addEventListener('click',(e)=>{
+        e.preventDefault()
+        const croppedImage = cropper.getCroppedCanvas()
+        if(croppedImage){
+          img.src = croppedImage.toDataURL()
+        imageFrame.appendChild(img);
+        croppedImage.toBlob((blob)=>{
+          const file = new File([blob],image.name,{type:image.type});
+          let files = Array.from(imageInput.files);
+           files[index] = file
+           const dataTransfer = new DataTransfer();
+           for(let file of files){
+            dataTransfer.items.add(file);
+           }
+           imageInput.files = dataTransfer.files;
+           console.log(imageInput.files);
+        })
+        cropContainer.hidden = true;
+        cropper.destroy();
+        }
+        //console.log(croppedImage)
+      })
+    }
+
+    
+  }
+
 </script>

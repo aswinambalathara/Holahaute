@@ -83,6 +83,7 @@ module.exports.doAddProducts = async (req, res) => {
               description: req.body.description,
               additionalInformation: req.body.additionalInformation,
               images: images,
+              isDeleted : false
             },
           }
         );

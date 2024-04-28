@@ -52,6 +52,6 @@ router.patch('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.
 router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doDeleteOffer);
 
 //banners
-router.get('/banners',authMiddleware.verifyAdmin,bannerController.getAdminManagement);
+router.get('/banners',authMiddleware.verifyAdmin,bannerController.getBannerManagement);
 
 module.exports = router;
