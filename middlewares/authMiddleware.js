@@ -64,6 +64,8 @@ module.exports.userStatus = async (req, res, next) => {
         res.redirect("/home");
       }
     }
+  }else{
+    res.redirect('/login');
   } 
 };
 

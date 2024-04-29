@@ -9,6 +9,16 @@ const bannerSchema = Schema({
     required: true,
   },
 
+  bannerType: {
+    type : String,
+    required : true
+  },
+
+  targetItem : {
+    type : mongoose.Schema.Types.ObjectId,
+    required : true
+  },
+
   validFrom: {
     type: Date,
     required: true,

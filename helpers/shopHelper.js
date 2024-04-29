@@ -12,7 +12,7 @@ module.exports.filterHelp = async (
 ) => {
   let sortFilter;
   let priceFilter;
-  const today = new Date()
+  const today = new Date();
   if (sort === "ascendingOrder") {
     sortFilter = { productName: 1 };
   } else if (sort === "descendingOrder") {
@@ -67,7 +67,7 @@ module.exports.filterHelp = async (
     {
       $addFields: {
         averageRating: { $avg: "$ratings.rating" },
-        offerExist : {$ne:["$availbleOffer",[]]},
+        offerExist: { $ne: ["$availbleOffer", []] },
       },
     },
     {
@@ -87,7 +87,7 @@ module.exports.filterHelp = async (
                 if: { $gte: ["$availableOffer.validTo", today] },
                 then: true,
                 else: false,
-              }, 
+              },
             },
           },
         },
@@ -96,6 +96,7 @@ module.exports.filterHelp = async (
     {
       $match: {
         $and: [
+          {isDeleted:false},
           { "category.categoryName": category ? category : { $exists: true } },
           { price: priceFilter },
         ],
@@ -129,8 +130,8 @@ module.exports.filterHelp = async (
         },
       },
     },
-  ]); 
- // console.log(products);
+  ]);
+  // console.log(products);
   return products;
 };
 
@@ -142,7 +143,7 @@ module.exports.defaultFilterHelp = async (
 ) => {
   let sortFilter;
   let priceFilter;
-  const today = new Date()
+  const today = new Date();
   if (sort === "ascendingOrder") {
     sortFilter = { productName: 1 };
   } else if (sort === "descendingOrder") {
@@ -197,7 +198,7 @@ module.exports.defaultFilterHelp = async (
     {
       $addFields: {
         averageRating: { $avg: "$ratings.rating" },
-        offerExist : {$ne:["$availbleOffer",[]]},
+        offerExist: { $ne: ["$availbleOffer", []] },
       },
     },
     {
@@ -217,7 +218,7 @@ module.exports.defaultFilterHelp = async (
                 if: { $gte: ["$availableOffer.validTo", today] },
                 then: true,
                 else: false,
-              }, 
+              },
             },
           },
         },
@@ -226,6 +227,7 @@ module.exports.defaultFilterHelp = async (
     {
       $match: {
         $and: [
+          {isDeleted:false},
           { "category.categoryName": category ? category : { $exists: true } },
           { price: priceFilter },
         ],
@@ -255,7 +257,7 @@ module.exports.defaultFilterHelp = async (
       },
     },
   ]);
- // console.log(products);
+  // console.log(products);
   return products;
 };
 
@@ -272,28 +274,28 @@ module.exports.getWishlistHelp = async (userId) => {
       },
     },
     {
-      $unwind : "$product"
+      $unwind: "$product",
     },
     {
-      $project:{
+      $project: {
         //wishlistItems : 1,
-        products:{
-          $mergeObjects : ["$$ROOT.product","$product.offer"]
-        }
-      } 
+        products: {
+          $mergeObjects: ["$$ROOT.product", "$product.offer"],
+        },
+      },
     },
     {
-      $lookup :{
-        from : "offers",
-        localField : "products.offerId",
-        foreignField : "_id",
-        as: "availableOffer"
-      }
+      $lookup: {
+        from: "offers",
+        localField: "products.offerId",
+        foreignField: "_id",
+        as: "availableOffer",
+      },
     },
     {
-      $addFields :{
+      $addFields: {
         offerExist: { $ne: ["$availableOffer", []] },
-      }
+      },
     },
     {
       $unwind: {
@@ -312,7 +314,7 @@ module.exports.getWishlistHelp = async (userId) => {
                 if: { $gte: ["$availableOffer.validTo", today] },
                 then: true,
                 else: false,
-              }, 
+              },
             },
           },
         },
@@ -322,17 +324,17 @@ module.exports.getWishlistHelp = async (userId) => {
       $sort: { productName: 1 },
     },
     {
-      $project : {
-        productName : "$products.productName",
-        productId : "$products._id",
-        description : "$products.description",
-        quantity : "$products.quantity",
-        price : "$products.price",
-        images : "$products.images",
-        userType : "$products.userType",
-        color : "$products.color",
-        sizeOptions : "$products.sizeOptions",
-        offerStatus : 1,
+      $project: {
+        productName: "$products.productName",
+        productId: "$products._id",
+        description: "$products.description",
+        quantity: "$products.quantity",
+        price: "$products.price",
+        images: "$products.images",
+        userType: "$products.userType",
+        color: "$products.color",
+        sizeOptions: "$products.sizeOptions",
+        offerStatus: 1,
         offer: {
           $cond: {
             if: { $eq: ["$offerStatus", true] },
@@ -343,10 +345,10 @@ module.exports.getWishlistHelp = async (userId) => {
             else: { currentPrice: "$products.price" },
           },
         },
-      }
-    }
+      },
+    },
   ]);
-//console.log(wishlist)
+  //console.log(wishlist)
   return wishlist;
 };
 
@@ -415,12 +417,17 @@ module.exports.getProductDetailHelp = async (productId) => {
   return product[0];
 };
 
-module.exports.getProductsHelp = async () => {
+module.exports.getProductsHelp = async (categoryId) => {
   const today = new Date();
   const products = await productSchema.aggregate([
     {
       $match: {
-        isDeleted: false,
+        $and: [
+          { isDeleted: false },
+          {
+            category: categoryId ? new ObjectId(categoryId) : { $exists: true },
+          },
+        ],
       },
     },
     {
@@ -453,7 +460,7 @@ module.exports.getProductsHelp = async () => {
                 if: { $gte: ["$availableOffer.validTo", today] },
                 then: true,
                 else: false,
-              }, 
+              },
             },
           },
         },

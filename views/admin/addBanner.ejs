@@ -8,7 +8,7 @@
                 <%- include('../includes/admin/adminHeader')%>
 
                     <div class="container-fluid bg-light">
-                        <h5>Add New Offer</h5>
+                        <h5>Add New Banner</h5>
                         <form action="/admin/banners/addbanner" id="addBannerForm" method="post" enctype="multipart/form-data">
                             <div class="row mb-3">
                                 <div class="mt-2 col-md-6 parent">
@@ -28,7 +28,7 @@
                             <div class="row mb-3">
                                 <div class="productsList" hidden>
                                     <label for="products" class="mb-2">Select Product</label>
-                                    <select name="products" id="products" class="form-select"
+                                    <select name="product" id="products" class="form-select"
                                         style="text-transform: capitalize;">
                                         <%products.forEach(function(product){%>
                                             <option value="<%=product._id%>" style="text-transform: capitalize;">
@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="categoryList">
                                     <label for="categories" class="mb-2">Select Category</label>
-                                    <select name="categories" id="categories" class="form-select"
+                                    <select name="category" id="categories" class="form-select"
                                         style="text-transform: capitalize;">
                                         <%categories.forEach(function(category){%>
                                             <option value="<%=category._id%>" style="text-transform: capitalize;">

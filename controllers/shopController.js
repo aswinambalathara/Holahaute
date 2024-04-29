@@ -1,28 +1,39 @@
 const categorySchema = require("../models/categoryModel");
 const productSchema = require("../models/productModel");
 const wishlistSchema = require("../models/wishlistModel");
+const bannerSchema = require("../models/bannerModel");
 const shopHelper = require("../helpers/shopHelper");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
 module.exports.getHomePage = async (req, res) => {
   try {
+    const today = Date.now();
     let user;
     if (req.cookies.token) {
       user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     }
     const products = await productSchema.find({ isDeleted: false });
-    const categories = await categorySchema.find({ status: true }); 
+    const categories = await categorySchema.find({ status: true });
+    const banners = await bannerSchema.find({
+      $or: [
+        { status: true },
+        { validTo: { $gte: today } } 
+      ]
+    });
+
+    console.log(banners);
     res.render("shop/home", {
       title: "Home",
       categories,
       products,
+      banners : banners,
       user: user ? user.userName : undefined,
-      batchCount : req.flash('batchCount'),
-      wishlistCount : user? req.session.wishlistCount : 0,
-      cartCount : user? req.session.cartCount : 0
-    }); 
-  } catch (error) { 
+      batchCount: req.flash("batchCount"),
+      wishlistCount: user ? req.session.wishlistCount : 0,
+      cartCount: user ? req.session.cartCount : 0,
+    });
+  } catch (error) {
     console.log(error);
   }
 };
@@ -44,8 +55,8 @@ module.exports.getProductDetailPage = async (req, res) => {
       product,
       relatedProducts,
       user: user ? user.userName : undefined,
-      wishlistCount : user? req.session.wishlistCount : 0,
-      cartCount : user? req.session.cartCount : 0
+      wishlistCount: user ? req.session.wishlistCount : 0,
+      cartCount: user ? req.session.cartCount : 0,
     });
   } catch (error) {
     console.log(error);
@@ -54,6 +65,7 @@ module.exports.getProductDetailPage = async (req, res) => {
 
 module.exports.getProductsPage = async (req, res) => {
   try {
+    let categoryId = req.query ? req.query.categoryid : "";
     let user;
     if (req.cookies.token) {
       user = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -62,7 +74,7 @@ module.exports.getProductsPage = async (req, res) => {
       { status: true },
       { _id: 1, categoryName: 1 }
     );
-    const products = await shopHelper.getProductsHelp()
+    const products = await shopHelper.getProductsHelp(categoryId);
     // const products = await productSchema
     //   .find({ isDeleted: false })
     //   .sort({ productName: 1 });
@@ -73,8 +85,8 @@ module.exports.getProductsPage = async (req, res) => {
       products,
       user: user ? user.userName : undefined,
       categories: categoryIds,
-      wishlistCount : user? req.session.wishlistCount : 0,
-      cartCount : user? req.session.cartCount : 0
+      wishlistCount: user ? req.session.wishlistCount : 0,
+      cartCount: user ? req.session.cartCount : 0,
     });
   } catch (error) {
     console.log(error);
@@ -102,7 +114,7 @@ module.exports.getProductsPage = async (req, res) => {
 
 module.exports.doFilter = async (req, res) => {
   try {
-    const { colors, userType, sort, price, category,searchTerm } = req.body;
+    const { colors, userType, sort, price, category, searchTerm } = req.body;
     //console.log(colors,userType,sort,price,category);
     if (colors.length > 0 || userType.length > 0) {
       const results = await shopHelper.filterHelp(
@@ -119,7 +131,12 @@ module.exports.doFilter = async (req, res) => {
         results: results,
       });
     } else {
-      const results = await shopHelper.defaultFilterHelp(sort, price, category,searchTerm);
+      const results = await shopHelper.defaultFilterHelp(
+        sort,
+        price,
+        category,
+        searchTerm
+      );
       //console.log(results);
       res.json({
         status: true,
@@ -141,8 +158,8 @@ module.exports.getWishlist = async (req, res) => {
       title: "Wishlist",
       user: authUser.userName,
       wishlist: wishlist,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
     console.log(error);
@@ -181,7 +198,7 @@ module.exports.addToWishlist = async (req, res) => {
         res.json({
           status: true,
           message: "Product added to WishList",
-          wishlistCount : req.session.wishlistCount
+          wishlistCount: req.session.wishlistCount,
         });
       }
     } else {
@@ -195,7 +212,7 @@ module.exports.addToWishlist = async (req, res) => {
         res.json({
           status: true,
           message: "Added to wishlist",
-          wishlistCount : req.session.wishlistCount
+          wishlistCount: req.session.wishlistCount,
         });
       }
     }
@@ -215,31 +232,31 @@ module.exports.removeFromWishList = async (req, res) => {
       { $pull: { wishlistItems: { productId: productId } } }
     );
 
-    if(removed){
+    if (removed) {
       req.session.wishlistCount--;
       return res.json({
-        status : true,
-        message : "Product Removed",
-        wishlistCount : req.session.wishlistCount
-      })
+        status: true,
+        message: "Product Removed",
+        wishlistCount: req.session.wishlistCount,
+      });
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports.fetchProductOptions = async (req,res)=>{
+module.exports.fetchProductOptions = async (req, res) => {
   try {
-    const productId = req.params.id
-    const product = await productSchema.findOne({_id:productId});
+    const productId = req.params.id;
+    const product = await productSchema.findOne({ _id: productId });
     //console.log(product);
-    if(product){
+    if (product) {
       return res.json({
-        status : true,
-        product : product
-      })
+        status: true,
+        product: product,
+      });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};

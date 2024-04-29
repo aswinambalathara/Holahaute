@@ -7,6 +7,7 @@ const bannerController = require ('../controllers/bannerController');
 const categoryController = require('../controllers/categoryController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer');
+const { auth } = require('google-auth-library');
 
 router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard);
 router.post('/generatesaleschart',authMiddleware.verifyAdmin,adminController.generateSales);
@@ -55,4 +56,7 @@ router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerControlle
 router.get('/banners',authMiddleware.verifyAdmin,bannerController.getBannerManagement);
 router.get('/banners/addbanner',authMiddleware.verifyAdmin,bannerController.getAddBanner);
 router.post('/banners/addbanner',authMiddleware.verifyAdmin,uploadBanner.single('bannerImage'),bannerController.doAddBanner);
+router.get('/banners/editbanner/:id',authMiddleware.verifyAdmin,bannerController.getEditBanner);
+router.patch('/banners/editbanner/:id',authMiddleware.verifyAdmin,uploadBanner.single('bannerImage'),bannerController.doEditBanner);
+router.patch('/banners/deletebanner/:id',authMiddleware.verifyAdmin,bannerController.doUnlistBanner);
 module.exports = router;
