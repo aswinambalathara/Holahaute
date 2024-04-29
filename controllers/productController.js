@@ -117,12 +117,11 @@ module.exports.getEditProducts = async (req, res) => {
       .populate("category");
     //console.log(product)
     const categories = await categorySchema.find({ status: true });
-    const existImages = await productHelper.existImageFiles(product.images);
+    //const existImages = await productHelper.existImageFiles(product.images);
     res.render("admin/editProduct.ejs", {
       title: "Edit Product",
       categories,
       product: product,
-      existImages,
       err: req.flash("error"),
     });
   } catch (error) {

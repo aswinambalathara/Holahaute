@@ -53,5 +53,6 @@ router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerControlle
 
 //banners
 router.get('/banners',authMiddleware.verifyAdmin,bannerController.getBannerManagement);
-
+router.get('/banners/addbanner',authMiddleware.verifyAdmin,bannerController.getAddBanner);
+router.post('/banners/addbanner',authMiddleware.verifyAdmin,uploadBanner.single('bannerImage'),bannerController.doAddBanner);
 module.exports = router;

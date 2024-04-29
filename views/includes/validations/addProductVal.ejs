@@ -92,7 +92,7 @@
         cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
         const closebtn = document.createElement('i');
         closebtn.addEventListener('click', () => {
-          clearSelectedImages(image, imgframe, index);
+          clearSelectedImages(image, imgframe);
         });
         cropBtn.addEventListener('click', () => {
           cropImage(image, imgframe ,img,index);
@@ -108,11 +108,10 @@
     });
   });
 
-  function clearSelectedImages(file, imgframe, index) {
+  function clearSelectedImages(image, imgframe) {
     console.log(imageInput.files)
-    console.log(file);
     const files = Array.from(imageInput.files);
-    //const index = files.indexOf(file);
+    const index = files.findIndex(file => file.name === image.name);
     if (index !== -1) {
       const dataTransfer = new DataTransfer();
       files.splice(index, 1)
@@ -125,8 +124,8 @@
         previewImg.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
                         class="fa-solid fa-upload me-3"></i>Upload Image</label>`
       }
-
     }
+    console.log(imageInput.files);
   }
 
   form.addEventListener('input', () => {

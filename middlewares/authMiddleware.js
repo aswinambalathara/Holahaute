@@ -20,7 +20,7 @@ module.exports.isUserLoggedOut = (req, res, next) => {
 
 module.exports.isAdminLoggedOut = (req, res, next) => {
   const token = req.cookies.adminToken;
-  console.log(token);
+  //console.log(token);
   if (req.cookies.adminToken) {
     res.redirect("/admin");
   } else {

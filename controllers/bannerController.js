@@ -1,4 +1,6 @@
 const bannerSchema = require("../models/bannerModel");
+const categoryModel = require("../models/categoryModel");
+const productModel = require("../models/productModel");
 
 module.exports.getBannerManagement = async (req, res) => {
   try {
@@ -11,7 +13,10 @@ module.exports.getBannerManagement = async (req, res) => {
  
 module.exports.getAddBanner = async (req,res) => {
   try {
-    
+    const products = await productModel.find({isDeleted : false});
+    const categories = await categoryModel.find({status : true});
+    console.log(products)
+    res.render('admin/addBanner',{title:"Add Banner",products:products,categories:categories});
   } catch (error) {
     console.error(error)
   }
@@ -19,7 +24,8 @@ module.exports.getAddBanner = async (req,res) => {
 
 module.exports.doAddBanner = async (req,res) => {
   try {
-    
+    console.log(req.body)
+    console.log(req.file)
   } catch (error) {
     console.error(error)
   }

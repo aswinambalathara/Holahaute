@@ -1,0 +1,303 @@
+<%- include('../includes/admin/adminhead')%>
+    <!-- Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+        data-sidebar-position="fixed" data-header-position="fixed">
+        <%- include('../includes/admin/adminSidebar')%>
+            <!-- Main wraapper -->
+            <div class="body-wrapper">
+                <%- include('../includes/admin/adminHeader')%>
+
+                    <div class="container-fluid bg-light">
+                        <h5>Add New Offer</h5>
+                        <form action="/admin/banners/addbanner" id="addBannerForm" method="post" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <div class="mt-2 col-md-6 parent">
+                                    <label for="bannerName" class="mb-2">Banner Name</label>
+                                    <input type="text" class="form-control" id="bannerName" name="bannerName">
+                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                </div>
+                                <div class="mt-2 col-md-6 parent">
+                                    <label for="bannerType" class="mb-2">Banner Type</label>
+                                    <select name="bannerType" id="bannerType" class="form-select" name="bannerType">
+                                        <option value="categoryBanner">Category Banner</option>
+                                        <option value="productBanner">Product Banner</option>
+                                    </select>
+                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="productsList" hidden>
+                                    <label for="products" class="mb-2">Select Product</label>
+                                    <select name="products" id="products" class="form-select"
+                                        style="text-transform: capitalize;">
+                                        <%products.forEach(function(product){%>
+                                            <option value="<%=product._id%>" style="text-transform: capitalize;">
+                                                <%=product.productName%>
+                                            </option>
+                                            <%})%>
+                                    </select>
+                                </div>
+                                <div class="categoryList">
+                                    <label for="categories" class="mb-2">Select Category</label>
+                                    <select name="categories" id="categories" class="form-select"
+                                        style="text-transform: capitalize;">
+                                        <%categories.forEach(function(category){%>
+                                            <option value="<%=category._id%>" style="text-transform: capitalize;">
+                                                <%=category.categoryName%>
+                                            </option>
+                                            <%})%>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="mt-2 col-md-6 parent">
+                                    <label for="validFrom" class="mb-2">Valid From</label>
+                                    <input type="date" class="form-control" id="validFrom" name="validFrom">
+                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                </div>
+                                <div class="mt-2 col-md-6 parent">
+                                    <label for="validTo" class="mb-2">Valid To</label>
+                                    <input type="date" name="validTo" id="validTo" class="form-control">
+                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="mt-2 parent">
+                                    <label for="bannerImage" class="mb-2">Banner Image</label>
+                                    <input type="file" class="form-control" id="bannerImage" name="bannerImage"
+                                        accept=".jpg, .jpeg, .webp, .png">
+                                    <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                </div>
+                                <div class="mt-4 banner-preview-div">
+                                    <!-- <img src="/images/banners/TRAVEL_JOGGERS_JP_1.webp" alt="" class="banner-preview">
+                                    <i class="fa-regular fa-rectangle-xmark img-close"></i>
+                                    <button class="btn btn-primary btn-sm btn-crop" type="button"><i
+                                            class="fa-solid fa-crop"></i> Crop</button> -->
+                                </div>
+                            </div>
+                            <%- include ("../includes/admin/cropperModal.ejs")%>
+                                <div class="d-flex justify-content-center">
+                                    <button class="btn btn-primary mt-4" type="submit" id="addBannerBtn">Add
+                                        Banner</button>
+                                </div>
+                        </form>
+                    </div>
+            </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script>
+        const addBannerForm = document.getElementById('addBannerForm');
+        const bannerName = document.getElementById('bannerName');
+        const bannerType = document.getElementById('bannerType');
+        const validFrom = document.getElementById('validFrom');
+        const validTo = document.getElementById('validTo');
+        const bannerImage = document.getElementById('bannerImage');
+        const productsList = document.querySelector('.productsList');
+        const categoryList = document.querySelector('.categoryList');
+        const bannerPreview = document.querySelector('.banner-preview-div');
+
+        const imageToCrop = document.getElementById('cropImage')
+        const cropContainer = document.querySelector('.cropper-card');
+        const cropBtn = document.getElementById('crop-btn');
+        const closeCropper = document.getElementById('close-cropper');
+
+        bannerName.addEventListener('blur', handleInputChange);
+        validFrom.addEventListener('blur', handleInputChange);
+        validTo.addEventListener('blur', handleInputChange);
+        addBannerForm.addEventListener('submit',handleAddBannerSubmit);
+
+        const errorMessages = {
+            bannerName: {
+                required: "This field is required"
+            },
+            validFrom: {
+                required: "This field is required",
+                invalid: "Valid From date must be before Valid To date",
+                invalid2: "Enter a valid Date",
+                invalid3: "Both dates cannot be same"
+            },
+            validTo: {
+                required: "This field is required",
+                invalid: "Valid To date must be after Valid From date",
+                invalid2: "Enter a valid Date",
+                invalid3: "Both dates cannot be same"
+            },
+            bannerImage: {
+                required: "This field is required",
+                invalid: "Check file type"
+            }
+        }
+
+        function validateInputs(input, type, value) {
+            const errorMessage = errorMessages[type];
+            const validToValue = Date.parse(validTo.value);
+            const validFromValue = Date.parse(validFrom.value);
+            let dates;
+
+            if (value === '' || value === undefined) {
+                return errorMessage.required;
+            }
+
+            switch (type) {
+                case 'validFrom':
+                    dates = validateDate(Date.parse(value), validToValue);
+                    if (dates.parsedDate >= dates.parsedOtherDate) {
+                        return errorMessage.invalid
+                    } else if (dates.parsedDate < dates.today) {
+                        return errorMessage.invalid2
+                    }
+                    break;
+                case 'validTo':
+                    dates = validateDate(Date.parse(value), validFromValue);
+                    if (dates.parsedDate <= dates.parsedOtherDate) {
+                        return errorMessage.invalid;
+                    } else if (dates.parsedDate < dates.today) {
+                        return errorMessage.invalid2
+                    }
+                    break;
+                case 'bannerImage':
+                    const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+                    if (!allowedExtensions.exec(value.name)) {
+                        return errorMessage.invalid
+                    }
+                    break;
+            }
+            return ''
+        }
+
+        function validateDate(dateInMs, otherDateinMs = "null") {
+            const parsedDate = new Date(dateInMs);
+            parsedDate.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (otherDateinMs !== 'null') {
+                const parsedOtherDate = new Date(otherDateinMs);
+                parsedOtherDate.setHours(0, 0, 0, 0);
+                return { parsedDate, today, parsedOtherDate }
+            }
+            return { parsedDate, today };
+        }
+
+        function handleInputChange(event) {
+            const input = event.target
+            const type = input.id
+            const value = input.value
+            const errorMessage = validateInputs(input, type, value);
+            setError(input, errorMessage);
+        }
+
+        bannerImage.addEventListener('change', (e) => {
+            const input = event.target
+            const image = input.files[0]
+            const type = input.id
+            const errorMessage = validateInputs(input, type, image);
+            if (errorMessage) {
+                return setError(input, errorMessage);
+            }else{
+                setError (input,'')
+            }
+            bannerPreview.innerHTML = ''
+            const reader = new FileReader()
+            reader.onload = function (event) {
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.classList.add('banner-preview');
+                const cropBtn = document.createElement('button');
+                cropBtn.type = "button"
+                cropBtn.innerHTML = `<i class="fa-solid fa-crop"></i> Crop`
+                cropBtn.classList.add("btn", "btn-primary", "btn-sm", "btn-crop");
+                cropBtn.addEventListener('click', (e) => {
+                    cropImage(image, img, bannerPreview);
+                })
+                bannerPreview.appendChild(img);
+                bannerPreview.appendChild(cropBtn);
+            }
+            reader.readAsDataURL(image);
+        })
+
+        function cropImage(image, img, bannerPreview) {
+            const reader = new FileReader();
+            reader.readAsDataURL(image);
+            reader.onloadend = function () {
+                const dataUrl = reader.result;
+                //console.log(dataUrl)
+                imageToCrop.src = dataUrl
+                const cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 64/31,
+                    viewMode: 2,
+                });
+                cropContainer.hidden = false
+                closeCropper.addEventListener('click', () => {
+                    cropper.destroy();
+                    cropContainer.hidden = true;
+                })
+                cropBtn.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    const croppedImage = cropper.getCroppedCanvas()
+                    if (croppedImage) {
+                        img.src = croppedImage.toDataURL()
+                        bannerPreview.appendChild(img)
+                        croppedImage.toBlob((blob) => {
+                            const file = new File([blob], image.name, { type: image.type });
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            bannerImage.files = dataTransfer.files;
+                            console.log(bannerImage.files)
+                        })
+                        cropContainer.hidden = true;
+                        cropper.destroy();
+                    }
+                })
+            }
+        }
+
+        function handleAddBannerSubmit(event) {
+            event.preventDefault();
+            let hasError = false;
+            const allInputs = [bannerName,validFrom,validTo,bannerImage];
+
+            allInputs.forEach((input)=>{
+                const type = input.id;
+                let value = '';
+                if(type === 'bannerImage'){
+                    value = input.files[0]
+                    //console.log(value)
+                }else{
+                    value = input.value;
+                }
+                const errorMessage = validateInputs(input,type,value);
+                if(errorMessage){
+                    hasError = true;
+                    setError(input,errorMessage);
+                }else{
+                    setError(input,'');
+                }
+            });
+
+            if(!hasError){
+                event.target.submit()
+            }
+        }
+
+        function setError(element, message) {
+            const inputParent = element.closest('.parent');
+            const errorDisplay = inputParent.querySelector('.error');
+
+            errorDisplay.innerText = message;
+        }
+
+        bannerType.addEventListener('change',(e)=>{
+            const value = event.target.value;
+            if(value === 'productBanner'){
+                categoryList.hidden = true;
+                return productsList.hidden = false;
+            }else{
+                productsList.hidden = true;
+                return categoryList.hidden = false;
+            }
+        })
+  
+    </script>
+
+    <%- include('../includes/admin/adminEnd')%>

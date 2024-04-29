@@ -19,7 +19,7 @@
           class="menu-bar d-flex flex-column flex-md-row-reverse justify-content-between"
         >
           <a
-            href="/admin/offers/addoffer"
+            href="/admin/banners/addbanner"
             class="btn add-product col-12 mt-3 mt-md-0 col-md-2"
             >Add Banner</a
           >
@@ -31,9 +31,8 @@
           <thead>
             <tr>
               <th scope="col">Banner Name</th>
-              <th scope="col">Offer Type</th>
+              <th scope="col">Banner Image</th>
               <th scope="col">Expire At</th>
-              <th scope="col">Discount</th>
               <th scope="col">Status</th>
               <th scope="col">Actions</th>
             </tr>
@@ -42,18 +41,15 @@
             
             <tr class="mt-3 border border-rounded">
               <th scope="row" style="text-transform: capitalize" class="col-3">
-                
+                Banner Name
               </th>
-              <td class="col-2"></td>
-              <td class="col-2 validToDates"></td>
-              <td style="text-transform: capitalize" class="col-1">
-                
-              </td>
+              <td class="col-2">Banner Image</td>
+              <td class="col-2 validToDates">Valid To</td>
               <td class="col-1">
                 
                 <p class="text-success m-0 fw-semibold">Active</p>
                  
-                <p class="text-danger m-0 fw-semibold">Expired</p>
+                <!-- <p class="text-danger m-0 fw-semibold">Expired</p> -->
                 
               </td>
               <td class="col-1">

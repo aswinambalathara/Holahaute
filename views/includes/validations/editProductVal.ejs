@@ -89,9 +89,6 @@
     }
   })
 
-
-
-
   // Image Preview and Validation
   imageInput.addEventListener("change", (e) => {
     const files = e.target.files;
@@ -108,8 +105,10 @@
     const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
 
     if (files.length > 0) {
-      for (let image of files) {
+
+      files.forEach((image, index) => {
         //console.log(image);
+
         if (!allowedExtensions.exec(image.name)) {
           InputImagesPreview.innerHTML = `<label class="form-label text-dark m-1 image-label" for="images"><i
                         class="fa-solid fa-upload me-3"></i>Upload Image</label>`
@@ -124,27 +123,36 @@
           imgframe.classList.add("img-frame");
           const img = document.createElement("img");
           const closeBtn = document.createElement('i');
+          const cropBtn = document.createElement('i');
+          cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
+
           closeBtn.classList.add('fa-regular', 'fa-rectangle-xmark', 'img-close');
           img.src = event.target.result;
           img.classList.add("me-2", "border", "rounded");
           img.style.cssText = "width : 150px; height: 150px";
           imgframe.appendChild(img);
           imgframe.appendChild(closeBtn);
+          imgframe.appendChild(cropBtn);
           InputImagesPreview.appendChild(imgframe);
 
           closeBtn.addEventListener('click', () => {
             clearSelectedImages(image, imgframe)
           })
+
+          cropBtn.addEventListener('click', () => {
+            cropImage(image, imgframe, img, index);
+          })
+
         };
         reader.readAsDataURL(image);
-      }
+      });
     }
   });
 
-
-  function clearSelectedImages(file, imgframe) {
+  function clearSelectedImages(image, imgframe) {
     const files = Array.from(imageInput.files);
-    const index = files.indexOf(file);
+    const index = files.findIndex(file => file.name === image.name)
+    //console.log(index ,"files");
     if (index !== -1) {
       const dataTransfer = new DataTransfer();
       files.splice(index, 1)
@@ -159,6 +167,7 @@
       }
 
     }
+    //console.log(imageInput.files);
   }
 
   includedImagesNames.forEach((image, index) => {
@@ -166,15 +175,15 @@
     imageFrame.classList.add('img-frame');
     const img = document.createElement('img');
     const closeBtn = document.createElement('i');
-    const cropBtn = document.createElement('i');
-    cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
+    // const cropBtn = document.createElement('i');
+    // cropBtn.classList.add("fa-solid", "fa-crop", "img-crop");
     closeBtn.classList.add('fa-regular', 'fa-rectangle-xmark', 'img-close');
     img.src = `/images/product-images/${image}`
     img.classList.add("me-2", "border", "rounded");
     img.style.cssText = "width : 150px; height: 150px";
     imageFrame.appendChild(img);
     imageFrame.append(closeBtn);
-    imageFrame.append(cropBtn);
+    //imageFrame.append(cropBtn);
     previewImg.appendChild(imageFrame);
 
     closeBtn.addEventListener('click', () => {
@@ -190,22 +199,66 @@
       }
     });
 
-    cropBtn.addEventListener('click', () => {
-      existImageCrop(image, imageFrame, img, index)
-    });
+    // cropBtn.addEventListener('click', () => {
+    //   existImageCrop(image, imageFrame, img, index)
+    // });
 
   })
 
-  function existImageCrop(image, imageFrame, img, index) {
-    imageToCrop.src = img.src
-    const cropper = new Cropper(imageToCrop,{
-      aspectRatio: 3 / 4,
-        viewMode: 2,
-    });
-    cropContainer.hidden = false
-  }
+  // function existImageCrop(image, imageFrame, img, index) {
+  //   imageToCrop.src = img.src
+  //   const cropper = new Cropper(imageToCrop,{
+  //     aspectRatio: 3 / 4,
+  //       viewMode: 2,
+  //   });
+  //   cropContainer.hidden = false
+  // }
 
   //console.log(includedImagesNames)
+
+  function cropImage(image, imageFrame, img, index) {
+    const files = Array.from(imageInput.files);
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onloadend = function () {
+      const dataUrl = reader.result;
+      //console.log(dataUrl)
+      imageToCrop.src = dataUrl
+      const cropper = new Cropper(imageToCrop, {
+        aspectRatio: 3 / 4,
+        viewMode: 2,
+      });
+      cropContainer.hidden = false
+      closeCropper.addEventListener('click', () => {
+        cropper.destroy();
+        cropContainer.hidden = true;
+      })
+      cropBtn.addEventListener('click', (e) => {
+        e.preventDefault()
+        const croppedImage = cropper.getCroppedCanvas()
+        if (croppedImage) {
+          img.src = croppedImage.toDataURL()
+          imageFrame.appendChild(img);
+          croppedImage.toBlob((blob) => {
+            const file = new File([blob], image.name, { type: image.type });
+            let files = Array.from(imageInput.files);
+            files[index] = file
+            const dataTransfer = new DataTransfer();
+            for (let file of files) {
+              dataTransfer.items.add(file);
+            }
+            imageInput.files = dataTransfer.files;
+            console.log(imageInput.files);
+          })
+          cropContainer.hidden = true;
+          cropper.destroy();
+        }
+        //console.log(croppedImage)
+      })
+    }
+
+
+  }
 
   Array.from(userTypes.options).forEach((option) => {
     if (selectedUserType.includes(option.value)) {
