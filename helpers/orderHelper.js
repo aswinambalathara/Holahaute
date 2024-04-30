@@ -271,6 +271,8 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
       {
         $group: {
           _id: "$_id",
+          orderId : {$first:"$orderId"},
+          subTotal : {$sum:"$total"},
           products: {
             $push: {
               productName: "$product.productName",
@@ -311,54 +313,63 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
           grandTotal: 1,
           walletApplied: 1,
           couponDiscount: 1,
-          user: {
+          orderId : 1,
+          subTotal : 1,
+          shipping: {
             name: { $arrayElemAt: ["$user.name", 0] },
-            address: {
               addressLine: { $arrayElemAt: ["$user.address.addressLine", 0] },
               district: { $arrayElemAt: ["$user.address.district", 0] },
               state: { $arrayElemAt: ["$user.address.state", 0] },
               pincode: { $arrayElemAt: ["$user.address.pincode", 0] },
               mobile: { $arrayElemAt: ["$user.address.mobile", 0] },
-            },
           },
           products: 1,
         },
       },
     ]);
-    const productsData = order[0].products.map((product) => {
-      return [
-        product.productName,
-        product.size + "," + product.color,
-        product.quantity,
-        product.price,
-        product.total,
-      ];
-    });
-    const subTotal = order[0].products.reduce((acc, product) => {
-      acc += product.price;
-      return acc;
-    }, 0);
-    //console.log(subTotal);
-    //console.log(productsData);
-    //console.log(order[0]);
-    return {
-      tableData: productsData,
-      user: order[0].user,
-      grandTotal: order[0].grandTotal,
-      walletApplied: order[0].walletApplied,
-      couponDiscount: order[0].couponDiscount,
-      subTotal: subTotal,
-    };
+    console.log(order[0])
+    return order[0]
   } catch (error) {
     console.error(error);
   }
 };
+
+module.exports.updateOrderStatus = async (userId) => {
+  try {
+    const oneHourInMs = 60 * 60 * 1000; // One hour in milliseconds
+    const pendingOrders = await orderSchema.find({
+      userId: userId,
+      orderStatus: "PENDING",
+      orderedAt: { $lt: new Date(Date.now() - oneHourInMs) },
+    });
+
+    console.log(pendingOrders);
+    if (pendingOrders) {
+      const updateCount = await orderSchema.updateMany(
+        { _id: { $in: pendingOrders.map((order) => order._id) } },
+        {
+          $set: {
+            orderStatus: "ORDER CANCELLED",
+            orderStage: "ORDER CANCELLED",
+          },
+        }
+      );
+      //console.log(updateCount)
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
 
 module.exports.generateInvoicePDF = (order, res) => {
   try {
     let doc = new PDFDocument();
 
     generateHeader(doc);
+    generateCustomerInformation(doc,order);
+    generateInvoiceTable(doc,order)
     generateFooter(doc);
     doc.end();
     doc.pipe(res);
@@ -392,30 +403,44 @@ function generateFooter(doc) {
 	);
 }
 
+function generateCustomerInformation(doc, invoice) {
+	const shipping = invoice.shipping;
 
-module.exports.updateOrderStatus = async (userId) => {
-  try {
-    const oneHourInMs = 60 * 60 * 1000; // One hour in milliseconds
-    const pendingOrders = await orderSchema.find({
-      userId: userId,
-      orderStatus: "PENDING",
-      orderedAt: { $lt: new Date(Date.now() - oneHourInMs) },
-    });
+	doc.text(`Invoice Number: 1234`, 50, 180)
+		.text(`Invoice Date: 30-04-2024`, 50, 165)
+		.text(`OrderId: ${invoice.orderId}`, 50, 150)
+    .text(`Payment Status : Already Paid`,50,195)
 
-    console.log(pendingOrders);
-    if (pendingOrders) {
-      const updateCount = await orderSchema.updateMany(
-        { _id: { $in: pendingOrders.map((order) => order._id) } },
-        {
-          $set: {
-            orderStatus: "ORDER CANCELLED",
-            orderStage: "ORDER CANCELLED",
-          },
-        }
-      );
-      //console.log(updateCount)
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
+		.text(shipping.name, 380, 150)
+		.text(shipping.addressLine, 380, 165)
+		.text(`${shipping.district}, ${shipping.state}, ${shipping.pincode}`,380,180)
+    .text(`${shipping.mobile}`,380,195)
+		.moveDown();
+}
+
+function generateInvoiceTable(doc, invoice) {
+	let i,
+		invoiceTableTop = 330;
+
+	for (i = 0; i < invoice.products.length; i++) {
+		const item = invoice.products[i];
+		const position = invoiceTableTop + (i + 1) * 30;
+		generateTableRow(
+			doc,
+			position,
+			item.name,
+			item.amount / item.quantity,
+			item.quantity,
+			item.amount,
+		);
+	}
+}
+
+function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
+	doc.fontSize(10)
+		.text(c1, 50, y)
+		.text(c2, 150, y)
+		.text(c3, 280, y, { width: 90, align: 'right' })
+		.text(c4, 370, y, { width: 90, align: 'right' })
+		.text(c5, 0, y, { align: 'right' });
+}

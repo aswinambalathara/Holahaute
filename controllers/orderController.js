@@ -246,7 +246,7 @@ module.exports.doGenerateInvoice = async (req,res)=>{
     const orderId = req.params.id
     console.log(orderId);
     const order = await orderHelper.orderInvoiceHelp(orderId);
-    console.log(order);
+    //console.log(order);
     orderHelper.generateInvoicePDF(order,res);
   } catch (error) {
     console.error(error);
