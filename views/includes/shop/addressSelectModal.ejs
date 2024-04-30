@@ -1,0 +1,173 @@
+<div class="modal fade" id="changeAddress" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                    Select Delivery Address
+                </h1>
+                <button type="button" class="btn-close select-address-close"  data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="vstack gap-3">
+                    <%addresses.forEach(function(address){%>
+                        <% if(address.isPrimary===true) {%>
+                            <div class="card mb-2">
+                                <div class="card-body p-2">
+                                    <input type="radio" class="form-check-input m-0 deliveryAddress"
+                                        style="position: relative" value="<%=address._id%>" checked
+                                        name="deliveryAddress" />
+                                    <div class="d-flex ms-2">
+                                        <div class="d-flex flex-column ms-3">
+                                            <strong>
+                                                <%= address.fullName%>
+                                            </strong>
+                                            <p class="m-0">
+                                                <%= address.address%>
+                                            </p>
+                                            <p class="m-0">
+                                                <%= address.district%>, <%= address.state%>
+                                            </p>
+                                            <p class="m-0">
+                                                <span style="font-size: smaller; font-weight: 600">Pincode:
+                                                </span>
+                                                <%= address.pincode%>
+                                            </p>
+                                            <p class="m-0">
+                                                <span style="font-size: smaller; font-weight: 600">Mobile:
+                                                </span>
+                                                <%= address.mobile%>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <%} else {%>
+                                <div class="card mb-2">
+                                    <div class="card-body p-2">
+                                        <input type="radio" class="form-check-input m-0 deliveryAddress"
+                                            style="position: relative" value="<%=address._id%>"
+                                            name="deliveryAddress" />
+                                        <div class="d-flex ms-2">
+                                            <div class="d-flex flex-column ms-3">
+                                                <strong>
+                                                    <%= address.fullName%>
+                                                </strong>
+                                                <p class="m-0">
+                                                    <%= address.address%>
+                                                </p>
+                                                <p class="m-0">
+                                                    <%= address.district%> , <%= address.state%>
+                                                </p>
+                                                <p class="m-0">
+                                                    <span style="font-size: smaller; font-weight: 600">Pincode:
+                                                    </span>
+                                                    <%= address.pincode%>
+                                                </p>
+                                                <p class="m-0">
+                                                    <span style="font-size: smaller; font-weight: 600">Mobile:
+                                                    </span>
+                                                    <%= address.mobile%>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <%} %>
+                                    <%}) %>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-bs-target="#addAddressModal" data-bs-toggle="modal"
+                    class="btn btn-outline-primary btn-sm">Add New Address</button>
+                <button type="button" class="btn btn-success btn-sm" id="changeAddressBtn">
+                    Change Address
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addAddressModal" aria-hidden="true" aria-labelledby="addAddressModalLabel" tabindex="-1" style="z-index: 9999;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addAddressModalLabel">Add New Address</h1>
+                <button type="button" class="btn-close add-address-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2 parent">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" name="fullName" id="fullName" />
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+                <div class="mb-2 parent">
+                    <label for="mobileParent" class="form-label">Mobile</label>
+                    <div class="mobile-input-con d-flex justify-content-between" id="mobileParent">
+                        <div class="col-4 col-md-2 p-0">
+                            <select name="countryCode" id="countryCode" class="form-select">
+                                <option value="+91">+91</option>
+                            </select>
+                        </div>
+                        <div class="col-8 col-md-10 ps-2 pe-0">
+                            <input type="text" class="form-control" name="mobile" id="mobile" />
+                        </div>
+                    </div>
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+                <div class="mb-2 parent">
+                    <label for="address" class="form-label">Address Line</label>
+                    <input type="text" class="form-control" id="address" name="address" />
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+                <div class="mb-2 parent">
+                    <label for="district" class="form-label">District</label>
+                    <select name="district" id="district" class="form-select">
+                        <option value="null" selected>Choose</option>
+                        <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                        <option value="kollam">Kollam</option>
+                        <option value="Pathanamthitta">Pathanamthitta</option>
+                        <option value="Alappuzha">Alappuzha</option>
+                        <option value="Kottayam">Kottayam</option>
+                        <option value="Idukki">Idukki</option>
+                        <option value="Ernakulam">Ernakulam</option>
+                        <option value="Thrissur">Thrissur</option>
+                        <option value="Palakkad">Palakkad</option>
+                        <option value="Malappuram">Malappuram</option>
+                        <option value="Kozhikode">Kozhikode</option>
+                        <option value="Wayanad">Wayanad</option>
+                        <option value="Kannur">Kannur</option>
+                        <option value="Kasarkod">Kasarkod</option>
+                    </select>
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+                <div class="mb-2 parent">
+                    <label for="state" class="form-label">State</label>
+                    <select name="state" id="state" class="form-select">
+                        <option value="null" selected>Choose</option>
+                        <option value="Kerala">Kerala</option>
+                    </select>
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+                <div class="mb-2 parent">
+                    <label for="pincode" class="form-label">Postal code</label>
+                    <input type="text" class="form-control" id="pincode" name="pincode" />
+                    <div class="error mt-1" style="color: red; font-size: small"></div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-between align-items-center parent">
+                <div class="error text-center" style="color: red; font-size: small"></div>
+                <div class="d-flex align-items-center m-0">
+                    <button class="btn btn-outline-primary btn-sm" id="addAddressBtn">Add Address</button>
+                    <button class="ms-2 btn btn-primary btn-sm" data-bs-target="#changeAddress" data-bs-toggle="modal">Go
+                        Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

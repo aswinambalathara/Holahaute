@@ -27,14 +27,14 @@
     
 
     function setPrimary(addressId) {
-        fetch(`http://localhost:3000/user/userprofile/setprimary/${addressId}`, {
+        fetch(`/user/userprofile/setprimary/${addressId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"
             }
         }).then((response) => response.json())
             .then((data) => {
-                if (data.status === 'success') {
+                if (data.status === true) {
                     location.reload('/user/userprofile')
                 }
             })
@@ -51,7 +51,7 @@
             confirmButtonText: "Yes, delete it!"
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const url = `http://localhost:3000/user/removeaddress/${addressId}`
+                const url = `/user/removeaddress/${addressId}`
                 const method = "PATCH"
                 const body = {}
 

@@ -271,8 +271,18 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
       {
         $group: {
           _id: "$_id",
-          orderId : {$first:"$orderId"},
-          subTotal : {$sum:"$total"},
+          orderId: { $first: "$orderId" },
+          orderDate: { $first: "$orderedAt" },
+          paymentStatus: {
+            $first: {
+              $cond: {
+                if: { $eq: ["$paymentMethod.method", "razorpay"] },
+                then: "Already Paid",
+                else: "Received on delivery",
+              },
+            },
+          },
+          subTotal: { $sum: "$total" },
           products: {
             $push: {
               productName: "$product.productName",
@@ -313,22 +323,24 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
           grandTotal: 1,
           walletApplied: 1,
           couponDiscount: 1,
-          orderId : 1,
-          subTotal : 1,
+          orderId: 1,
+          subTotal: 1,
+          paymentStatus : 1,
+          orderDate : 1,
           shipping: {
             name: { $arrayElemAt: ["$user.name", 0] },
-              addressLine: { $arrayElemAt: ["$user.address.addressLine", 0] },
-              district: { $arrayElemAt: ["$user.address.district", 0] },
-              state: { $arrayElemAt: ["$user.address.state", 0] },
-              pincode: { $arrayElemAt: ["$user.address.pincode", 0] },
-              mobile: { $arrayElemAt: ["$user.address.mobile", 0] },
+            addressLine: { $arrayElemAt: ["$user.address.addressLine", 0] },
+            district: { $arrayElemAt: ["$user.address.district", 0] },
+            state: { $arrayElemAt: ["$user.address.state", 0] },
+            pincode: { $arrayElemAt: ["$user.address.pincode", 0] },
+            mobile: { $arrayElemAt: ["$user.address.mobile", 0] },
           },
           products: 1,
         },
       },
     ]);
-    console.log(order[0])
-    return order[0]
+    console.log(order[0]);
+    return order[0];
   } catch (error) {
     console.error(error);
   }
@@ -361,15 +373,13 @@ module.exports.updateOrderStatus = async (userId) => {
   }
 };
 
-
-
 module.exports.generateInvoicePDF = (order, res) => {
   try {
     let doc = new PDFDocument();
 
     generateHeader(doc);
-    generateCustomerInformation(doc,order);
-    generateInvoiceTable(doc,order)
+    generateCustomerInformation(doc, order);
+    generateInvoiceTable(doc, order);
     generateFooter(doc);
     doc.end();
     doc.pipe(res);
@@ -380,6 +390,8 @@ module.exports.generateInvoicePDF = (order, res) => {
   }
 };
 
+
+//generate invoice utils start
 function generateHeader(doc) {
   doc
     .image("public/images/logo/logo_1.png", 50, 45, { width: 50 })
@@ -387,60 +399,172 @@ function generateHeader(doc) {
     .fontSize(18)
     .text("HolaHaute", 110, 60)
     .fontSize(10)
+    .text("HolaHaute", 200, 50, { align: "right" })
     .text("123 Main Street", 200, 65, { align: "right" })
     .text("Kerala, India, 695615", 200, 80, { align: "right" })
     .moveDown();
 }
 
 function generateFooter(doc) {
-	doc.fontSize(
-		10,
-	).text(
-		'Thank you for your business with us.',
-		50,
-		780,
-		{ align: 'center', width: 500 },
-	);
+  doc
+    .fontSize(10)
+    .text("Thank you for your business with us.", 50, 780, {
+      align: "center",
+      width: 500,
+    });
 }
 
 function generateCustomerInformation(doc, invoice) {
-	const shipping = invoice.shipping;
+  const shipping = invoice.shipping;
 
-	doc.text(`Invoice Number: 1234`, 50, 180)
-		.text(`Invoice Date: 30-04-2024`, 50, 165)
-		.text(`OrderId: ${invoice.orderId}`, 50, 150)
-    .text(`Payment Status : Already Paid`,50,195)
+  doc.fillColor("#444444").fontSize(20).text("Invoice", 50, 160);
 
-		.text(shipping.name, 380, 150)
-		.text(shipping.addressLine, 380, 165)
-		.text(`${shipping.district}, ${shipping.state}, ${shipping.pincode}`,380,180)
-    .text(`${shipping.mobile}`,380,195)
-		.moveDown();
+  generateHr(doc, 185);
+
+  const customerInformationTop = 200;
+
+  doc
+    .fontSize(10)
+    .text("Invoice Number:", 50, customerInformationTop)
+    .font("Helvetica-Bold")
+    .text("1234", 150, customerInformationTop)
+    .font("Helvetica")
+    .text("Invoice Date:", 50, customerInformationTop + 15)
+    .text(formatDate(new Date(invoice.orderDate)), 150, customerInformationTop + 15)
+    .text("Payment Status:", 50, customerInformationTop + 30)
+    .text(invoice.paymentStatus, 150, customerInformationTop + 30)
+
+    .font("Helvetica-Bold")
+    .text(shipping.name, 380, customerInformationTop)
+    .font("Helvetica")
+    .text(shipping.addressLine, 380, customerInformationTop + 15)
+    .text(
+      shipping.district + ", " + shipping.state + ", " + shipping.pincode,
+      380,
+      customerInformationTop + 30
+    )
+    .text(shipping.mobile, 380, customerInformationTop + 45)
+    .moveDown();
+
+  generateHr(doc, 270);
+}
+
+function generateHr(doc, y) {
+  doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(50, y).lineTo(550, y).stroke();
+}
+
+function formatDate(date) {
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  return day + "/" + month + "/" + year;
 }
 
 function generateInvoiceTable(doc, invoice) {
-	let i,
-		invoiceTableTop = 330;
+  let i;
+  const invoiceTableTop = 330;
 
-	for (i = 0; i < invoice.products.length; i++) {
-		const item = invoice.products[i];
-		const position = invoiceTableTop + (i + 1) * 30;
-		generateTableRow(
-			doc,
-			position,
-			item.name,
-			item.amount / item.quantity,
-			item.quantity,
-			item.amount,
-		);
-	}
+  doc.font("Helvetica-Bold");
+  generateTableRow(
+    doc,
+    invoiceTableTop,
+    "Description",
+    "Unit Cost",
+    "Quantity",
+    "Total"
+  );
+
+  generateHr(doc, invoiceTableTop + 20);
+  doc.font("Helvetica");
+
+  for (i = 0; i < invoice.products.length; i++) {
+    const item = invoice.products[i];
+
+    item.productName = `${item.productName}(${item.size},${item.color})`;
+    let nameSplitArray =
+      item.productName.length > 47
+        ? splitString(item.productName, 47)
+        : [item.productName];
+    console.log(item.productName.length);
+    let productName = "";
+    for (let j = 0; j < nameSplitArray.length; j++) {
+      productName += `${nameSplitArray[j]}\n`;
+    }
+
+    const position = invoiceTableTop + (i + 1) * 30;
+    generateTableRow(
+      doc,
+      position,
+      productName,
+      formatCurrency(item.total / item.quantity),
+      item.quantity,
+      formatCurrency(item.total)
+    );
+
+    generateHr(doc, position + 30);
+  }
+
+  const subtotalPosition = invoiceTableTop + (i + 1) * 40;
+  generateTableRow(
+    doc,
+    subtotalPosition,
+    "",
+    "Subtotal",
+    "",
+    formatCurrency(invoice.subTotal)
+  );
+
+  const couponPosition = subtotalPosition + 20;
+  generateTableRow(
+    doc,
+    couponPosition,
+    "",
+    "Coupon Discount",
+    "",
+    formatCurrency(invoice.couponDiscount)
+  );
+
+  const walletPostion = couponPosition + 20;
+
+  generateTableRow(
+    doc,
+    walletPostion,
+    "",
+    "Wallet Applied",
+    "",
+    formatCurrency(invoice.walletApplied)
+  );
+  //doc.font("Helvetica");
+
+  const grandTotalPosition = walletPostion + 25;
+  doc.font("Helvetica-Bold");
+  generateTableRow(
+    doc,
+    grandTotalPosition,
+    "",
+    "GRAND TOTAL ",
+    "",
+    formatCurrency(invoice.grandTotal)
+  );
 }
 
-function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
-	doc.fontSize(10)
-		.text(c1, 50, y)
-		.text(c2, 150, y)
-		.text(c3, 280, y, { width: 90, align: 'right' })
-		.text(c4, 370, y, { width: 90, align: 'right' })
-		.text(c5, 0, y, { align: 'right' });
+function generateTableRow(doc, y, item, unitCost, quantity, lineTotal) {
+  doc
+    .fontSize(10)
+    .text(item, 50, y)
+    //.text(description, 200, y)
+    .text(unitCost, 280, y, { width: 90, align: "right" })
+    .text(quantity, 370, y, { width: 90, align: "right" })
+    .text(lineTotal, 0, y, { align: "right" });
 }
+
+function formatCurrency(amount) {
+  return amount.toFixed(2);
+}
+
+function splitString(str, chunkLength) {
+  return str.match(new RegExp(".{1," + chunkLength + "}", "g"));
+}
+
+//generate invoice utils end

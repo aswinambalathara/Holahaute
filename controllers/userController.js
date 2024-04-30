@@ -40,15 +40,11 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
     const addressId = req.params.id;
     const userId = authUser.userId;
     console.log(addressId, " ", userId);
-    await addressSchema.updateOne(
-      { userId, _id: addressId },
-      {
-        $set: {
-          isPrimary: true,
-        },
-      }
-    );
-
+    
+    const address = await addressSchema.findOne({ userId, _id: addressId });
+    address.isPrimary = true;
+    const update = await address.save()
+    console.log(update)
     await addressSchema.updateMany(
       { userId, _id: { $ne: addressId } },
       {
@@ -57,9 +53,13 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
         },
       }
     );
-    res.status(200).json({
-      status: "success",
-    });
+
+    if(update){
+      res.status(200).json({
+        status: true,
+        address : update
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -262,23 +262,30 @@ module.exports.doAddAddress = async (req, res) => {
     //  console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const addresses = await addressSchema.find({userId:authUser.userId});
+    const{fullName,mobile,address,district,state,pincode,fromCheckout} = req.body
     if (authUser.userId) {
       const isPrimary = addresses.length === 0? true : undefined
-      const address = new addressSchema({
-        fullName: req.body.fullName,
-        mobile: req.body.mobile,
-        address: req.body.address,
-        district: req.body.district,
-        state: req.body.state,
-        pincode: req.body.pincode,
+      const newAddress = new addressSchema({
+        fullName: fullName,
+        mobile: Number(mobile),
+        address: address,
+        district: district,
+        state: state,
+        pincode: Number(pincode),
         userId: authUser.userId,
         isPrimary : isPrimary
       });
-      const result = await address.save();
+      const result = await newAddress.save();
       await userSchema.updateOne(
         { _id: authUser.userId },
         { $push: { addresses: result._id } }
       );
+      if(fromCheckout && result){
+       return res.json({
+          status : true,
+          address : result
+        })
+      }
       res.redirect("/user/userprofile");
     }
   } catch (error) {

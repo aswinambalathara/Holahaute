@@ -151,30 +151,25 @@ module.exports.doResendOTP = (req, res) => {
     const enterTime = Date.now();
     const email = req.session.unVerifiedEmail;
     const { action } = req.body;
-    const timeDiff =
-      (enterTime - req.session.unVerifiedUser.token.generatedTime) / 1000;
+    console.log(enterTime, " ", req.session.unVerifiedUser.token.generatedTime);
+    const timeDiff = (enterTime - req.session.unVerifiedUser.token.generatedTime) / 1000;
     if (email) {
-      if (action === "resend") {
+      if (action) {
         if (timeDiff > 30) {
           const otp = verificationController.sendEmail(email);
           req.session.unVerifiedUser.token.otp = otp;
           req.session.unVerifiedUser.token.generatedTime = Date.now();
           if (otp) {
             res.status(200).json({
+             status: true,
               message: `OTP send to ${email}`,
             });
           } else {
             res.json({
+              status: false,
               message: "something went wrong Try again",
             });
           }
-        } else {
-          res.json({
-            status: "otpsend",
-            message: `You can resend OTP after ${Math.floor(
-              30 - timeDiff
-            )} Seconds `,
-          });
         }
       }
     }
@@ -336,7 +331,7 @@ module.exports.doGoogleLogin = async (req, res) => {
       if (user.isBlocked) {
         return res.json({
           status: false,
-          blockStatus : true,
+          blockStatus: true,
           message: "You have been blocked",
         });
       }

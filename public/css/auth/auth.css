@@ -125,6 +125,7 @@ h4 {
 }
 #resend-otp{
   cursor: pointer;
+  font-size: small;
 }
 
 .fade-in {

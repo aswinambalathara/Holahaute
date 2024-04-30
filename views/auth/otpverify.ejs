@@ -7,8 +7,7 @@
                                 "</span></label>
                     <input type="text" class="form-control" name="otp">
                     <!-- <div class="mt-1" style="font-size: smaller; text-align: center; color: rgb(0, 187, 255);"></div> -->
-                    <p class="mt-3" style="font-size: small;">Didn't receive OTP? <span id="resend-otp"
-                            type="button">Resend OTP</span></p>
+                    <p class="m-0 mt-3" style="font-size: small;">Didn't receive OTP?<button id="resend-otp" disabled class="btn btn-link">Resend OTP</button>  </p>
                     <small class="status" style="color: brown;"></small>
                 </div>
                 <div class="text-center mb-3 text-info" id="counter"></div>
@@ -25,22 +24,23 @@
         const responseTag = document.querySelector('.status');
 
         resendbtn.addEventListener('click', () => {
+            resendbtn.disabled = true
             console.log('clicked')
-            fetch('http://localhost:3000/resendotp', {
-                method: 'post',
+            fetch('/resendotp', {
+                method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    action: "resend"
+                    action: true
                 })
             }).then((res) => res.json()).then((data) => {
-                console.log(data)
-                if (data.message) {
+                console.log(data);
+                if(data.status === true){
                     responseTag.innerText = data.message
-                }
-                if(data.status === 'otpsend'){
                     updateCounter(30)
+                }else{
+                    responseTag.innerText = data.message
                 }
             })
         })
@@ -58,7 +58,7 @@
                 }, 1000);
             } else {
                 counter.textContent = ''
-                sendBtn.disabled = false;
+                resendbtn.disabled = false;
             }
         }
     </script>

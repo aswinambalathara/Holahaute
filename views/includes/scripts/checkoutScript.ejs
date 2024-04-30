@@ -16,6 +16,27 @@
     const walletCheck = document.getElementById('walletCheck');
     const walletCashInput = document.getElementById('walletCashInput');
     const applyWalletCash = document.getElementById('applyWalletCash');
+    const deliveryAddressPreview = document.querySelector('.deliveryAddressPreview');
+
+
+    //add address inputs 
+    const fullName = document.getElementById('fullName')
+    const mobile = document.getElementById('mobile')
+    const address = document.getElementById('address')
+    const district = document.getElementById('district')
+    const state = document.getElementById('state')
+    const pincode = document.getElementById('pincode')
+    const addAddressBtn = document.getElementById('addAddressBtn')
+
+    fullName.addEventListener('blur',handleInputChange);
+    mobile.addEventListener('blur',handleInputChange);
+    address.addEventListener('blur',handleInputChange);
+    district.addEventListener('blur',handleInputChange);
+    state.addEventListener('blur',handleInputChange);
+    pincode.addEventListener('blur',handleInputChange);
+
+    addAddressBtn.addEventListener('click',handleFormSubmit);
+
 
     changeAddressBtn.addEventListener('click', () => {
         addressInput.forEach(async (input) => {
@@ -25,12 +46,160 @@
                 const method = 'PATCH'
                 const body = {}
                 const data = await fetchFunction(url, method, body);
-                if (data.status === 'success') {
-                    location.reload()
+                if (data.status === true) {
+                    deliveryAddressPreview.innerHTML = `<input type="radio" class="form-check-input m-0" style="position: relative"
+                        value="${data.address._id}" id="deliveryAddress" checked />
+                      <div class="d-flex flex-column ms-3">
+                        <strong>
+                            ${data.address.fullName}
+                        </strong>
+                        <p class="m-0">
+                            ${data.address.address}
+                        </p>
+                        <p class="m-0">
+                          ${data.address.district}, ${data.address.state}
+                        </p>
+                        <p class="m-0">
+                          <span style="font-size: smaller; font-weight: 600">Pincode:
+                          </span>
+                          ${data.address.pincode}
+                        </p>
+                        <p class="m-0">
+                          <span style="font-size: smaller; font-weight: 600">Mobile:
+                          </span>
+                          ${data.address.mobile}
+                        </p>
+                      </div>`
+
+                    return document.querySelector('.select-address-close').click()
                 }
             }
         })
     })
+
+    const errorMessages = {
+        fullName: {
+            required: "This field is required",
+            invalid: "Only letters allowed"
+        },
+        mobile: {
+            required: "This field is required",
+            invalid: "Invalid Mobile Number"
+        },
+        address: {
+            required: "This field is required",
+        },
+        district: {
+            required: "This field is required",
+        },
+        state: {
+            required: "This field is required",
+        },
+        pincode: {
+            required: "This field is required",
+            invalid : "Invalid pincode"
+        },
+    }
+
+    function handleInputChange(event) {
+        const input = event.target
+        const type = input.id
+        const value = input.value
+
+        const errorMessage = validateInputs(input, type, value)
+        setError(input, errorMessage);
+    }
+
+  async  function handleFormSubmit(event) {
+        let hasError = false
+        const allInputs = [fullName,mobile,address,district,state,pincode]
+        allInputs.forEach((input)=>{
+            const type = input.id;
+            const value = input.value;
+            const errorMessage = validateInputs(input,type,value);
+            if(errorMessage){
+                hasError = true
+                setError(input,errorMessage);
+            }else{
+                setError(input,'');
+            }
+        });
+
+        if(!hasError){
+            const url = '/user/addaddress'
+            const method = "POST"
+            const body = {
+                fullName : fullName.value.trim(),
+                mobile : mobile.value.trim(),
+                address : address.value.trim(),
+                district : district.value.trim(),
+                state : state.value.trim(),
+                pincode : pincode.value.trim(),
+                fromCheckout : true
+            }
+
+            const data = await fetchFunction(url,method,body);
+            console.log(data);
+            if(data.status === true){
+                deliveryAddressPreview.innerHTML = `<input type="radio" class="form-check-input m-0" style="position: relative"
+                        value="${data.address._id}" id="deliveryAddress" checked />
+                      <div class="d-flex flex-column ms-3">
+                        <strong>
+                            ${data.address.fullName}
+                        </strong>
+                        <p class="m-0">
+                            ${data.address.address}
+                        </p>
+                        <p class="m-0">
+                          ${data.address.district}, ${data.address.state}
+                        </p>
+                        <p class="m-0">
+                          <span style="font-size: smaller; font-weight: 600">Pincode:
+                          </span>
+                          ${data.address.pincode}
+                        </p>
+                        <p class="m-0">
+                          <span style="font-size: smaller; font-weight: 600">Mobile:
+                          </span>
+                          ${data.address.mobile}
+                        </p>
+                      </div>`
+
+                      return document.querySelector('.add-address-close').click()
+            }
+        }
+    }
+
+    function validateInputs(input, type, value) {
+        let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+        let mobileRegex = /^\d{10}$/;
+        let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
+
+        const errorMessage = errorMessages[type]
+        if (value === '' || value === 'null') {
+            return errorMessage.required;
+        }
+
+        switch (type) {
+            case 'fullName':
+                if (!lettersOnlyRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'mobile':
+                if (!mobileRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+            case 'pincode':
+                if (!pincodeRegex.test(value)) {
+                    return errorMessage.invalid
+                }
+                break;
+        }
+        return ''
+    }
+
 
     paymentOption.forEach((option) => {
         option.addEventListener('click', () => {
@@ -119,8 +288,8 @@
             "theme": {
                 "color": "#3399cc"
             },
-            "modal":{
-                "ondismiss":function(){
+            "modal": {
+                "ondismiss": function () {
                     location.assign('/myorders');
                 }
             }
@@ -137,7 +306,7 @@
         const method = 'POST'
         const body = {
             response,
-            paymentData : order
+            paymentData: order
         }
         const data = await fetchFunction(url, method, body);
         if (data.paid === true) {
@@ -322,5 +491,10 @@
             }
         }
     })
+
+
+
+
+
 
 </script>
