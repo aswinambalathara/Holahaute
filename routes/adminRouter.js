@@ -50,7 +50,7 @@ router.post('/offers/fetchproductlist',authMiddleware.verifyAdmin,offerControlle
 router.post('/offers/addoffer',authMiddleware.verifyAdmin,offerController.doAddOffer);
 router.get('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.getEditOffer);
 router.patch('/offers/editoffer/:id',authMiddleware.verifyAdmin,offerController.doEditOffer);
-router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doDeleteOffer);
+router.patch('/offers/deleteoffer/:id',authMiddleware.verifyAdmin,offerController.doUnlistOffer);
 
 //banners
 router.get('/banners',authMiddleware.verifyAdmin,bannerController.getBannerManagement);

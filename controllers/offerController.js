@@ -191,6 +191,7 @@ module.exports.doEditOffer = async (req, res) => {
                 validTo: validTo ? new Date(validTo) : undefined,
                 discount: discountPercent ? Number(discountPercent) : undefined,
                 offerItems: offerItems ? offerItems : undefined,
+                isExpired : false
               },
             }
           );
@@ -229,6 +230,7 @@ module.exports.doEditOffer = async (req, res) => {
               validTo: validTo ? new Date(validTo) : undefined,
               discount: discountPercent ? Number(discountPercent) : undefined,
               offerItems: offerItems ? offerItems : undefined,
+              isExpired : false
             },
           }
         );
@@ -246,7 +248,26 @@ module.exports.doEditOffer = async (req, res) => {
   }
 };
 
-module.exports.doDeleteOffer = (req, res) => {};
+module.exports.doUnlistOffer = async (req, res) => {
+  try {
+    const offerId = req.params.id
+    //console.log(offerId);
+    if(offerId){
+      const unlist = await offerSchema.updateOne({_id:offerId},{$set:{
+        isExpired : true
+      }});
+      console.log(unlist);
+      if(unlist){
+        return res.json({
+          status : true,
+          message : "offer updated"
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 module.exports.getOffers = async (req, res) => {
   try {

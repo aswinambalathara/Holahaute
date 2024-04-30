@@ -35,8 +35,8 @@ module.exports.categoryOfferProducts = async (categoryIds, discount) => {
             $and: [
               { $eq: ["$offerStatus", true] },
               { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
-            ]
-          }
+            ],
+          },
         },
       },
       {
@@ -87,8 +87,8 @@ module.exports.productOfferProducts = async (productIds, discount) => {
             $and: [
               { $eq: ["$offerStatus", true] },
               { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
-            ]
-          }
+            ],
+          },
         },
       },
       {
@@ -126,7 +126,12 @@ module.exports.getOffersHelp = async () => {
         $unwind: "$availableOffer",
       },
       {
-        $match: { "availableOffer.validTo": { $gte: today } },
+        $match: {
+          $and: [
+            { "availableOffer.validTo": { $gte: today } },
+            { 'availableOffer.isExpired': false },
+          ],
+        },
       },
       {
         $group: {
@@ -187,14 +192,18 @@ module.exports.updateProducts = async (products, offerId) => {
   }
 };
 
-module.exports.updateOffers = async ()=>{
+module.exports.updateOffers = async () => {
   try {
-    const today = new Date()
-    await offerSchema.updateMany({validTo:{$lt:today}},{$set:{
-      isExpired : true
-    }
-    });
+    const today = Date.now();
+    await offerSchema.updateMany(
+      { validTo: { $lt: today } },
+      {
+        $set: {
+          isExpired: true,
+        },
+      }
+    );
   } catch (error) {
     console.error(error);
   }
-}
+};

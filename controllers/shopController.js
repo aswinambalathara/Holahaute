@@ -16,7 +16,7 @@ module.exports.getHomePage = async (req, res) => {
     const products = await productSchema.find({ isDeleted: false });
     const categories = await categorySchema.find({ status: true });
     const banners = await bannerSchema.find({
-      $or: [
+      $and: [
         { status: true },
         { validTo: { $gte: today } } 
       ]

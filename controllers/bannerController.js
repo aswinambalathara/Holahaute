@@ -6,12 +6,22 @@ const fs = require("fs");
 
 module.exports.getBannerManagement = async (req, res) => {
   try {
-    const today = Date.now()
-    const updateBanners = await bannerSchema.updateMany({validTo:{$lt:today}},{$set:{
-      status : false
-    }});
+    const today = Date.now();
+    const updateBanners = await bannerSchema.updateMany(
+      { validTo: { $lt: today } },
+      {
+        $set: {
+          status: false,
+        },
+      }
+    );
     const banners = await bannerSchema.find({});
-    res.render("admin/bannerManagement", { title: "Banners", banners });
+    res.render("admin/bannerManagement", {
+      title: "Banners",
+      banners,
+      error: req.flash("error"),
+      success: req.flash("success"),
+    });
   } catch (error) {
     console.error(error);
   }
@@ -26,6 +36,7 @@ module.exports.getAddBanner = async (req, res) => {
       title: "Add Banner",
       products: products,
       categories: categories,
+      error : req.flash('error')
     });
   } catch (error) {
     console.error(error);
@@ -39,7 +50,9 @@ module.exports.doAddBanner = async (req, res) => {
     const { bannerName, bannerType, product, category, validFrom, validTo } =
       req.body;
     const { filename } = req.file;
-    const bannerCheck = await bannerSchema.findOne({ name: bannerName.toLowerCase() });
+    const bannerCheck = await bannerSchema.findOne({
+      name: bannerName.toLowerCase(),
+    });
     if (bannerCheck) {
       fs.unlink(`public/images/banners/${filename}`, (error) => {
         if (error) {
@@ -98,16 +111,17 @@ module.exports.doAddBanner = async (req, res) => {
 
 module.exports.getEditBanner = async (req, res) => {
   try {
-    const bannerId = req.params.id
-    console.log(bannerId)
-    const banner = await bannerSchema.findOne({_id:bannerId})
-    const products = await productModel.find({isDeleted : false});
-    const categories = await categoryModel.find({status : true});
+    const bannerId = req.params.id;
+    console.log(bannerId);
+    const banner = await bannerSchema.findOne({ _id: bannerId });
+    const products = await productModel.find({ isDeleted: false });
+    const categories = await categoryModel.find({ status: true });
     res.render("admin/editBanner", {
       title: "Edit Banner",
       products: products,
       categories: categories,
-      banner
+      banner,
+      error : req.flash('error')
     });
   } catch (error) {
     console.error(error);
@@ -116,28 +130,78 @@ module.exports.getEditBanner = async (req, res) => {
 
 module.exports.doEditBanner = async (req, res) => {
   try {
-    const bannerId = req.params.id
-    const {bannerName,bannerType,product,category,validFrom,validTo} = req.body;
-    const file = req.file? req.file.filename : undefined
-    const bannerCheck = await bannerSchema.findOne({name : bannerName.toLowerCase() , _id:{$ne:bannerId}})
-    if(bannerCheck){
-      if(bannerCheck.status === true){
-        req.flash('error',"Banner already exist with name")
+    const bannerId = req.params.id;
+    const { bannerName, bannerType, product, category, validFrom, validTo } =
+      req.body;
+    const file = req.file ? req.file.filename : undefined;
+    const bannerCheck = await bannerSchema.findOne({
+      name: bannerName.toLowerCase(),
+      _id: { $ne: bannerId },
+    });
+    if (bannerCheck) {
+      if (bannerCheck.status === true) {
+        req.flash("error", "Banner already exist with name");
         return res.redirect(`/admin/banners/editbanner/${bannerId}`);
       }
-      
+      fs.unlink(`public/images/banners/${bannerCheck.bannerImage}`, (error) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(`${bannerCheck.bannerImage} deleted`);
+        }
+      });
+      await bannerSchema.deleteOne({ _id: bannerCheck._id });
     }
 
-    console.log(bannerId)
+    const targetItem = bannerType === "categoryBanner" ? category : product;
+    const targetURL = await bannerHelper.generateTargetUrl(
+      bannerType,
+      targetItem
+    );
+    console.log(targetURL);
+    const updateBanner = await bannerSchema.updateOne(
+      { _id: bannerId },
+      {
+        $set: {
+          name: bannerName ? bannerName.toLowerCase() : undefined,
+          bannerType: bannerType ? bannerType : undefined,
+          targetItem: targetItem,
+          validFrom: validFrom ? new Date(validFrom) : undefined,
+          validTo: validTo ? new Date(validTo) : undefined,
+          bannerImage: file,
+          targetURL: targetURL,
+          status: true,
+        },
+      }
+    );
+    if (updateBanner) {
+      req.flash("success", "Banner Updated");
+      return res.redirect("/admin/banners");
+    }
   } catch (error) {
     console.error(error);
   }
 };
 
-module.exports.doUnlistBanner = async (req,res)=>{
+module.exports.doUnlistBanner = async (req, res) => {
   try {
-    
+    const bannerId = req.params.id;
+    console.log(bannerId);
+    if (bannerId) {
+      const unList = await bannerSchema.updateOne(
+        { _id: bannerId },
+        {
+          $set: {
+            status: false,
+          },
+        }
+      );
+      return res.json({
+        status: true,
+        message: "Updates Successfull",
+      });
+    }
   } catch (error) {
     console.error(error);
   }
-}
+};

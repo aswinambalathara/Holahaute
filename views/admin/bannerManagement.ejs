@@ -38,19 +38,20 @@
                       </td>
                       <td class="col-2">
 
-                        <% if(banner.validTo>= new Date() || banner.status !== 'false'){%>
+                        <% if(new Date() <=banner.validTo && banner.status){%>
                           <p class="text-success m-0 fw-semibold">Active</p>
                           <%}else{%>
                             <p class="text-danger m-0 fw-semibold">Expired</p>
                             <%} %>
                       </td>
-                      <td class="col-1"> 
+                      <td class="col-1">
                         <div class="actions d-flex justify-content-evenly align-items-center">
                           <a href="/admin/banners/editbanner/<%=banner._id%>" class="editOfferBtns"
                             style="background: none; border: none">
                             <i class="fa-solid fa-pen-to-square text-warning"></i>
                           </a>
-                          <button class="deleteOfferBtns" data-bannerId="<%=banner._id%>" style="background: none; border: none">
+                          <button class="deleteBannerBtns" data-bannerId="<%=banner._id%>"
+                            style="background: none; border: none">
                             <i class="fa-solid fa-trash-can text-danger"></i>
                           </button>
                         </div>
@@ -73,14 +74,68 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
+
+    const success = "<%=success%>"
+    if (success) {
+      Swal.fire({
+        text: success,
+        icon: "success"
+      });
+    }
+    const deleteBannerBtns = document.querySelectorAll('.deleteBannerBtns');
+
     new DataTable("#banner-table", {
       responsive: true,
     });
 
     const validToDates = document.querySelectorAll('.validToDates');
-    validToDates.forEach((dateCol)=>{
+    validToDates.forEach((dateCol) => {
       dateCol.innerText = moment(new Date(dateCol.innerText)).format('DD-MM-YYYY')
+    });
+
+
+
+    deleteBannerBtns.forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, Unlist it!"
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            const bannerId = btn.getAttribute('data-bannerId');
+            const url = `/admin/banners/deletebanner/${bannerId}`
+            const method = 'PATCH'
+            const body = {}
+            const data = await fetchFunction(url, method, body)
+            if (data.status === true) {
+              location.reload()
+            }
+          }
+        });
+
+      })
     })
+
+
+    async function fetchFunction(url, method, body) {
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      })
+
+      const data = await response.json()
+
+      return data;
+    }
+  
   </script>
 
   <%-include('../includes/admin/adminEnd')%>

@@ -3,7 +3,7 @@ const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 const productSchema = require("../models/productModel");
 const orderSchema = require("../models/orderModel");
-const pdfKit = require("pdfkit");
+const PDFDocument = require("pdfkit");
 const doc = require("pdfkit");
 const today = new Date();
 
@@ -264,6 +264,11 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
         $unwind: "$product",
       },
       {
+        $addFields: {
+          total: { $multiply: ["$products.price", "$products.quantity"] },
+        },
+      },
+      {
         $group: {
           _id: "$_id",
           products: {
@@ -273,6 +278,7 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
               color: "$products.color",
               quantity: "$products.quantity",
               price: "$products.price",
+              total: "$total",
             },
           },
           user: {
@@ -325,13 +331,14 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
         product.size + "," + product.color,
         product.quantity,
         product.price,
+        product.total,
       ];
     });
     const subTotal = order[0].products.reduce((acc, product) => {
       acc += product.price;
       return acc;
     }, 0);
-    console.log(subTotal);
+    //console.log(subTotal);
     //console.log(productsData);
     //console.log(order[0]);
     return {
@@ -349,30 +356,12 @@ module.exports.orderInvoiceHelp = async (orderDocId) => {
 
 module.exports.generateInvoicePDF = (order, res) => {
   try {
-    const doc = new pdfKit();
+    let doc = new PDFDocument();
+
+    generateHeader(doc);
+    generateFooter(doc);
+    doc.end();
     doc.pipe(res);
-    const invoiceData = {
-      user: order.user,
-
-      company: {
-        companyName: "HolaHaute",
-        address: "eralla,Thampanoor",
-        district: "trivandrum",
-        state: "Kerala",
-        pincode: "695615",
-      },
-
-      items: {
-        tableHeaders: ["Description", "size & color", "quantity", "Price"],
-        tableData: order.tableData,
-      },
-      subTotal: order.subTotal,
-      grandTotal: order.grandTotal,
-      walletApplied: order.walletApplied,
-      couponDiscount: order.couponDiscount,
-    };
-    createInvoice(doc, invoiceData);
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=invoice.pdf`);
   } catch (error) {
@@ -380,86 +369,29 @@ module.exports.generateInvoicePDF = (order, res) => {
   }
 };
 
-function createInvoice(doc, invoiceData) {
-  doc.image("public/images/logo/logo_1.png", 20, 15, { width: 50 });
-  doc.moveTo(300, 0);
-  doc.moveUp();
-  doc.font("Helvetica-Bold").fontSize(15).text("HolaHaute", 75, 35);
-  doc.moveUp();
+function generateHeader(doc) {
   doc
-    .font("Helvetica-Bold")
-    .fontSize(20)
-    .text("Invoice", 0, 35, { align: "right" });
-  doc.moveDown();
-
-  doc
-    .font("Helvetica")
-    .fontSize(11)
-    .text(`${invoiceData.user.name}`, 50, 110, { align: "left" });
-  doc.text(`${invoiceData.user.address.addressLine}`, 50, 130, {
-    align: "left",
-  });
-  doc.text(`${invoiceData.user.address.district}`, 50, 150, { align: "left" });
-  doc.text(`${invoiceData.user.address.state}`, 50, 170, { align: "left" });
-  doc.text(`${invoiceData.user.address.pincode}`, 50, 190, { align: "left" });
-  doc.text(`${invoiceData.user.address.mobile}`, 50, 210, { align: "left" });
-
-  doc.text(`${invoiceData.company.companyName}`, 400, 110, { align: "right" });
-  doc.text(`${invoiceData.company.address}`, 400, 130, { align: "right" });
-  doc.text(`${invoiceData.company.district}`, 400, 150, { align: "right" });
-  doc.text(`${invoiceData.company.state}`, 400, 170, { align: "right" });
-  doc.text(`${invoiceData.company.pincode}`, 400, 190, { align: "right" });
-
-  doc.moveDown();
-
-  let yPos = 250;
-
-  yPos = createTable(
-    doc,
-    invoiceData.items.tableHeaders,
-    invoiceData.items.tableData,
-    yPos
-  );
-  doc.moveDown();
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text(`Sub Total : ${invoiceData.subTotal}`, 400, (yPos += 40));
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text(`Coupon Discount : ${invoiceData.couponDiscount}`, 400, (yPos += 30));
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text(`Wallet Applied : ${invoiceData.walletApplied}`, 400, (yPos += 20));
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(11)
-    .text(`Grand Total : ${invoiceData.grandTotal}`, 400, (yPos += 30));
-
-  doc.end();
+    .image("public/images/logo/logo_1.png", 50, 45, { width: 50 })
+    .fillColor("#444444")
+    .fontSize(18)
+    .text("HolaHaute", 110, 60)
+    .fontSize(10)
+    .text("123 Main Street", 200, 65, { align: "right" })
+    .text("Kerala, India, 695615", 200, 80, { align: "right" })
+    .moveDown();
 }
 
-function createTable(doc, tableHeaders, tableData, yPos) {
-  // Draw table headers
-  doc.font("Helvetica-Bold").fontSize(12);
-  tableHeaders.forEach((header, i) => {
-    doc.text(header, 50 + i * 150, yPos);
-  });
-
-  // Draw table data
-  doc.font("Helvetica").fontSize(10);
-  yPos += 30; // Move down for data rows
-  tableData.forEach((row) => {
-    row.forEach((cell, i) => {
-      doc.text(String(cell), 50 + i * 150, yPos);
-    });
-    yPos += 30; // Move down for next row
-  });
-
-  return yPos;
+function generateFooter(doc) {
+	doc.fontSize(
+		10,
+	).text(
+		'Thank you for your business with us.',
+		50,
+		780,
+		{ align: 'center', width: 500 },
+	);
 }
+
 
 module.exports.updateOrderStatus = async (userId) => {
   try {
@@ -472,9 +404,14 @@ module.exports.updateOrderStatus = async (userId) => {
 
     console.log(pendingOrders);
     if (pendingOrders) {
-    const updateCount =  await orderSchema.updateMany(
+      const updateCount = await orderSchema.updateMany(
         { _id: { $in: pendingOrders.map((order) => order._id) } },
-        { $set: { orderStatus: "ORDER CANCELLED", orderStage: "ORDER CANCELLED"} }
+        {
+          $set: {
+            orderStatus: "ORDER CANCELLED",
+            orderStage: "ORDER CANCELLED",
+          },
+        }
       );
       //console.log(updateCount)
     }
