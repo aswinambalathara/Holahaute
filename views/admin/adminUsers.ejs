@@ -89,7 +89,7 @@
         });
 
         function blockUser(userId) {
-            fetch(`http://localhost:3000/admin/users/blockuser/${userId}`, {
+            fetch(`/admin/users/blockuser/${userId}`, {
                 method: "PATCH",
             })
                 .then((res) => res.json())
@@ -105,7 +105,7 @@
         function unBlockUser(userId) {
             // const btnParent = btn.parentElement;
             // const icon = btnParent.querySelector('.user-Icon');
-            fetch(`http://localhost:3000/admin/users/unblockuser/${userId}`, {
+            fetch(`/admin/users/unblockuser/${userId}`, {
                 method: "PATCH",
             })
                 .then((res) => res.json())

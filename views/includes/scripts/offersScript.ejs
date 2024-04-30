@@ -8,7 +8,7 @@
         });
     }
     const validToDates = document.querySelectorAll('.validToDates');
-    validToDates.forEach((elem)=>{
+    validToDates.forEach((elem) => {
         elem.innerText = moment(new Date(elem.innerText)).format('DD-MM-YYYY');
     })
 </script>

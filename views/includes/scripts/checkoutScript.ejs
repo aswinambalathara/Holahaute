@@ -28,14 +28,14 @@
     const pincode = document.getElementById('pincode')
     const addAddressBtn = document.getElementById('addAddressBtn')
 
-    fullName.addEventListener('blur',handleInputChange);
-    mobile.addEventListener('blur',handleInputChange);
-    address.addEventListener('blur',handleInputChange);
-    district.addEventListener('blur',handleInputChange);
-    state.addEventListener('blur',handleInputChange);
-    pincode.addEventListener('blur',handleInputChange);
+    fullName.addEventListener('blur', handleInputChange);
+    mobile.addEventListener('blur', handleInputChange);
+    address.addEventListener('blur', handleInputChange);
+    district.addEventListener('blur', handleInputChange);
+    state.addEventListener('blur', handleInputChange);
+    pincode.addEventListener('blur', handleInputChange);
 
-    addAddressBtn.addEventListener('click',handleFormSubmit);
+    addAddressBtn.addEventListener('click', handleFormSubmit);
 
 
     changeAddressBtn.addEventListener('click', () => {
@@ -97,7 +97,7 @@
         },
         pincode: {
             required: "This field is required",
-            invalid : "Invalid pincode"
+            invalid: "Invalid pincode"
         },
     }
 
@@ -110,37 +110,37 @@
         setError(input, errorMessage);
     }
 
-  async  function handleFormSubmit(event) {
+    async function handleFormSubmit(event) {
         let hasError = false
-        const allInputs = [fullName,mobile,address,district,state,pincode]
-        allInputs.forEach((input)=>{
+        const allInputs = [fullName, mobile, address, district, state, pincode]
+        allInputs.forEach((input) => {
             const type = input.id;
             const value = input.value;
-            const errorMessage = validateInputs(input,type,value);
-            if(errorMessage){
+            const errorMessage = validateInputs(input, type, value);
+            if (errorMessage) {
                 hasError = true
-                setError(input,errorMessage);
-            }else{
-                setError(input,'');
+                setError(input, errorMessage);
+            } else {
+                setError(input, '');
             }
         });
 
-        if(!hasError){
+        if (!hasError) {
             const url = '/user/addaddress'
             const method = "POST"
             const body = {
-                fullName : fullName.value.trim(),
-                mobile : mobile.value.trim(),
-                address : address.value.trim(),
-                district : district.value.trim(),
-                state : state.value.trim(),
-                pincode : pincode.value.trim(),
-                fromCheckout : true
+                fullName: fullName.value.trim(),
+                mobile: mobile.value.trim(),
+                address: address.value.trim(),
+                district: district.value.trim(),
+                state: state.value.trim(),
+                pincode: pincode.value.trim(),
+                fromCheckout: true
             }
 
-            const data = await fetchFunction(url,method,body);
+            const data = await fetchFunction(url, method, body);
             console.log(data);
-            if(data.status === true){
+            if (data.status === true) {
                 deliveryAddressPreview.innerHTML = `<input type="radio" class="form-check-input m-0" style="position: relative"
                         value="${data.address._id}" id="deliveryAddress" checked />
                       <div class="d-flex flex-column ms-3">
@@ -165,7 +165,7 @@
                         </p>
                       </div>`
 
-                      return document.querySelector('.add-address-close').click()
+                return document.querySelector('.add-address-close').click()
             }
         }
     }

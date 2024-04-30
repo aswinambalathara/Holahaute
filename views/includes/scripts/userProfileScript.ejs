@@ -10,21 +10,21 @@
 
     const existCode = "<%=userdetail.referralCode%>"
 
-    if(existCode === 'null'){
-        generateReferal.addEventListener('click',async()=>{
-        const url = '/user/generate_referral' ;
-        const method = "GET"
-        const data = await getFetchFunction(url,method);
-        console.log(data);
-        if(data.status === true){
-            generateReferal.hidden = true;
-            referralCode.innerText = data.referralCode;
-            referalPreview.hidden = false;
-            return referalPreview.classList.add('d-flex')
-        }
-    })
+    if (existCode === 'null') {
+        generateReferal.addEventListener('click', async () => {
+            const url = '/user/generate_referral';
+            const method = "GET"
+            const data = await getFetchFunction(url, method);
+            console.log(data);
+            if (data.status === true) {
+                generateReferal.hidden = true;
+                referralCode.innerText = data.referralCode;
+                referalPreview.hidden = false;
+                return referalPreview.classList.add('d-flex')
+            }
+        })
     }
-    
+
 
     function setPrimary(addressId) {
         fetch(`/user/userprofile/setprimary/${addressId}`, {
@@ -182,18 +182,18 @@
             <td>${formattedDate}</td>
             <td>${elem.currentBalance}</td>
           </tr>`
-          tableBody.innerHTML += transaction
+                tableBody.innerHTML += transaction
             })
 
             const transactions = document.querySelectorAll('.transaction');
-            transactions.forEach((transaction)=>{
-                if(transaction.innerText === "Deposit"){
+            transactions.forEach((transaction) => {
+                if (transaction.innerText === "Deposit") {
                     transaction.classList.add('text-success');
                     transaction.parentElement.classList.add('table-success')
-                }else if(transaction.innerText === "Withdrawal"){
+                } else if (transaction.innerText === "Withdrawal") {
                     transaction.classList.add('text-danger');
                     transaction.parentElement.classList.add('table-danger')
-                }else{
+                } else {
                     transaction.classList.add('text-info');
                     transaction.parentElement.classList.add('table-light')
                 }

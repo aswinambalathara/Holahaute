@@ -106,7 +106,7 @@
     })
 
     function reqEmail(email) {
-      fetch("http://localhost:3000/sendotp", {
+      fetch("/sendotp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -154,4 +154,5 @@
     }
 
   </script>
+  
   <%- include('../includes/register/authEnd.ejs')%>

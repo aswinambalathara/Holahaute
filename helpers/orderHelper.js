@@ -1,10 +1,9 @@
 const cartSchema = require("../models/cartModel");
-const { default: mongoose } = require("mongoose");
+//const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 const productSchema = require("../models/productModel");
 const orderSchema = require("../models/orderModel");
 const PDFDocument = require("pdfkit");
-const doc = require("pdfkit");
 const today = new Date();
 
 module.exports.makeOrderHelper = async (userId) => {
@@ -433,6 +432,8 @@ function generateCustomerInformation(doc, invoice) {
     .text(formatDate(new Date(invoice.orderDate)), 150, customerInformationTop + 15)
     .text("Payment Status:", 50, customerInformationTop + 30)
     .text(invoice.paymentStatus, 150, customerInformationTop + 30)
+    .text('Order Id :',50,customerInformationTop + 45)
+    .text(invoice.orderId,150,customerInformationTop + 45)
 
     .font("Helvetica-Bold")
     .text(shipping.name, 380, customerInformationTop)

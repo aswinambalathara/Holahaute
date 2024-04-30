@@ -2,61 +2,9 @@ const cartSchema = require("../models/cartModel");
 const productSchema = require("../models/productModel");
 const couponSchema = require("../models/couponModel");
 const orderSchema = require("../models/orderModel");
-const { default: mongoose } = require("mongoose");
+//const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
-// module.exports.getCartHelper = async (userId) => {
-//   try {
-//     const cart = await cartSchema.aggregate([
-//       { $match: { userId: new ObjectId(userId) } },
-//       { $unwind: "$cartItems" },
-//       {
-//         $lookup: {
-//           from: "products",
-//           localField: "cartItems.productId",
-//           foreignField: "_id",
-//           as: "product",
-//         },
-//       },
-//       {
-//         $unwind: "$product",
-//       },
-//       {
-//         $addFields: {
-//           total: { $multiply: ["$cartItems.quantity", "$product.price"] },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: "$_id",
-//           grandTotal: { $sum: "$total" },
-//           userId: { $first: "$userId" },
-//           cartItems: {
-//             $push: {
-//               _id: "$cartItems._id",
-//               productId: "$cartItems.productId",
-//               quantity: "$cartItems.quantity",
-//               totalPrice: "$total",
-//               color: "$cartItems.color",
-//               size: "$cartItems.size",
-//               Products: {
-//                 _id: "$product._id",
-//                 productName: "$product.productName",
-//                 price: "$product.price",
-//                 quantity: "$product.quantity",
-//                 images: "$product.images",
-//               },
-//             },
-//           },
-//         },
-//       },
-//     ]);
-//     //console.log(cart)
-//     return cart;
-//   } catch (error) {
-//     console.error(error)
-//   }
-// };
 
 module.exports.getCartHelper = async (userId)=>{
 try {
@@ -193,66 +141,6 @@ module.exports.updateQuantityHelper = async (userId, itemId) => {
   ]);
   return cart;
 };
-
-// module.exports.getCheckoutHelper = async (userId) => {
-//   const cart = await cartSchema.aggregate([
-//     { $match: { userId: new ObjectId(userId) } },
-//     { $unwind: "$cartItems" },
-//     {
-//       $group: {
-//         _id: "$cartItems.productId",
-//         totalQuantityByProduct: { $sum: "$cartItems.quantity" },
-//         cartItems: { $push: "$cartItems" },
-//         userId: { $first: "$userId" },
-//       },
-//     },
-//     {
-//       $addFields: {
-//         totalQuantityByProduct: {
-//           productId: "$_id",
-//           quantity: "$totalQuantityByProduct",
-//         },
-//       },
-//     },
-//     { $unwind: "$cartItems" },
-//     {
-//       $lookup: {
-//         from: "products",
-//         localField: "cartItems.productId",
-//         foreignField: "_id",
-//         as: "product",
-//       },
-//     },
-//     { $unwind: "$product" },
-//     {
-//       $addFields: {
-//         orderTotal: { $multiply: ["$cartItems.quantity", "$product.price"] },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: "$userId",
-//         grandTotal: { $sum: "$orderTotal" },
-//         orderInfo: {
-//           $push: {
-//             product: {
-//               productName: "$product.productName",
-//               price: "$product.price",
-//               category: "$product.category",
-//               productId: "$cartItems.productId",
-//               size: "$cartItems.size",
-//               quantity: "$cartItems.quantity",
-//               orderTotal: "$orderTotal",
-//               color: "$cartItems.color",
-//             },
-//           },
-//         },
-//         totalQuantityByProduct: { $addToSet: "$totalQuantityByProduct" },
-//       },
-//     },
-//   ]);
-//   return cart[0];
-// };
 
 module.exports.getCheckoutHelper = async (userId) =>{
   const today = new Date()

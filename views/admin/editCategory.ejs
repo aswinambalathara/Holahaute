@@ -8,35 +8,39 @@
                 <%- include('../includes/admin/adminHeader')%>
                     <div class="container-fluid bg-light vh-100">
                         <div class="addCategoryForm p-5 col-12 col-md-6 col-sm-8 col-lg-4">
-                            <form action="/admin/category/editcategory/<%= category._id %>?_method=PATCH" method="post" enctype="multipart/form-data">
+                            <form action="/admin/category/editcategory/<%= category._id %>?_method=PATCH" method="post"
+                                enctype="multipart/form-data">
                                 <% if (err) {%>
-                                <div class="mb-3"
-                                        style="color: red;  font-size: small; text-align: center;"><%=err%></div>
-                                        <%} %>
-                                <h4>Edit Category</h4>
-                                <div class="mb-3 mt-3">
-                                    <label for="CategoryName" class="form-label">Category Name</label>
-                                    <input type="text" style="text-transform: capitalize;" class="form-control" name="catName" id="catName" value="<%= category.categoryName %>" >
-                                    <div class="error mt-1 ms-2"
-                                        style="color: red;  font-size: small;"></div>
-                                </div>
-                                <!-- <div class="border-1 border-info border rounded btn col-12">
+                                    <div class="mb-3" style="color: red;  font-size: small; text-align: center;">
+                                        <%=err%>
+                                    </div>
+                                    <%} %>
+                                        <h4>Edit Category</h4>
+                                        <div class="mb-3 mt-3">
+                                            <label for="CategoryName" class="form-label">Category Name</label>
+                                            <input type="text" style="text-transform: capitalize;" class="form-control"
+                                                name="catName" id="catName" value="<%= category.categoryName %>">
+                                            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                        </div>
+                                        <!-- <div class="border-1 border-info border rounded btn col-12">
                                     <label class="form-label text-dark m-1 image-label" for="image-2"><i
                                         class="fa-solid fa-upload me-3"></i>Upload Image</label>
                                     <input type="file" class="form-control d-none" id="image-2" />
                                   </div> -->
-                                <div class="mb-3">
-                                    <label for="catImg" class="form-label">Category Image</label>
-                                    <div class="mb-2">
-                                    <img src="/images/categoryImages/<%=category.image%>" alt="" style="width: 200px; height: 200px;" id="img-display">
-                                </div>
-                                    <input class="form-control" type="file" id="catImg" name="image" accept=".jpg, .jpeg, .webp, .png">
-                                    <div style="font-size: x-small;" class="ms-2 mt-1">attach file do not exceed 10mb(supported types : jpg,jpeg,png,webp)</div>
-                                    
-                                    <div class="error mt-1 ms-2"
-                                        style="color: red;  font-size: small;"></div>
-                                </div>
-                                <button type="submit" class="btn btn-primary mt-4">Submit</button>
+                                        <div class="mb-3">
+                                            <label for="catImg" class="form-label">Category Image</label>
+                                            <div class="mb-2">
+                                                <img src="/images/categoryImages/<%=category.image%>" alt=""
+                                                    style="width: 200px; height: 200px;" id="img-display">
+                                            </div>
+                                            <input class="form-control" type="file" id="catImg" name="image"
+                                                accept=".jpg, .jpeg, .webp, .png">
+                                            <div style="font-size: x-small;" class="ms-2 mt-1">attach file do not exceed
+                                                10mb(supported types : jpg,jpeg,png,webp)</div>
+
+                                            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-4">Submit</button>
                             </form>
                         </div>
                     </div>
@@ -50,18 +54,18 @@
         const previewImg = document.getElementById('img-display');
 
 
-        catImg.addEventListener('change',(e)=>{
+        catImg.addEventListener('change', (e) => {
             const file = e.target.files[0]
 
             const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
-            if(!allowedExtensions.test(file.name)){
-                return setError(catImg,"Check file type");
-            }else{
-                setError(catImg,'');
+            if (!allowedExtensions.test(file.name)) {
+                return setError(catImg, "Check file type");
+            } else {
+                setError(catImg, '');
             }
             const reader = new FileReader();
 
-            reader.onload=(event)=>{
+            reader.onload = (event) => {
                 previewImg.src = event.target.result;
             }
 
@@ -73,26 +77,21 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault()
 
-            // const catNameValue = catName.value.trim()
+
             const catImgValue = catImg.value.trim()
             const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
-            console.log(catImgValue)
-            let hasError = false
-            // if(catNameValue === '' ){
-            //     setError(catName,"This Field is required")
-            //     hasError = true;
-            // }else{
-            //     setError(catName," ")
-            // }
-                if(!allowedExtensions.exec(catImgValue) && catImgValue !== ''){
-                    setError(catImg,"Check file type")
-                    hasError=true;
-                }else{
-                setError(catImg,"")
-                }
-            
 
-            if(!hasError){
+            let hasError = false
+
+            if (!allowedExtensions.exec(catImgValue) && catImgValue !== '') {
+                setError(catImg, "Check file type")
+                hasError = true;
+            } else {
+                setError(catImg, "")
+            }
+
+
+            if (!hasError) {
                 form.submit()
             }
         })

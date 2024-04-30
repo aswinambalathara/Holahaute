@@ -199,22 +199,11 @@
       }
     });
 
-    // cropBtn.addEventListener('click', () => {
-    //   existImageCrop(image, imageFrame, img, index)
-    // });
+    
 
   })
 
-  // function existImageCrop(image, imageFrame, img, index) {
-  //   imageToCrop.src = img.src
-  //   const cropper = new Cropper(imageToCrop,{
-  //     aspectRatio: 3 / 4,
-  //       viewMode: 2,
-  //   });
-  //   cropContainer.hidden = false
-  // }
-
-  //console.log(includedImagesNames)
+  
 
   function cropImage(image, imageFrame, img, index) {
     const files = Array.from(imageInput.files);
@@ -315,13 +304,7 @@
     } else {
       setError(images, '');
     }
-    // const lettersOnlyRegex = /^[A-Za-z\s]*$/;
-    // if (!lettersOnlyRegex.test(colorValue)) {
-    //   setError(colorInput, "Only letters are allowed");
-    // } else {
-    //   setError(colorInput, "");
-    // }
-
+    
 
     if (!hasError) {
       return true;

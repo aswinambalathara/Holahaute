@@ -15,9 +15,9 @@ module.exports.errorHandler = (err,req,res,next) =>{
 }
 
 module.exports.get404 = (req,res,next) =>{
-    res.render('error/404', { title: 'Page Not Found' })
+    res.status(404).render('error/404', { title: 'Page Not Found' })
 }
 
 module.exports.get500 = (req,res,next)=>{
-    res.render('error/500',{ title: 'Internal Server Error' })
+    res.status(500).render('error/500',{ title: 'Internal Server Error' })
 }

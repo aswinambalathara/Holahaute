@@ -35,24 +35,24 @@
             if (response.status === 200) {
                 const contentType = response.headers.get('Content-Type');
                 const blob = await response.blob();
-                    downloadFile(blob,format)
+                downloadFile(blob, format)
             }
         })
     })
 
-    function downloadFile(blob,format){
+    function downloadFile(blob, format) {
         const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    if (format === "pdf") {
-        a.download = "sales_report.pdf";
-    } else if (format === "excel") {
-        a.download = "sales_report.xlsx";
-    }
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+        const a = document.createElement("a");
+        a.href = url;
+        if (format === "pdf") {
+            a.download = "sales_report.pdf";
+        } else if (format === "excel") {
+            a.download = "sales_report.xlsx";
+        }
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     }
 
     if (salesArray.length > 0 && monthsArray.length > 0) {

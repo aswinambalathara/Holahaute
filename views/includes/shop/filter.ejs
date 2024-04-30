@@ -4,14 +4,17 @@
             <input type="radio" value="" id="allProducts" name="categories" hidden class="categoryFilter">
             <label class="m-0 pointer" for="allProducts">All Products</label>
         </button>
-<%categories.forEach(function(category){%>
-    
-        <button  class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" style="text-transform: capitalize;">
-            <input type="radio" value="<%=category.categoryName%>" id="<%=category._id%>" name="categories" hidden class="categoryFilter">
-            <label class="m-0 pointer" for="<%=category._id%>"> <%= category.categoryName%> </label>
-        </button>
-    
-        <%})%>
+        <%categories.forEach(function(category){%>
+
+            <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" style="text-transform: capitalize;">
+                <input type="radio" value="<%=category.categoryName%>" id="<%=category._id%>" name="categories" hidden
+                    class="categoryFilter">
+                <label class="m-0 pointer" for="<%=category._id%>">
+                    <%= category.categoryName%>
+                </label>
+            </button>
+
+            <%})%>
     </div>
 
     <div class="flex-w flex-c-m m-tb-10">
@@ -34,8 +37,8 @@
             <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
                 <i class="zmdi zmdi-search"></i>
             </button>
-            <input class="mtext-107 cl2 size-114 plh2 p-r-15 searchFilter" type="text" name="search-product" placeholder="Search"
-                id="search-bar">
+            <input class="mtext-107 cl2 size-114 plh2 p-r-15 searchFilter" type="text" name="search-product"
+                placeholder="Search" id="search-bar">
         </div>
 
     </div>
@@ -66,20 +69,6 @@
 
                     </li>
 
-                    <!-- <li class="p-b-6">
-                        <label for="popularity" style="cursor: pointer;">
-                            <input type="radio" name="sortFilter" class="form-check-input" id="popularity">
-                            <span class="filter-link stext-106 trans-04">Popularity</span>
-                        </label>
-                    </li> -->
-
-                    <!-- <li class="p-b-6">
-                        <label for="averageRating" style="cursor: pointer;">
-                            <input type="radio" name="sortFilter" class="form-check-input" id="averageRating">
-                            <span class="filter-link stext-106 trans-04">Average rating</span>
-                        </label>
-                    </li> -->
-
                     <li class="p-b-6">
                         <label for="newArrivals" style="cursor: pointer;">
                             <input type="radio" name="sortFilter" class="form-check-input sortFilter" id="newArrivals"
@@ -87,9 +76,6 @@
                             <span class="filter-link stext-106 trans-04">New Arrivals</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                            New Arrivals
-                        </a> -->
                     </li>
 
                     <li class="p-b-6">
@@ -99,9 +85,7 @@
                             <span class="filter-link stext-106 trans-04">Average Ratings</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-                            New Arrivals
-                        </a> -->
+
                     </li>
 
                     <li class="p-b-6">
@@ -111,9 +95,7 @@
                             <span class="filter-link stext-106 trans-04">Price: Low to High</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04">
-                            Price: Low to High
-                        </a> -->
+
                     </li>
 
                     <li class="p-b-6">
@@ -123,9 +105,7 @@
                             <span class="filter-link stext-106 trans-04">Price: High to Low</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04">
-                            Price: High to Low
-                        </a> -->
+
                     </li>
                 </ul>
             </div>
@@ -159,9 +139,7 @@
                                 class="priceFilter form-check-input" id="priceRange500_2000">
                             <span class="filter-link stext-106 trans-04">₹500 - ₹2000</span>
                         </label>
-                        <!-- <a href="#" class="filter-link stext-106 trans-04">
-                            ₹500 - ₹2000
-                        </a> -->
+
                     </li>
 
                     <li class="p-b-6">
@@ -171,9 +149,7 @@
                             <span class="filter-link stext-106 trans-04">₹2000 - ₹5000</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04">
-                            ₹2000 - ₹5000
-                        </a> -->
+
                     </li>
 
                     <li class="p-b-6">
@@ -183,9 +159,7 @@
                             <span class="filter-link stext-106 trans-04">₹5000 and Above</span>
                         </label>
 
-                        <!-- <a href="#" class="filter-link stext-106 trans-04">
-                            ₹5000 and Above
-                        </a> -->
+
                     </li>
                 </ul>
             </div>
@@ -314,4 +288,3 @@
 
     </div>
 </div>
-

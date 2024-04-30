@@ -1,4 +1,4 @@
-const categorySchema = require("../models/categoryModel");
+//const categorySchema = require("../models/categoryModel");
 const offerSchema = require("../models/offerModel");
 const productSchema = require("../models/productModel");
 const { ObjectId } = require("mongodb");
