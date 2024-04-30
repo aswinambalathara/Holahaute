@@ -14,6 +14,7 @@ const nocache = require('nocache');
 const authRouter = require('./routes/authRouter')
 const shopRouter = require('./routes/shopRouter')
 const adminRouter = require('./routes/adminRouter');
+const errorController = require('./controllers/errorController');
 const batchCount = require('./middlewares/batchCount');
 
 app.set('views',path.join(__dirname,'views'));
@@ -45,6 +46,10 @@ app.use( session ({
 app.use('/',authRouter); 
 app.use('/',batchCount.updateBatchCount,shopRouter); 
 app.use('/admin',adminRouter); 
+app.use(errorController.get404);
+app.use('/500',errorController.get500);
+app.use(errorController.errorHandler);
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT,()=>{
     console.log(`Server is running on PORT : ${PORT}`)

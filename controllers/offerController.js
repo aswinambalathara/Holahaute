@@ -5,7 +5,7 @@ const offerSchema = require("../models/offerModel");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
-module.exports.getAdminOffers = async (req, res) => {
+module.exports.getAdminOffers = async (req, res,next) => {
   try {
     const updateOffers = await offerHelper.updateOffers();
     const offers = await offerSchema.find({});
@@ -15,10 +15,11 @@ module.exports.getAdminOffers = async (req, res) => {
       offers: offers,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
-module.exports.getAddOffer = async (req, res) => {
+module.exports.getAddOffer = async (req, res,next) => {
   try {
     const categories = await categorySchema.find({ status: true });
     const products = await productSchema.find({ isDeleted: false });
@@ -29,11 +30,12 @@ module.exports.getAddOffer = async (req, res) => {
       error: req.flash("error"),
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doAddOffer = async (req, res) => {
+module.exports.doAddOffer = async (req, res,next) => {
   try {
     console.log(req.body);
     const { offerType, offerName } = req.body;
@@ -124,11 +126,12 @@ module.exports.doAddOffer = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getEditOffer = async (req, res) => {
+module.exports.getEditOffer = async (req, res,next) => {
   try {
     const offerId = req.params.id;
     const offer = await offerSchema.findOne({ _id: offerId });
@@ -145,11 +148,12 @@ module.exports.getEditOffer = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doEditOffer = async (req, res) => {
+module.exports.doEditOffer = async (req, res,next) => {
   try {
     console.log(req.body);
     const offerId = req.params.id;
@@ -244,11 +248,12 @@ module.exports.doEditOffer = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doUnlistOffer = async (req, res) => {
+module.exports.doUnlistOffer = async (req, res,next) => {
   try {
     const offerId = req.params.id
     //console.log(offerId);
@@ -265,11 +270,12 @@ module.exports.doUnlistOffer = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getOffers = async (req, res) => {
+module.exports.getOffers = async (req, res,next) => {
   try {
     let user;
     if (req.cookies.token) {
@@ -286,11 +292,12 @@ module.exports.getOffers = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.fetchProductList = async (req, res) => {
+module.exports.fetchProductList = async (req, res,next) => {
   try {
     //console.log(req.body);
     const { categoryId } = req.body;
@@ -302,6 +309,7 @@ module.exports.fetchProductList = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };

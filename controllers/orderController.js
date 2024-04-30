@@ -1,18 +1,18 @@
 const cartSchema = require("../models/cartModel");
-const productSchema = require("../models/productModel");
-const addressSchema = require("../models/addressModel");
+// const productSchema = require("../models/productModel");
+// const addressSchema = require("../models/addressModel");
 const orderHelper = require("../helpers/orderHelper");
-const userHelper = require('../helpers/userHelper');
+//const userHelper = require('../helpers/userHelper');
 const paymentHelper = require("../helpers/paymentHelper");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = require("mongodb");
-const { RAZORPAY_KEY_SECRET } = process.env;
-const crypto = require("crypto");
+//const { RAZORPAY_KEY_SECRET } = process.env;
+//const crypto = require("crypto");
 const walletSchema = require("../models/walletmodel");
 const orderSchema = require("../models/orderModel");
 
-module.exports.doCartPlaceOrder = async (req, res) => {
+module.exports.doCartPlaceOrder = async (req, res,next) => {
   try {
     const {
       addressId,
@@ -120,11 +120,12 @@ module.exports.doCartPlaceOrder = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doverifyPayment = async (req, res) => {
+module.exports.doverifyPayment = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
@@ -160,11 +161,12 @@ module.exports.doverifyPayment = async (req, res) => {
     // sign = sign.digest("hex");
 
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getOrderStatusPage = async (req, res) => {
+module.exports.getOrderStatusPage = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const orderDocId =
@@ -185,11 +187,12 @@ module.exports.getOrderStatusPage = async (req, res) => {
       cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getMyorders = async (req, res) => {
+module.exports.getMyorders = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const updateOrders = await orderHelper.updateOrderStatus(authUser.userId)
@@ -218,11 +221,12 @@ module.exports.getMyorders = async (req, res) => {
       //arrivals
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getOrderDetail = async (req, res) => {
+module.exports.getOrderDetail = async (req, res,next) => {
   try {
     const orderId = req.params.id;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -237,11 +241,12 @@ module.exports.getOrderDetail = async (req, res) => {
       cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doGenerateInvoice = async (req,res)=>{
+module.exports.doGenerateInvoice = async (req,res,next)=>{
   try {
     const orderId = req.params.id
     console.log(orderId);
@@ -253,7 +258,7 @@ module.exports.doGenerateInvoice = async (req,res)=>{
   }
 }
 
-module.exports.doRetryPayment = async (req, res) => {
+module.exports.doRetryPayment = async (req, res,next) => {
   try {
     const orderId = req.params.id;
     //console.log(orderId);
@@ -270,7 +275,7 @@ module.exports.doRetryPayment = async (req, res) => {
   }
 };
 
-module.exports.getOrderTracking = async (req, res) => {
+module.exports.getOrderTracking = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const orderId = req.params.id;
@@ -289,11 +294,12 @@ module.exports.getOrderTracking = async (req, res) => {
       cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doCancelOrder = async (req, res) => {
+module.exports.doCancelOrder = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const id = req.params.id;
@@ -345,11 +351,12 @@ module.exports.doCancelOrder = async (req, res) => {
       }
     );
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doReturnOrder = async (req, res) => {
+module.exports.doReturnOrder = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const id = req.params.id;
@@ -384,6 +391,7 @@ module.exports.doReturnOrder = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };

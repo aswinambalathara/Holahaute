@@ -4,7 +4,7 @@ const productModel = require("../models/productModel");
 const bannerHelper = require("../helpers/bannerHelper");
 const fs = require("fs");
 
-module.exports.getBannerManagement = async (req, res) => {
+module.exports.getBannerManagement = async (req, res,next) => {
   try {
     const today = Date.now();
     const updateBanners = await bannerSchema.updateMany(
@@ -23,11 +23,12 @@ module.exports.getBannerManagement = async (req, res) => {
       success: req.flash("success"),
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getAddBanner = async (req, res) => {
+module.exports.getAddBanner = async (req, res,next) => {
   try {
     const products = await productModel.find({ isDeleted: false });
     const categories = await categoryModel.find({ status: true });
@@ -39,11 +40,12 @@ module.exports.getAddBanner = async (req, res) => {
       error : req.flash('error')
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doAddBanner = async (req, res) => {
+module.exports.doAddBanner = async (req, res,next) => {
   try {
     console.log(req.body);
     console.log(req.file);
@@ -105,11 +107,12 @@ module.exports.doAddBanner = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getEditBanner = async (req, res) => {
+module.exports.getEditBanner = async (req, res,next) => {
   try {
     const bannerId = req.params.id;
     console.log(bannerId);
@@ -124,11 +127,12 @@ module.exports.getEditBanner = async (req, res) => {
       error : req.flash('error')
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doEditBanner = async (req, res) => {
+module.exports.doEditBanner = async (req, res,next) => {
   try {
     const bannerId = req.params.id;
     const { bannerName, bannerType, product, category, validFrom, validTo } =
@@ -179,11 +183,12 @@ module.exports.doEditBanner = async (req, res) => {
       return res.redirect("/admin/banners");
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doUnlistBanner = async (req, res) => {
+module.exports.doUnlistBanner = async (req, res,next) => {
   try {
     const bannerId = req.params.id;
     console.log(bannerId);
@@ -202,6 +207,7 @@ module.exports.doUnlistBanner = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };

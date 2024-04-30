@@ -1,22 +1,32 @@
 const { response } = require("express");
 const categorySchema = require("../models/categoryModel");
 const fs = require("fs");
-const { error } = require("console");
-module.exports.getAdminCategory = async (req, res) => {
+
+
+
+module.exports.getAdminCategory = async (req, res,next) => {
+ try {
   const data = await categorySchema.find({ status: true });
-  //console.log(data);
-
   res.render("admin/adminCategory", { title: "Category", data });
+ } catch (error) {
+  console.error(error)
+    next(error)
+ }
 };
 
-module.exports.getAddCategory = (req, res) => {
-  res.render("admin/addCategory", {
-    title: "Add Category",
-    err: req.flash("error"),
-  });
+module.exports.getAddCategory = (req, res,next) => {
+  try {
+    res.render("admin/addCategory", {
+      title: "Add Category",
+      err: req.flash("error"),
+    });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doAddCategory = async (req, res) => {
+module.exports.doAddCategory = async (req, res,next) => {
   try {
     const categoryName = req.body.catName.toLowerCase();
     const fileName = req.file.filename;
@@ -66,11 +76,12 @@ module.exports.doAddCategory = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getEditCategory = async (req, res) => {
+module.exports.getEditCategory = async (req, res,next) => {
   try {
     const category = await categorySchema.findOne({ _id: req.params.id });
     if (category) {
@@ -81,11 +92,12 @@ module.exports.getEditCategory = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doEditCategory = async (req, res) => {
+module.exports.doEditCategory = async (req, res,next) => {
   try {
     const categoryName = req.body.catName.toLowerCase();
     const category = await categorySchema.findOne({ _id: req.params.id });
@@ -203,11 +215,12 @@ module.exports.doEditCategory = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doDeleteCategory = async (req, res) => {
+module.exports.doDeleteCategory = async (req, res,next) => {
   try {
     // console.log(req.params);
     if (req.params.id) {
@@ -222,6 +235,7 @@ module.exports.doDeleteCategory = async (req, res) => {
       res.redirect("/admin/category");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };

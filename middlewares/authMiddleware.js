@@ -10,13 +10,7 @@ module.exports.isUserLoggedOut = (req, res, next) => {
   }
 };
 
-// module.exports.isAdminAuth = (req, res, next) => {
-//   if (!req.session.adminAuth) {
-//     res.redirect("/admin/login");
-//   } else {
-//     next();
-//   }
-// };
+
 
 module.exports.isAdminLoggedOut = (req, res, next) => {
   const token = req.cookies.adminToken;
@@ -43,30 +37,28 @@ module.exports.forgotuser = (req, res, next) => {
 };
 
 module.exports.userStatus = async (req, res, next) => {
-  const token = req.cookies.token;
+  try {
+    const token = req.cookies.token;
   if (token) {
     const isUserBlocked = req.session.userIsBlocked;
     if (isUserBlocked === undefined) {
       const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
       const user = await userSchema.findOne({ _id: authUser.userId });
       req.session.userIsBlocked = user.isBlocked;
-      if (!req.session.userIsBlocked) {
-        next();
-      } else {
-        res.clearCookie("token");
-        res.redirect("/home");
-      }
-    } else {
-      if (!req.session.userIsBlocked) {
-        next();
-      } else {
-        res.clearCookie("token");
-        res.redirect("/home");
-      }
     }
-  }else{
-    res.redirect('/login');
-  } 
+      if (!req.session.userIsBlocked) {
+        next();
+      } else {
+        res.clearCookie("token");
+        res.redirect("/home");
+      }
+    }else{
+      next()
+    } 
+  } catch (error) {
+    console.error(error)
+    res.redirect('/500')
+  }
 };
 
 module.exports.verifyUser = (req, res, next) => {
@@ -81,7 +73,7 @@ module.exports.verifyUser = (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    //res.redirect('/home');
+    res.redirect('/500')
   }
 };
 
@@ -98,5 +90,6 @@ module.exports.verifyAdmin = (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    res.redirect('/500')
   }
 };

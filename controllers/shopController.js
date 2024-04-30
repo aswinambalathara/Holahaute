@@ -4,9 +4,9 @@ const wishlistSchema = require("../models/wishlistModel");
 const bannerSchema = require("../models/bannerModel");
 const shopHelper = require("../helpers/shopHelper");
 const jwt = require("jsonwebtoken");
-const { ObjectId } = require("mongodb");
+//const { ObjectId } = require("mongodb");
 
-module.exports.getHomePage = async (req, res) => {
+module.exports.getHomePage = async (req, res, next) => {
   try {
     const today = Date.now();
     let user;
@@ -16,10 +16,7 @@ module.exports.getHomePage = async (req, res) => {
     const products = await productSchema.find({ isDeleted: false });
     const categories = await categorySchema.find({ status: true });
     const banners = await bannerSchema.find({
-      $and: [
-        { status: true },
-        { validTo: { $gte: today } } 
-      ]
+      $and: [{ status: true }, { validTo: { $gte: today } }],
     });
 
     console.log(banners);
@@ -27,18 +24,19 @@ module.exports.getHomePage = async (req, res) => {
       title: "Home",
       categories,
       products,
-      banners : banners,
+      banners: banners,
       user: user ? user.userName : undefined,
       batchCount: req.flash("batchCount"),
       wishlistCount: user ? req.session.wishlistCount : 0,
       cartCount: user ? req.session.cartCount : 0,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getProductDetailPage = async (req, res) => {
+module.exports.getProductDetailPage = async (req, res, next) => {
   try {
     let user;
     if (req.cookies.token) {
@@ -59,11 +57,12 @@ module.exports.getProductDetailPage = async (req, res) => {
       cartCount: user ? req.session.cartCount : 0,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getProductsPage = async (req, res) => {
+module.exports.getProductsPage = async (req, res, next) => {
   try {
     let categoryId = req.query ? req.query.categoryid : "";
     let user;
@@ -89,30 +88,12 @@ module.exports.getProductsPage = async (req, res) => {
       cartCount: user ? req.session.cartCount : 0,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-// module.exports.doSearch = async (req, res) => {
-//   try {
-//     const { searchTerm } = req.body;
-//     const suggestions = await productSchema.find({
-//       isDeleted: false,
-//       $or: [
-//         { productName: { $regex: searchTerm, $options: "i" } },
-//         { description: { $regex: searchTerm, $options: "i" } },
-//       ],
-//     });
-//     res.json({
-//       suggestions: suggestions,
-//       success: true,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-module.exports.doFilter = async (req, res) => {
+module.exports.doFilter = async (req, res, next) => {
   try {
     const { colors, userType, sort, price, category, searchTerm } = req.body;
     //console.log(colors,userType,sort,price,category);
@@ -144,11 +125,12 @@ module.exports.doFilter = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getWishlist = async (req, res) => {
+module.exports.getWishlist = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -162,11 +144,12 @@ module.exports.getWishlist = async (req, res) => {
       cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.addToWishlist = async (req, res) => {
+module.exports.addToWishlist = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -217,11 +200,12 @@ module.exports.addToWishlist = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.removeFromWishList = async (req, res) => {
+module.exports.removeFromWishList = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -241,11 +225,12 @@ module.exports.removeFromWishList = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.fetchProductOptions = async (req, res) => {
+module.exports.fetchProductOptions = async (req, res, next) => {
   try {
     const productId = req.params.id;
     const product = await productSchema.findOne({ _id: productId });
@@ -257,6 +242,7 @@ module.exports.fetchProductOptions = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };

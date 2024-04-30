@@ -7,7 +7,6 @@ const bannerController = require ('../controllers/bannerController');
 const categoryController = require('../controllers/categoryController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const {uploadCatogory,uploadBanner,uploadProduct} = require('../middlewares/multer');
-const { auth } = require('google-auth-library');
 
 router.get('/',authMiddleware.verifyAdmin,adminController.getAdminDashboard);
 router.post('/generatesaleschart',authMiddleware.verifyAdmin,adminController.generateSales);
@@ -22,8 +21,8 @@ router.patch('/products/deleteproduct/:id',authMiddleware.verifyAdmin,productCon
 
 
 router.get('/users',authMiddleware.verifyAdmin,adminController.getAdminUsers);
-router.patch('/users/blockuser/:id',authMiddleware.verifyAdmin,adminController.doUserBlock);
-router.patch('/users/unblockuser/:id',authMiddleware.verifyAdmin,adminController.doUserUnBlock);
+router.patch('/users/blockuser/:id',authMiddleware.verifyAdmin,adminController.toggleUserBlock);
+router.patch('/users/unblockuser/:id',authMiddleware.verifyAdmin,adminController.toggleUserBlock);
 
 router.get('/category',authMiddleware.verifyAdmin,categoryController.getAdminCategory)
 router.get('/category/addcategory',authMiddleware.verifyAdmin,categoryController.getAddCategory) 
@@ -35,7 +34,6 @@ router.patch('/category/deletecategory/:id',authMiddleware.verifyAdmin,categoryC
 router.get('/orders',authMiddleware.verifyAdmin,adminController.getAdminOrders);
 router.get('/orders/orderinfo/:id',authMiddleware.verifyAdmin, adminController.getAdminOrderInfo);
 router.patch('/orders/changestage/:id',authMiddleware.verifyAdmin,adminController.doChangeOrderStage);
-//router.patch('/orders/cancelorder',authMiddleware.verifyAdmin,adminController.doAdminCancelOrder);
 
 router.get('/coupons',authMiddleware.verifyAdmin,adminController.getAdminCoupons);
 router.post('/coupons/addcoupon',authMiddleware.verifyAdmin,adminController.doAddCoupon);
@@ -59,4 +57,8 @@ router.post('/banners/addbanner',authMiddleware.verifyAdmin,uploadBanner.single(
 router.get('/banners/editbanner/:id',authMiddleware.verifyAdmin,bannerController.getEditBanner);
 router.patch('/banners/editbanner/:id',authMiddleware.verifyAdmin,uploadBanner.single('bannerImage'),bannerController.doEditBanner);
 router.patch('/banners/deletebanner/:id',authMiddleware.verifyAdmin,bannerController.doUnlistBanner);
+
+
+
+
 module.exports = router;

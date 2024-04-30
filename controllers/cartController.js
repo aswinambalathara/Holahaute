@@ -9,7 +9,7 @@ const { ObjectId } = require("mongodb");
 const userSchema = require("../models/userModel");
 const walletSchema = require("../models/walletmodel");
 
-module.exports.getCart = async (req, res) => {
+module.exports.getCart = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -27,11 +27,12 @@ module.exports.getCart = async (req, res) => {
       cartCount: req.session.cartCount, 
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doAddToCart = async (req, res) => {
+module.exports.doAddToCart = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const userId = authUser.userId;
@@ -133,11 +134,12 @@ module.exports.doAddToCart = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doUpdateQuantity = async (req, res) => {
+module.exports.doUpdateQuantity = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { quantity, itemId, productId } = req.body;
@@ -164,11 +166,12 @@ module.exports.doUpdateQuantity = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doRemoveItem = async (req, res) => {
+module.exports.doRemoveItem = async (req, res,next) => {
   try {
     const itemId = req.params.id;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -184,11 +187,12 @@ module.exports.doRemoveItem = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getCartCheckOut = async (req, res) => {
+module.exports.getCartCheckOut = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const addresses = await addressSchema.find({
@@ -234,11 +238,12 @@ module.exports.getCartCheckOut = async (req, res) => {
       res.redirect("/cart");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doApplyCoupon = async (req, res) => {
+module.exports.doApplyCoupon = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { couponCode, walletDiscount,deliveryCharge} = req.body;
@@ -283,11 +288,12 @@ module.exports.doApplyCoupon = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doRemoveCoupon = async (req, res) => {
+module.exports.doRemoveCoupon = async (req, res,next) => {
   try {
     console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -302,11 +308,12 @@ module.exports.doRemoveCoupon = async (req, res) => {
       couponDiscount: 0,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doApplyWallet = async (req, res) => {
+module.exports.doApplyWallet = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     console.log(req.body);
@@ -339,11 +346,12 @@ module.exports.doApplyWallet = async (req, res) => {
       walletAmount: walletAmount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doUncheckWallet = async (req, res) => {
+module.exports.doUncheckWallet = async (req, res,next) => {
   try {
     console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -358,6 +366,7 @@ module.exports.doUncheckWallet = async (req, res) => {
       couponDiscount: couponDiscount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };

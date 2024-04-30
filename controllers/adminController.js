@@ -9,7 +9,7 @@ const salesHelper = require("../helpers/salesHelper");
 const { json } = require("express");
 const productModel = require("../models/productModel");
 
-module.exports.getAdminDashboard = async (req, res) => {
+module.exports.getAdminDashboard = async (req, res,next) => {
   try {
     const defaultSales = await salesHelper.monthlySalesHelp(
       new Date().getFullYear()
@@ -38,10 +38,11 @@ module.exports.getAdminDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.generateSales = async (req, res) => {
+module.exports.generateSales = async (req, res,next) => {
   try {
     const { type } = req.body;
     console.log(type);
@@ -123,10 +124,11 @@ module.exports.generateSales = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.generateSalesReport = async (req, res) => {
+module.exports.generateSalesReport = async (req, res,next) => {
   try {
     const { format, salesData } = req.body;
     //console.log(req.body)
@@ -137,10 +139,11 @@ module.exports.generateSalesReport = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    next(error)
   }
 };
 
-module.exports.getAdminUsers = async (req, res) => {
+module.exports.getAdminUsers = async (req, res,next) => {
   try {
     const users = await userSchema.find({});
     if (users) {
@@ -152,68 +155,26 @@ module.exports.getAdminUsers = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+    next(error)
   }
 };
 
-module.exports.doUserBlock = async (req, res) => {
+
+module.exports.toggleUserBlock = async (req,res,next)=>{
   try {
-    const id = req.params.id;
-    const user = await userSchema.findOne({ _id: id });
-    if (user) {
-      await userSchema.updateOne(
-        { _id: id },
-        {
-          $set: {
-            isBlocked: true,
-          },
-        }
-      );
-      req.session.userIsBlocked = true;
-      res.json({
-        status: "blocked",
-      });
-    }
+    const user = await userSchema.findOne({_id:req.params.id});
+    user.isBlocked = !user.isBlocked
+    await user.save()
+    res.json({
+      status : user.isBlocked? "blocked" : "unblocked"
+    })
   } catch (error) {
     console.log(error);
+    next(error)
   }
-};
+}
 
-module.exports.doUserUnBlock = async (req, res) => {
-  try {
-    const user = await userSchema.findOne({ _id: req.params.id });
-    if (user) {
-      await userSchema.updateOne(
-        { _id: req.params.id },
-        {
-          $set: {
-            isBlocked: false,
-          },
-        }
-      );
-      req.session.userIsBlocked = false;
-      res.json({
-        status: "unBlocked",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// module.exports.toggleUserBlock = async (req,res)=>{
-//   try {
-//     const user = await userSchema.findOne({_id:req.params.id});
-//     user.isBlocked = !user.isBlocked
-//     await user.save()
-//     res.json({
-//       status : user.isBlocked? "blocked" : "unblocked"
-//     })
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-
-module.exports.getAdminOrders = async (req, res) => {
+module.exports.getAdminOrders = async (req, res,next) => {
   try {
     const orders = await orderSchema.aggregate([
       {
@@ -233,11 +194,12 @@ module.exports.getAdminOrders = async (req, res) => {
       res.render("admin/adminOrders", { title: "Orders", orders });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
-module.exports.getAdminOrderInfo = async (req, res) => {
+module.exports.getAdminOrderInfo = async (req, res,next) => {
   try {
     const orderId = req.params.id;
     const order = await adminHelper.orderInfoHelper(orderId);
@@ -249,11 +211,12 @@ module.exports.getAdminOrderInfo = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
-module.exports.doChangeOrderStage = async (req, res) => {
+module.exports.doChangeOrderStage = async (req, res,next) => {
   try {
     const id = req.params.id;
     const { changeStage } = req.body;
@@ -417,13 +380,14 @@ module.exports.doChangeOrderStage = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
-//-`module.exports.doAdminCancelOrder = async (req, res) => {};
 
-module.exports.getAdminCoupons = async (req, res) => {
+
+module.exports.getAdminCoupons = async (req, res,next) => {
   try {
     const updates = await couponSchema.updateMany(
       { validTo: { $lt: Date.now() } },
@@ -434,10 +398,11 @@ module.exports.getAdminCoupons = async (req, res) => {
     res.render("admin/adminCoupons", { title: "Coupons", coupons, categories });
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.doAddCoupon = async (req, res) => {
+module.exports.doAddCoupon = async (req, res,next) => {
   try {
     //console.log(req.body);
     const {
@@ -478,10 +443,11 @@ module.exports.doAddCoupon = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.doFetchCoupon = async (req, res) => {
+module.exports.doFetchCoupon = async (req, res,next) => {
   try {
     const couponId = req.params.id;
     const coupon = await couponSchema.findOne({ _id: couponId });
@@ -494,10 +460,11 @@ module.exports.doFetchCoupon = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.doEditCoupon = async (req, res) => {
+module.exports.doEditCoupon = async (req, res,next) => {
   try {
     const couponId = req.params.id;
     const {
@@ -547,10 +514,11 @@ module.exports.doEditCoupon = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };
 
-module.exports.doDeleteCoupon = async (req, res) => {
+module.exports.doDeleteCoupon = async (req, res,next) => {
   try {
     const couponId = req.params.id;
     //console.log(couponId)
@@ -570,5 +538,6 @@ module.exports.doDeleteCoupon = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    next(error)
   }
 };

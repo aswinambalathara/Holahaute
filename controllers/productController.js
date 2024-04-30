@@ -2,10 +2,8 @@ const categorySchema = require("../models/categoryModel");
 const productSchema = require("../models/productModel");
 const productHelper = require("../helpers/productHelper");
 const fs = require("fs");
-const { json } = require("express");
-const { error } = require("console");
 
-module.exports.getAdminProducts = async (req, res) => {
+module.exports.getAdminProducts = async (req, res,next) => {
   try {
     const products = await productSchema
       .find({ isDeleted: false })
@@ -16,11 +14,12 @@ module.exports.getAdminProducts = async (req, res) => {
       success: req.flash("success"),
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getAddProducts = async (req, res) => {
+module.exports.getAddProducts = async (req, res,next) => {
   try {
     const categories = await categorySchema.find({ status: true });
     res.render("admin/addProduct", {
@@ -29,11 +28,12 @@ module.exports.getAddProducts = async (req, res) => {
       err: req.flash("error"),
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doAddProducts = async (req, res) => {
+module.exports.doAddProducts = async (req, res,next) => {
   try {
     const images = productHelper.imageNameArray(req.files);
     //console.log(images);
@@ -106,11 +106,12 @@ module.exports.doAddProducts = async (req, res) => {
       res.redirect("/admin/products");
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getEditProducts = async (req, res) => {
+module.exports.getEditProducts = async (req, res,next) => {
   try {
     const product = await productSchema
       .findOne({ _id: req.params.id })
@@ -125,11 +126,12 @@ module.exports.getEditProducts = async (req, res) => {
       err: req.flash("error"),
     });
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doEditProducts = async (req, res) => {
+module.exports.doEditProducts = async (req, res,next) => {
   try {
     const newProductName = req.body.productName.toLowerCase();
     const existedImages = JSON.parse(req.body.existedImages);
@@ -259,11 +261,12 @@ module.exports.doEditProducts = async (req, res) => {
       res.redirect("/admin/products");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doDeleteProducts = async (req, res) => {
+module.exports.doDeleteProducts = async (req, res,next) => {
   try {
     if (req.params.id) {
       await productSchema.updateOne(
@@ -278,6 +281,7 @@ module.exports.doDeleteProducts = async (req, res) => {
       res.redirect("/admin/products");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };

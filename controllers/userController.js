@@ -1,6 +1,6 @@
 const userSchema = require("../models/userModel");
 const addressSchema = require("../models/addressModel");
-const verficationController = require("../controllers/verificationController");
+//const verficationController = require("../controllers/verificationController");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userHelper = require("../helpers/userHelper");
@@ -9,9 +9,7 @@ const paymentHelper = require("../helpers/paymentHelper");
 const ratingsSchema = require("../models/ratingsModel");
 const walletSchema = require("../models/walletmodel");
 
-
-
-module.exports.getUserProfile = async (req, res) => {
+module.exports.getUserProfile = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const user = await userSchema.findOne({ _id: authUser.userId }).populate({
@@ -26,25 +24,26 @@ module.exports.getUserProfile = async (req, res) => {
       user: authUser.userName,
       addresses: user.addresses,
       walletBalance: wallet?.balance,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doSetPrimaryAddress = async (req, res) => {
+module.exports.doSetPrimaryAddress = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const addressId = req.params.id;
     const userId = authUser.userId;
     console.log(addressId, " ", userId);
-    
+
     const address = await addressSchema.findOne({ userId, _id: addressId });
     address.isPrimary = true;
-    const update = await address.save()
-    console.log(update)
+    const update = await address.save();
+    console.log(update);
     await addressSchema.updateMany(
       { userId, _id: { $ne: addressId } },
       {
@@ -54,18 +53,19 @@ module.exports.doSetPrimaryAddress = async (req, res) => {
       }
     );
 
-    if(update){
+    if (update) {
       res.status(200).json({
         status: true,
-        address : update
+        address: update,
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getEditUserProfile = async (req, res) => {
+module.exports.getEditUserProfile = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const user = await userSchema.findOne({ _id: authUser.userId });
@@ -74,15 +74,16 @@ module.exports.getEditUserProfile = async (req, res) => {
       userdetail: user,
       user: authUser.userName,
       success: req.flash("success"),
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.DoEditUserProfile = async (req, res) => {
+module.exports.DoEditUserProfile = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const id = authUser.userId;
@@ -165,11 +166,12 @@ module.exports.DoEditUserProfile = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.DochangeUserPassword = async (req, res) => {
+module.exports.DochangeUserPassword = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const user = await userSchema.findOne({ _id: authUser.userId });
@@ -193,11 +195,12 @@ module.exports.DochangeUserPassword = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.DochangePasswordWithOtp = async (req, res) => {
+module.exports.DochangePasswordWithOtp = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     let { email, newPassword, otp } = req.body;
@@ -239,32 +242,42 @@ module.exports.DochangePasswordWithOtp = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getAddAddress = (req, res) => {
+module.exports.getAddAddress = (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     res.render("user/addAddress.ejs", {
       title: "Add Address",
       user: authUser.userName,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doAddAddress = async (req, res) => {
+module.exports.doAddAddress = async (req, res, next) => {
   try {
     //  console.log(req.body);
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const addresses = await addressSchema.find({userId:authUser.userId});
-    const{fullName,mobile,address,district,state,pincode,fromCheckout} = req.body
+    const addresses = await addressSchema.find({ userId: authUser.userId });
+    const {
+      fullName,
+      mobile,
+      address,
+      district,
+      state,
+      pincode,
+      fromCheckout,
+    } = req.body;
     if (authUser.userId) {
-      const isPrimary = addresses.length === 0? true : undefined
+      const isPrimary = addresses.length === 0 ? true : undefined;
       const newAddress = new addressSchema({
         fullName: fullName,
         mobile: Number(mobile),
@@ -273,27 +286,28 @@ module.exports.doAddAddress = async (req, res) => {
         state: state,
         pincode: Number(pincode),
         userId: authUser.userId,
-        isPrimary : isPrimary
+        isPrimary: isPrimary,
       });
       const result = await newAddress.save();
       await userSchema.updateOne(
         { _id: authUser.userId },
         { $push: { addresses: result._id } }
       );
-      if(fromCheckout && result){
-       return res.json({
-          status : true,
-          address : result
-        })
+      if (fromCheckout && result) {
+        return res.json({
+          status: true,
+          address: result,
+        });
       }
       res.redirect("/user/userprofile");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doUnlistAddress = async (req, res) => {
+module.exports.doUnlistAddress = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const addressId = req.params.id;
@@ -313,11 +327,12 @@ module.exports.doUnlistAddress = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getEditAddress = async (req, res) => {
+module.exports.getEditAddress = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     //console.log(req.params.id);
@@ -326,15 +341,16 @@ module.exports.getEditAddress = async (req, res) => {
       title: "Edit Address",
       user: authUser.userName,
       address: address,
-      wishlistCount : req.session.wishlistCount,
-      cartCount : req.session.cartCount
+      wishlistCount: req.session.wishlistCount,
+      cartCount: req.session.cartCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doEditAddress = async (req, res) => {
+module.exports.doEditAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const { fullName, mobile, address, district, state, pincode } = req.body;
@@ -354,11 +370,12 @@ module.exports.doEditAddress = async (req, res) => {
     req.flash("success", "Address Update SuccessFull");
     res.redirect("/user/userprofile");
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doProductRating = async (req, res) => {
+module.exports.doProductRating = async (req, res, next) => {
   try {
     const { productId, rating, review } = req.body;
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
@@ -387,11 +404,12 @@ module.exports.doProductRating = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doAddWalletMoney = async (req, res) => {
+module.exports.doAddWalletMoney = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     //console.log(req.body);
@@ -405,11 +423,12 @@ module.exports.doAddWalletMoney = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.doVerifyWalletPayment = async (req, res) => {
+module.exports.doVerifyWalletPayment = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
@@ -449,7 +468,7 @@ module.exports.doVerifyWalletPayment = async (req, res) => {
             },
           ],
         });
-        const createWallet = await newWallet.save()
+        const createWallet = await newWallet.save();
         if (createWallet) {
           return res.json({
             paid: true,
@@ -459,44 +478,52 @@ module.exports.doVerifyWalletPayment = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.getWalletHistory = async (req, res) => {
+module.exports.getWalletHistory = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
-    const wallet = await walletSchema.findOne({userId:userId});
-    if(wallet){
+    const wallet = await walletSchema.findOne({ userId: userId });
+    if (wallet) {
       return res.json({
-        status : true,
-        walletBalance : wallet.balance,
-        walletHistory : wallet.history
-      })
+        status: true,
+        walletBalance: wallet.balance,
+        walletHistory: wallet.history,
+      });
     }
   } catch (error) {
-    console.log(error)
+    console.error(error);
+    next(error);
   }
 };
 
-module.exports.generateReferralCode = async (req,res)=>{
+module.exports.generateReferralCode = async (req, res, next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     const { userId } = authUser;
-    const referralCode = userHelper.generateReferralCode()
-    if(referralCode){
-      const update = await userSchema.updateOne({_id:userId},{$set:{
-        referralCode : referralCode.toString()
-      }});
-      if(update){
+    const referralCode = userHelper.generateReferralCode();
+    if (referralCode) {
+      const update = await userSchema.updateOne(
+        { _id: userId },
+        {
+          $set: {
+            referralCode: referralCode.toString(),
+          },
+        }
+      );
+      if (update) {
         return res.json({
-          status : true,
-          referralCode : referralCode
+          status: true,
+          referralCode: referralCode,
         });
       }
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
+    next(error);
   }
-}
+};

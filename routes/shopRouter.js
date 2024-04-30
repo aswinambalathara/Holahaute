@@ -7,10 +7,11 @@ const orderController = require('../controllers/orderController');
 const offerController = require ('../controllers/offerController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
+
+
 router.get('/home',shopController.getHomePage);
 router.get('/productdetail/:id',shopController.getProductDetailPage); 
 router.get('/shop',shopController.getProductsPage); 
-//router.post('/search',shopController.doSearch);
 router.post('/shop/filter',shopController.doFilter);
 router.get('/offers',offerController.getOffers);
 

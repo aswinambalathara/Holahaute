@@ -9,14 +9,20 @@ const jwt = require("jsonwebtoken");
 const authHelper = require("../helpers/authHelper");
 const { response, json } = require("express");
 
-module.exports.getUserSignup = (req, res) => {
-  const locals = {
-    title: "SignUP",
-  };
-  res.render("auth/signUp", { locals, err: req.flash("error") });
+module.exports.getUserSignup = (req, res,next) => {
+  try {
+    const locals = {
+      title: "SignUP",
+    };
+    res.render("auth/signUp", { locals, err: req.flash("error") });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
+  
 };
 
-module.exports.doUserSignup = async (req, res) => {
+module.exports.doUserSignup = async (req, res,next) => {
   try {
     // console.log(req.body);
     const { email, password, fullName, phone, referralCode } = req.body;
@@ -49,19 +55,25 @@ module.exports.doUserSignup = async (req, res) => {
       res.redirect("/otpverification");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
-module.exports.getSignupverification = (req, res) => {
-  const locals = {
-    title: "User Verification",
-    email: req.session.unVerifiedEmail,
-  };
-  res.render("auth/otpverify", { locals, err: req.flash("error") });
+module.exports.getSignupverification = (req, res,next) => {
+  try {
+    const locals = {
+      title: "User Verification",
+      email: req.session.unVerifiedEmail,
+    };
+    res.render("auth/otpverify", { locals, err: req.flash("error") });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doSignupverification = async (req, res) => {
+module.exports.doSignupverification = async (req, res,next) => {
   try {
     const enterTime = Date.now();
     const { otp } = req.body;
@@ -142,11 +154,12 @@ module.exports.doSignupverification = async (req, res) => {
       res.redirect("/otpverification");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
-module.exports.doResendOTP = (req, res) => {
+module.exports.doResendOTP = (req, res,next) => {
   try {
     const enterTime = Date.now();
     const email = req.session.unVerifiedEmail;
@@ -174,23 +187,28 @@ module.exports.doResendOTP = (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    next(error)
   }
 };
 
 // LOGIN SECTION
-module.exports.getUserLogin = (req, res) => {
-  const locals = {
-    title: "Login",
-  };
-  res.render("auth/userLogin", {
-    locals,
-    err: req.flash("error"),
-  });
-  // console.log(process.env.GOOGLE_CLIENT_ID)
+module.exports.getUserLogin = (req, res,next) => {
+  try {
+    const locals = {
+      title: "Login",
+    };
+    res.render("auth/userLogin", {
+      locals,
+      err: req.flash("error"),
+    });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doUserLogin = async (req, res) => {
+module.exports.doUserLogin = async (req, res,next) => {
   try {
     const { email, password } = req.body;
     const userData = await userSchema.findOne({ email });
@@ -229,20 +247,26 @@ module.exports.doUserLogin = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
 //LOGIN WITH OTP SECTION
-module.exports.getOtpLogin = (req, res) => {
-  const locals = { title: "OTP Login" };
+module.exports.getOtpLogin = (req, res,next) => {
+  try {
+    const locals = { title: "OTP Login" };
   res.render("auth/signInOTP", {
     locals,
     err: req.flash("error"),
   });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.sendOtpLogin = async (req, res) => {
+module.exports.sendOtpLogin = async (req, res,next) => {
   try {
     const { email } = req.body;
     const user = await userSchema.findOne({ email });
@@ -271,11 +295,12 @@ module.exports.sendOtpLogin = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doOtpLogin = async (req, res) => {
+module.exports.doOtpLogin = async (req, res,next) => {
   try {
     const { otp } = req.body;
     const user = await userSchema.findOne({
@@ -313,11 +338,12 @@ module.exports.doOtpLogin = async (req, res) => {
       res.status(401).redirect("/otplogin");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.doGoogleLogin = async (req, res) => {
+module.exports.doGoogleLogin = async (req, res,next) => {
   try {
     //console.log(req.body);
     const { googleResponse } = req.body;
@@ -394,18 +420,24 @@ module.exports.doGoogleLogin = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getAdminLogin = (req, res) => {
-  res.render("auth/adminLogin", {
-    title: "Admin Login",
-    err: req.flash("error"),
-  });
+module.exports.getAdminLogin = (req, res,next) => {
+  try {
+    res.render("auth/adminLogin", {
+      title: "Admin Login",
+      err: req.flash("error"),
+    });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doAdminLogin = async (req, res) => {
+module.exports.doAdminLogin = async (req, res,next) => {
   try {
     const adminData = await adminSchema.findOne({ email: req.body.email });
     if (!adminData) {
@@ -430,18 +462,24 @@ module.exports.doAdminLogin = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("error");
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getForgotPassword = (req, res) => {
-  const locals = {
-    title: "Forgot Password",
-  };
-  res.render("auth/forgotPassword", { locals, err: req.flash("error") });
+module.exports.getForgotPassword = (req, res,next) => {
+  try {
+    const locals = {
+      title: "Forgot Password",
+    };
+    res.render("auth/forgotPassword", { locals, err: req.flash("error") });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doForgotPassword = async (req, res) => {
+module.exports.doForgotPassword = async (req, res,next) => {
   try {
     const { otp } = req.body;
     const email = req.session.userwithotp;
@@ -458,11 +496,12 @@ module.exports.doForgotPassword = async (req, res) => {
       res.redirect("/forgotpassword");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.sendForgotOtp = async (req, res) => {
+module.exports.sendForgotOtp = async (req, res,next) => {
   try {
     const { email } = req.body;
     const user = await userSchema.findOne({ email });
@@ -504,18 +543,24 @@ module.exports.sendForgotOtp = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.getChangePassword = (req, res) => {
-  const locals = {
-    title: "Change Password",
-  };
-  res.render("auth/changepassword", { locals, err: req.flash("error") });
+module.exports.getChangePassword = (req, res,next) => {
+  try {
+    const locals = {
+      title: "Change Password",
+    };
+    res.render("auth/changepassword", { locals, err: req.flash("error") });
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
 };
 
-module.exports.doChangePassword = async (req, res) => {
+module.exports.doChangePassword = async (req, res,next) => {
   try {
     const { password } = req.body;
     const email = req.session.userwithotp;
@@ -543,25 +588,28 @@ module.exports.doChangePassword = async (req, res) => {
       res.redirect("/changepassword");
     }
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.userLogOut = (req, res) => {
+module.exports.userLogOut = (req, res,next) => {
   try {
     res.clearCookie("token");
     res.redirect("/home");
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
 
-module.exports.adminLogOut = (req, res) => {
+module.exports.adminLogOut = (req, res,next) => {
   try {
     res.clearCookie("adminToken");
     //req.session.adminAuth = null;
     res.redirect("/admin/login");
   } catch (error) {
-    console.log(error);
+    console.error(error)
+    next(error)
   }
 };
