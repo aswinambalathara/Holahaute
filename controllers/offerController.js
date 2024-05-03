@@ -139,7 +139,7 @@ module.exports.getEditOffer = async (req, res,next) => {
     const products = await productSchema.find({ isDeleted: false });
 
     if (offer) {
-      res.render("admin/editoffer", {
+      res.render("admin/editOffer.ejs", {
         title: "Edit offer",
         offer: offer,
         categories: categories,

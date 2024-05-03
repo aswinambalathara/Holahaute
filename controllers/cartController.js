@@ -370,3 +370,11 @@ module.exports.doUncheckWallet = async (req, res,next) => {
     next(error)
   }
 };
+
+module.exports.doBuyNow = async (req,res,next) =>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}

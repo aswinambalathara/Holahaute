@@ -11,7 +11,7 @@
 
                 <a href="/shop" class="stext-109 cl8 hov-cl1 trans-04">
                     <%=product.userType%>
-                    <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+                        <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
                 </a>
 
                 <span class="stext-109 cl4">
@@ -54,7 +54,7 @@
                                 <%= product.productName%>
                             </h4>
 
-                            <% if (product.offer.currentPrice === product.price){%>
+                            <% if (product.offer.currentPrice===product.price){%>
                                 <span class="mtext-106 cl2">
                                     ₹ <%= product.price%>
                                 </span>
@@ -69,157 +69,108 @@
 
                                     <p class="mtext-106 cl2 text-danger">
                                         <%=product.offer.discount%>
-                                        <span>%OFF</span>
+                                            <span>%OFF</span>
                                     </p>
 
                                     <%}%>
 
-                            <p class="stext-102 cl3 p-t-23">
-                                <%= product.description%>
-                            </p>
+                                        <p class="stext-102 cl3 p-t-23">
+                                            <%= product.description%>
+                                        </p>
 
-                            <!--  -->
-                            <div class="p-t-33">
-                                <div>
-                                    <label for="size" class="form-label">Sizes</label>
-                                    <div class="d-flex align-items-center">
-                                        <input type="radio" class="btn-check sizeBtn" autocomplete="off"
-                                            name="sizeOption" value="" checked hidden>
-                                        <%product.sizeOptions.forEach(function(size) {%>
-                                            <div class="ms-1 mb-1 mb-lg-0">
-                                                <input type="radio" class="btn-check " id="<%=size%>" autocomplete="off"
-                                                    name="sizeOption" value="<%=size%>">
-                                                <label for="<%=size%>" class="btn btn-outline-primary btn-sm"
-                                                    style="text-transform: capitalize;">
-                                                    <%=size%>
-                                                </label>
+                                        <!--  -->
+                                        <div class="p-t-33">
+                                            <div>
+                                                <label for="size" class="form-label">Sizes</label>
+                                                <div class="d-flex align-items-center">
+                                                    <input type="radio" class="btn-check sizeBtn" autocomplete="off"
+                                                        name="sizeOption" value="" checked hidden>
+                                                    <%product.sizeOptions.forEach(function(size) {%>
+                                                        <div class="ms-1 mb-1 mb-lg-0">
+                                                            <input type="radio" class="btn-check " id="<%=size%>"
+                                                                autocomplete="off" name="sizeOption" value="<%=size%>">
+                                                            <label for="<%=size%>"
+                                                                class="btn btn-outline-primary btn-sm"
+                                                                style="text-transform: capitalize;">
+                                                                <%=size%>
+                                                            </label>
+                                                        </div>
+                                                        <%} )%>
+                                                </div>
                                             </div>
-                                            <%} )%>
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <label for="size" class="form-label">Colors</label>
-                                    <div class="d-flex align-items-center">
-                                        <input type="radio" class="btn-check colorBtn" autocomplete="off" name="color"
-                                            value="" checked hidden>
-                                        <%product.color.forEach(function(colorVal) {%>
-                                            <div class="ms-1 mb-1 mb-lg-0">
-                                                <input type="radio" class="btn-check" id="<%=colorVal%>"
-                                                    autocomplete="off" name="color" value="<%=colorVal%>">
-                                                <label for="<%=colorVal%>" class="btn btn-outline-primary btn-sm"
-                                                    style="text-transform: capitalize;">
-                                                    <%=colorVal%>
-                                                </label>
+                                            <div>
+                                                <label for="size" class="form-label">Colors</label>
+                                                <div class="d-flex align-items-center">
+                                                    <input type="radio" class="btn-check colorBtn" autocomplete="off"
+                                                        name="color" value="" checked hidden>
+                                                    <%product.color.forEach(function(colorVal) {%>
+                                                        <div class="ms-1 mb-1 mb-lg-0">
+                                                            <input type="radio" class="btn-check" id="<%=colorVal%>"
+                                                                autocomplete="off" name="color" value="<%=colorVal%>">
+                                                            <label for="<%=colorVal%>"
+                                                                class="btn btn-outline-primary btn-sm"
+                                                                style="text-transform: capitalize;">
+                                                                <%=colorVal%>
+                                                            </label>
+                                                        </div>
+                                                        <%} )%>
+                                                </div>
                                             </div>
-                                            <%} )%>
-                                    </div>
-                                </div>
-                                <!-- <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Size
-                                    </div>
 
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="size" id="size">
-                                                <option value=" ">Choose an option</option>
-                                                <% product.sizeOptions.forEach(function(size) {%>
-                                                    <option value="<%=size%>" style="text-transform: uppercase;">
-                                                        <%=size%>
-                                                    </option>
-                                                    <%}) %>
-                                            </select>
-
-                                            <div class="dropDownSelect2"></div>
-                                            <div class="error mt-1 ms-2" style="color: red;  font-size: small;"></div>
+                                            <% if(product.quantity <=0) {%>
+                                                <div class="text-danger ms-2 mt-2 fw-bold">OUT OF STOCK</div>
+                                                <%} else {%>
+                                                    <div class="mt-3">
+                                                        <div class="d-flex" id="errorParent">
+                                                            <button
+                                                                class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail me-3"
+                                                                onclick="addToCart('<%=product._id%>')"
+                                                                id="addToCartBtn">
+                                                                Add to cart
+                                                            </button>
+                                                            <button onclick="buyNow('<%=product._id%>')"
+                                                                class="  stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail">
+                                                                Buy Now
+                                                            </button>
+                                                        </div>
+                                                        <div class="error mt-1 ms-2"
+                                                            style="color: red;  font-size: small; font-weight: 700;">
+                                                        </div>
+                                                    </div>
+                                                    <%} %>
+                                                        <div class="text-danger ms-2 mt-2 fw-bold stock"></div>
                                         </div>
-                                    </div>
-                                </div> -->
+                                        <%- include ('../includes/shop/buyNowModal.ejs')%>
+                                            <!--  -->
+                                            <div class="flex-w flex-m p-l-100 p-t-40 respon7">
+                                                <div class="flex-m bor9 p-r-10 m-r-11">
+                                                    <button href="#"
+                                                        class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 tooltip100 addToWishlistBtn"
+                                                        data-tooltip="Add to Wishlist"
+                                                        data-productId="<%= product._id%>">
+                                                        <i class="zmdi zmdi-favorite"></i>
+                                                    </button>
+                                                </div>
 
-                                <!-- <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Color
-                                    </div>
+                                                <a href="#"
+                                                    class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
+                                                    data-tooltip="Facebook">
+                                                    <i class="fa fa-facebook"></i>
+                                                </a>
 
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="color" id="color">
-                                                <option value=" ">Choose an option</option>
-                                                <% product.color.forEach(function(colorVal){%>
-                                                    <option value="<%=colorVal%>" style="text-transform: capitalize;">
-                                                        <%=colorVal%>
-                                                        
-                                                    </option>
-                                                    <%}) %>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                    </div>
-                                </div> -->
+                                                <a href="#"
+                                                    class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
+                                                    data-tooltip="Twitter">
+                                                    <i class="fa fa-twitter"></i>
+                                                </a>
 
-                                <!-- <div class="mt-3">
-                                    <div class="d-flex" id="errorParent">
-                                        <button
-                                            class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail me-3"
-                                            onclick="addToCart('<%=product._id%>')" id="addToCartBtn">
-                                            Add to cart
-                                        </button>
-                                        <button
-                                            class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail">
-                                            Buy Now
-                                        </button>
-                                    </div>
-                                    <div class="error mt-1 ms-2"
-                                        style="color: red;  font-size: small; font-weight: 700;"></div>
-                                </div> -->
-                                <% if(product.quantity <=0) {%>
-                                    <div class="text-danger ms-2 mt-2 fw-bold">OUT OF STOCK</div>
-                                    <%} else {%>
-                                        <div class="mt-3">
-                                            <div class="d-flex" id="errorParent">
-                                                <button
-                                                    class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail me-3"
-                                                    onclick="addToCart('<%=product._id%>')" id="addToCartBtn">
-                                                    Add to cart
-                                                </button>
-                                                <button
-                                                    class=" stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-10 trans-04 js-addcart-detail">
-                                                    Buy Now
-                                                </button>
+                                                <a href="#"
+                                                    class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
+                                                    data-tooltip="Google Plus">
+                                                    <i class="fa fa-google-plus"></i>
+                                                </a>
                                             </div>
-                                            <div class="error mt-1 ms-2"
-                                                style="color: red;  font-size: small; font-weight: 700;"></div>
-                                        </div>
-                                        <%} %>
-                                            <div class="text-danger ms-2 mt-2 fw-bold stock"></div>
-                            </div>
-
-                            <!--  -->
-                            <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-                                <div class="flex-m bor9 p-r-10 m-r-11">
-                                    <button href="#"
-                                        class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 tooltip100 addToWishlistBtn"
-                                        data-tooltip="Add to Wishlist" data-productId="<%= product._id%>">
-                                        <i class="zmdi zmdi-favorite"></i>
-                                    </button>
-                                </div>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Facebook">
-                                    <i class="fa fa-facebook"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Twitter">
-                                    <i class="fa fa-twitter"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Google Plus">
-                                    <i class="fa fa-google-plus"></i>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -299,11 +250,53 @@
                 const addToWishlistBtn = document.querySelector('.addToWishlistBtn');
                 const wishlistNotify = document.querySelector('.wishlist-notify');
                 const cartNotify = document.querySelector('.cart-notify');
+                const buyNowModalTrigger = document.getElementById('buyNowModalTrigger');
+                const colorOptionPreview = document.getElementById('colorOptionPreview');
+                const sizeOptionPreview = document.getElementById('sizeOptionPreview');
+                const buyNowQuantitySelect = document.getElementById('buyNowQuantitySelect');
+                const checkoutBtn = document.getElementById('checkoutBtn');
+
+                async function buyNow(id) {
+                    const sizeOption = document.querySelector('input[name="sizeOption"]:checked').value
+                    const colorOption = document.querySelector('input[name="color"]:checked').value
+                    console.log(id, "  ", sizeOption, "  ", colorOption)
+                    let hasError = false;
+                    if (sizeOption === '') {
+                        hasError = true
+                        setError(errorParent, "Select a size");
+                    } else if (colorOption === '') {
+                        hasError = true;
+                        setError(errorParent, "Select a color");
+                    } else {
+                        hasError = false;
+                        setError(errorParent, '')
+                    }
+
+                    if (!hasError) {
+                        colorOptionPreview.innerText = colorOption;
+                        sizeOptionPreview.innerText = sizeOption;
+                        buyNowModalTrigger.click()
+                        checkoutBtn.addEventListener('click',async()=>{
+                            const quantity = buyNowQuantitySelect.value
+                            const url = `/buynow/${id}`
+                            const method = "POST"
+                            const body = {
+                                color : colorOption,
+                                size : sizeOption,
+                                quantity : Number(quantity)
+                            }
+                            console.log(body)
+                            const data = await fetchFunction(url,method,quantity);
+                            console.log(data);
+                        })
+
+                    }
+                }
 
                 async function addToCart(id) {
-                    const sizeOption = document.querySelector('input[name="sizeOption"]:checked').value;
-                    const colorOption = document.querySelector('input[name="color"]:checked').value;
-                    //      console.log(colorOption.value);   console.log(sizeOption.value);
+                    const sizeOption = document.querySelector('input[name="sizeOption"]:checked').value
+                    const colorOption = document.querySelector('input[name="color"]:checked').value
+                    console.log(sizeOption); console.log(colorOption);
                     let hasError = false;
                     if (sizeOption === '') {
                         hasError = true
@@ -334,7 +327,7 @@
                             const data = await response.json()
                             console.log(data)
                             if (data.status) {
-                                cartNotify.setAttribute('data-notify',data.cartCount)
+                                cartNotify.setAttribute('data-notify', data.cartCount)
                                 console.log(data)
                                 Swal.fire({
                                     title: productName.toLocaleUpperCase(),
@@ -353,6 +346,7 @@
                             }
                         }
                     }
+
                 }
 
                 function setError(element, message) {
@@ -372,7 +366,7 @@
                     const data = await fetchFunction(url, method, body);
                     if (data.status === true) {
                         console.log(data)
-                        wishlistNotify.setAttribute('data-notify',data.wishlistCount)
+                        wishlistNotify.setAttribute('data-notify', data.wishlistCount)
                         Swal.fire({
                             text: data.message,
                             icon: "success"

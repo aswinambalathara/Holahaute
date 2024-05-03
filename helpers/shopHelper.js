@@ -1,4 +1,4 @@
-const { ObjectId } = require("mongodb");
+const { ObjectId } = require("mongodb")
 const productSchema = require("../models/productModel");
 const wishlistSchema = require("../models/wishlistModel");
 

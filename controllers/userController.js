@@ -277,7 +277,10 @@ module.exports.doAddAddress = async (req, res, next) => {
       fromCheckout,
     } = req.body;
     if (authUser.userId) {
-      const isPrimary = addresses.length === 0 ? true : undefined;
+      let isPrimary = addresses.length === 0 ? true : undefined;
+      if(fromCheckout){
+        isPrimary = true
+      }
       const newAddress = new addressSchema({
         fullName: fullName,
         mobile: Number(mobile),
@@ -354,16 +357,17 @@ module.exports.doEditAddress = async (req, res, next) => {
   try {
     const addressId = req.params.id;
     const { fullName, mobile, address, district, state, pincode } = req.body;
+    console.log(req.body)
     await addressSchema.updateOne(
       { _id: addressId },
       {
         $set: {
-          fullName: fullName !== "" ? fullName : undefined,
-          mobile: mobile !== "" ? mobile : undefined,
-          address: address !== "" ? address : undefined,
-          district: district !== "" ? district : undefined,
-          state: state !== "" ? state : undefined,
-          pincode: pincode !== "" ? pincode : undefined,
+          fullName: fullName.trim().length !== 0 ? fullName : undefined,
+          mobile: mobile.trim().length !== 0? mobile : undefined,
+          address: address.trim().length !== 0? address : undefined,
+          district: district.trim().length !== 0? district : undefined,
+          state: state.trim().length !== 0? state : undefined,
+          pincode: pincode.trim().length !== 0? pincode : undefined,
         },
       }
     );

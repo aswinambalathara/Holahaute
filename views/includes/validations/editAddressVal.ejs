@@ -1,12 +1,12 @@
 <script>
     const fullName = document.getElementById('fullName');
     const mobile = document.getElementById('mobile');
-    const mobileParent = document.getElementById('mobileParent');
+    const mobileParent = document.querySelector('.mobileParent');
     const address = document.getElementById('address');
-    const district = document.getElementById('district');
+    const district = document.getElementById('districts');
     const state = document.getElementById('state');
     const pincode = document.getElementById('pincode');
-    const addressForm = document.getElementById('add-address-form');
+    const addressForm = document.querySelector('.add-address-form');
 
     addressForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -18,35 +18,41 @@
     });
 
     function validateInputs() {
+
         let hasError = false;
-        const fullNameValue = fullName.value;
-            let lettersOnlyRegex = /^[A-Za-z\s]*$/;
-            if (!lettersOnlyRegex.test(fullNameValue)) {
-                hasError = true;
-                setError(fullName, "Only Letters Allowed")
-            } else {
-                setError(fullName, "");
-            }
-        
+        const fullNameValue = fullName.value.trim();
+        if (fullNameValue.length !== 0) {
+            console.log(fullNameValue)
+            hasError = true
+            setError(fullName, "This field is required")
+        }else{
+        let lettersOnlyRegex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+        if (!lettersOnlyRegex.test(fullNameValue)) {
+            hasError = true;
+            setError(fullName, "Only Letters and single spaces are allowed")
+        } else {
+            setError(fullName, "");
+        }
+    }
 
         const mobileValue = mobile.value;
-            let mobileRegex = /^\d{10}$/;
-            if (!mobileRegex.test(mobileValue)) {
-                hasError = true;
-                setError(mobileParent, "Invalid Mobile Number")
-            } else {
-                setError(mobileParent, " ");
-            }
+        let mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobileValue.trim())) {
+            hasError = true;
+            setError(mobileParent, "Invalid Mobile Number")
+        } else {
+            setError(mobileParent, " ");
+        }
 
         const pincodeValue = pincode.value.trim();
         //console.log(districtValue)
-            let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
-            if (!pincodeRegex.test(pincodeValue)) {
-                hasError = true;
-                setError(pincode, "Invalid Postal code")
-            } else {
-                setError(pincode, " ");
-            }
+        let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
+        if (!pincodeRegex.test(pincodeValue)) {
+            hasError = true;
+            setError(pincode, "Invalid Postal code")
+        } else {
+            setError(pincode, " ");
+        }
 
         if (!hasError) {
             return true
@@ -54,25 +60,25 @@
     }
 
     fullName.addEventListener('input', () => {
-        const fullNameValue = fullName.value;
-            let lettersOnlyRegex = /^[A-Za-z\s]*$/;
-            if (!lettersOnlyRegex.test(fullNameValue)) {
-                setError(fullName, "Only Letters Allowed")
-            } else {
-                setError(fullName, "");
-            }
-        
+        const fullNameValue = fullName.value.trim();
+        let lettersOnlyRegex = /^[A-Za-z\s]*$/;
+        if (!lettersOnlyRegex.test(fullNameValue)) {
+            setError(fullName, "Only Letters Allowed")
+        } else {
+            setError(fullName, "");
+        }
+
     });
 
     mobile.addEventListener('input', () => {
         const mobileValue = mobile.value;
-            let mobileRegex = /^\d{10}$/;
-            if (!mobileRegex.test(mobileValue)) {
-                setError(mobileParent, "Invalid Mobile Number")
-            } else {
-                setError(mobileParent, " ");
-            }
-        
+        let mobileRegex = /^\d{10}$/;
+        if (!mobileRegex.test(mobileValue.trim())) {
+            setError(mobileParent, "Invalid Mobile Number")
+        } else {
+            setError(mobileParent, " ");
+        }
+
     });
 
     district.addEventListener('change', () => {
@@ -99,12 +105,12 @@
     pincode.addEventListener('input', () => {
         const pincodeValue = pincode.value.trim();
         //console.log(districtValue)
-            let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
-            if (!pincodeRegex.test(pincodeValue)) {
-                setError(pincode, "Invalid Postal code")
-            } else {
-                setError(pincode, " ");
-            }
+        let pincodeRegex = /^[1-9][0-9]{2}\s{0,1}[0-9]{3}$/;
+        if (!pincodeRegex.test(pincodeValue)) {
+            setError(pincode, "Invalid Postal code")
+        } else {
+            setError(pincode, " ");
+        }
     });
 
     function setError(element, message) {

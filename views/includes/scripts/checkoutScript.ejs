@@ -16,7 +16,7 @@
     const walletCheck = document.getElementById('walletCheck');
     const walletCashInput = document.getElementById('walletCashInput');
     const applyWalletCash = document.getElementById('applyWalletCash');
-    const deliveryAddressPreview = document.querySelector('.deliveryAddressPreview');
+    const deliveryAddressPreview = document.querySelector('.deliverAddressPreview');
 
 
     //add address inputs 
@@ -47,7 +47,8 @@
                 const body = {}
                 const data = await fetchFunction(url, method, body);
                 if (data.status === true) {
-                    deliveryAddressPreview.innerHTML = `<input type="radio" class="form-check-input m-0" style="position: relative"
+                    deliveryAddressPreview.innerHTML = `<div class="d-flex p-2 rounded border mt-3 ">
+                        <input type="radio" class="form-check-input m-0" style="position: relative"
                         value="${data.address._id}" id="deliveryAddress" checked />
                       <div class="d-flex flex-column ms-3">
                         <strong>
@@ -69,7 +70,8 @@
                           </span>
                           ${data.address.mobile}
                         </p>
-                      </div>`
+                      </div>
+                    </div>`
 
                     return document.querySelector('.select-address-close').click()
                 }
@@ -141,7 +143,8 @@
             const data = await fetchFunction(url, method, body);
             console.log(data);
             if (data.status === true) {
-                deliveryAddressPreview.innerHTML = `<input type="radio" class="form-check-input m-0" style="position: relative"
+                deliveryAddressPreview.innerHTML = `<div class="d-flex p-2 rounded border mt-3 ">
+                        <input type="radio" class="form-check-input m-0" style="position: relative"
                         value="${data.address._id}" id="deliveryAddress" checked />
                       <div class="d-flex flex-column ms-3">
                         <strong>
@@ -163,8 +166,8 @@
                           </span>
                           ${data.address.mobile}
                         </p>
-                      </div>`
-
+                      </div>
+                    </div>`
                 return document.querySelector('.add-address-close').click()
             }
         }

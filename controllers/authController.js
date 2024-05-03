@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 const userSchema = require("../models/userModel");
 const adminSchema = require("../models/adminModel");
 const verificationController = require("../controllers/verificationController");
@@ -83,29 +83,14 @@ module.exports.doSignupverification = async (req, res,next) => {
     if (otp === req.session.unVerifiedUser.token.otp) {
       if (timeDiff < 30) {
         req.session.unVerifiedUser.isVerified = true;
+        const referedUser = req.session.referredUser? req.session.referredUser : undefined;
         const verifedUser = new userSchema(req.session.unVerifiedUser);
         const newUser = await verifedUser.save();
         if (newUser) {
-          const userId = newUser._id;
-
-          const newWallet = new walletSchema({
-            userId: userId,
-            balance: 100,
-            history: [
-              {
-                paymentType: "Deposit",
-                paymentId: "Refferal",
-                amount: 100,
-                currentBalance: 100,
-              },
-            ],
-          });
-          await newWallet.save();
-          const referedUser = req.session.referredUser;
-          const wallet = await walletSchema.findOne({ userId: referedUser });
-          if (!wallet) {
+          if(referedUser !== undefined){
+            const userId = newUser._id;
             const newWallet = new walletSchema({
-              userId: referedUser,
+              userId: userId,
               balance: 100,
               history: [
                 {
@@ -116,21 +101,38 @@ module.exports.doSignupverification = async (req, res,next) => {
                 },
               ],
             });
+  
             await newWallet.save();
-          } else {
-            const history = {
-              paymentType: "Deposit",
-              paymentId: "Referral",
-              amount: 100,
-              currentBalance: wallet.balance + 100,
-            };
-            const updateWallet = await walletSchema.updateOne(
-              { userId: referedUser },
-              {
-                $inc: { balance: 100 },
-                $push: { history: history },
-              }
-            );
+            const wallet = await walletSchema.findOne({ userId: referedUser });
+            if (!wallet) {
+              const newWallet = new walletSchema({
+                userId: referedUser,
+                balance: 100,
+                history: [
+                  {
+                    paymentType: "Deposit",
+                    paymentId: "Refferal",
+                    amount: 100,
+                    currentBalance: 100,
+                  },
+                ],
+              });
+              await newWallet.save();
+            } else {
+              const history = {
+                paymentType: "Deposit",
+                paymentId: "Referral",
+                amount: 100,
+                currentBalance: wallet.balance + 100,
+              };
+              const updateWallet = await walletSchema.updateOne(
+                { userId: referedUser },
+                {
+                  $inc: { balance: 100 },
+                  $push: { history: history },
+                }
+              );
+            }
           }
           req.session.referredUser = null;
           req.session.unVerifiedEmail = null;
@@ -211,7 +213,9 @@ module.exports.getUserLogin = (req, res,next) => {
 module.exports.doUserLogin = async (req, res,next) => {
   try {
     const { email, password } = req.body;
-    const userData = await userSchema.findOne({ email });
+    console.log(req.body)
+    const userData = await userSchema.findOne({ email : email}); 
+    console.log(userData)
     if (userData) {
       if (userData.isBlocked === false) {
         req.session.userIsBlocked = false;

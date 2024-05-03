@@ -8,10 +8,11 @@
             <div class="card shadow">
               <div class="card-body">
                 <h5>Delivery Address</h5>
+                <div class="deliverAddressPreview">
                 <%addresses.forEach(function (address) {%>
                   <% if(address.isPrimary===true) {%>
 
-                    <div class="d-flex p-2 rounded border mt-3 deliveryAddressPreview">
+                    <div class="d-flex p-2 rounded border mt-3 ">
                       <input type="radio" class="form-check-input m-0" style="position: relative"
                         value="<%=address._id%>" id="deliveryAddress" checked />
                       <div class="d-flex flex-column ms-3">
@@ -39,6 +40,7 @@
 
                     <%} %>
                       <%}) %>
+                    </div>
                         <div class="d-flex justify-content-end align-items-center mt-2">
                           <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changeAddress">
                             Change Delivery Address

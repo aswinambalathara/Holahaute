@@ -1,0 +1,39 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" id="buyNowModalTrigger" data-bs-toggle="modal" data-bs-target="#buyNowModal" hidden>
+    buyNowModalTrigger
+</button>
+
+<!-- Modal -->
+<div class="modal fade font-poppins" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Select Preferences</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+                <h5 class="fw-bold" style="text-transform: capitalize;"><%= product.productName%></h5> 
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="d-flex flex-column">
+                        <p>Color : <span id="colorOptionPreview" style="text-transform: capitalize;">red</span></p>
+                        <p>Size : <span id="sizeOptionPreview" style="text-transform: capitalize;">xl</span></p>
+                    </div>
+                    <div>
+                        <label for="buyNowQuantitySelect" class="form-label mb-0">Quantity</label>
+                        <select name="buyNowQuantitySelect" id="buyNowQuantitySelect" class="form-select form-select-sm">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="checkoutBtn" class="btn btn-outline-primary btn-sm">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+</div>
