@@ -25,16 +25,16 @@ module.exports.categoryOfferProducts = async (categoryIds, discount) => {
         $addFields: {
           roundedOfferPrice: { $ceil: "$offerPrice" },
           offerStatus: {
-            $cond: { if: { $eq: ["$offer", null] }, then: false, else: true },
+            $cond: { if: { $ifNull: ["$offer", false] }, then: true, else: false },
           },
         },
-      },
+      },      
       {
         $match: {
           $expr: {
-            $and: [
-              { $eq: ["$offerStatus", true] },
-              { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] },
+            $or: [
+              { $and: [{ $eq: ["$offerStatus", true] }, { $gte: ["$offer.offerPrice", "$roundedOfferPrice"] }] },
+              { $eq: ["$offerStatus", false] },
             ],
           },
         },
@@ -50,7 +50,7 @@ module.exports.categoryOfferProducts = async (categoryIds, discount) => {
         },
       },
     ]);
-    // console.log(products);
+     console.log(products);
     return products;
   } catch (error) {
     console.error(error);
@@ -129,7 +129,7 @@ module.exports.getOffersHelp = async () => {
         $match: {
           $and: [
             { "availableOffer.validTo": { $gte: today } },
-            { 'availableOffer.isExpired': false },
+            { "availableOffer.isExpired": false },
           ],
         },
       },

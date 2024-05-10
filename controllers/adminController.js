@@ -189,7 +189,7 @@ module.exports.getAdminOrders = async (req, res,next) => {
         $sort: { orderedAt: -1 },
       },
     ]);
-    //console.log(orders);
+    console.log(orders[0].user[0].fullName);
     if (orders) {
       res.render("admin/adminOrders", { title: "Orders", orders });
     }
