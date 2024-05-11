@@ -1,7 +1,7 @@
 const couponSchema = require("../models/couponModel");
 const orderSchema = require("../models/orderModel");
 const userSchema = require("../models/userModel");
-const { ObjectId } = require("mongodb").ObjectId
+const { ObjectId } = require("mongodb")
 const excelJs = require("exceljs");
 const pdfKit = require("pdfkit");
 //const pdfTable = require("voilab-pdf-table");
