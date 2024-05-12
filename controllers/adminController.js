@@ -189,7 +189,7 @@ module.exports.getAdminOrders = async (req, res,next) => {
         $sort: { orderedAt: -1 },
       },
     ]);
-    console.log(orders[0].user[0].fullName);
+    //console.log(orders[0].user[0].fullName);
     if (orders) {
       res.render("admin/adminOrders", { title: "Orders", orders });
     }
@@ -415,17 +415,17 @@ module.exports.doAddCoupon = async (req, res,next) => {
       minimumPurchaseAmount,
       maximumDiscount,
     } = req.body;
-    const coupon = await couponSchema.findOne({ couponCode: couponCode });
+    const coupon = await couponSchema.findOne({$or:[{couponCode: couponCode},{couponName :couponName.toLowerCase()}]});
     if (coupon) {
       if (coupon.validTo > Date.now()) {
         return res.status(409).json({
           status: false,
-          message: "Coupon with same code already exist",
+          message: "Coupon with same code or name already exist",
         });
       }
     }
     const newCoupon = new couponSchema({
-      couponName,
+      couponName:couponName.toLowerCase(),
       couponCode,
       validFrom: new Date(validFrom),
       validFor,
@@ -477,7 +477,7 @@ module.exports.doEditCoupon = async (req, res,next) => {
       minimumPurchaseAmount,
       maximumDiscount,
     } = req.body;
-    const couponCheck = await couponSchema.findOne({ couponCode: couponCode });
+    const couponCheck = await couponSchema.findOne({$or:[{couponCode: couponCode},{couponName :couponName.toLowerCase()}]});
     //console.log(couponCheck,couponId);
     if (couponCheck && !couponCheck._id.equals(couponId)) {
       if (couponCheck.validTo > Date.now()) {
@@ -493,7 +493,7 @@ module.exports.doEditCoupon = async (req, res,next) => {
         { _id: couponId },
         {
           $set: {
-            couponName: couponName,
+            couponName: couponName.toLowerCase(),
             couponCode: couponCode,
             validFrom: validFrom,
             validTo: validTo,
