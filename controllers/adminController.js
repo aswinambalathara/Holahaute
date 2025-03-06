@@ -14,7 +14,6 @@ module.exports.getAdminDashboard = async (req, res,next) => {
     const defaultSales = await salesHelper.monthlySalesHelp(
       new Date().getFullYear()
     );
-    //const categorySales = await salesHelper.categorySalesHelp()
     const dashboardOrders = await salesHelper.dashboardOrdersHelp();
     const dashboardUsers = await adminHelper.dashboardUsersHelp();
     const totalProducts = await productModel.find({ isDeleted: false }).count();
