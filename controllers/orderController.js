@@ -128,9 +128,8 @@ module.exports.doCartPlaceOrder = async (req, res,next) => {
 module.exports.doverifyPayment = async (req, res,next) => {
   try {
     const authUser = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-    const { userId } = authUser;
     const { response, paymentData } = req.body;
-    console.log(req.body);
+    //console.log(req.body);
     const verify = await paymentHelper.verifyPayment(response);
     if (verify.status === true) {
       const orderUpdate = await orderSchema.updateOne(
@@ -154,12 +153,6 @@ module.exports.doverifyPayment = async (req, res,next) => {
       });
     }
 
-    // const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
-    //   response;
-    // let sign = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
-    // sign.update(razorpay_order_id + "|" + razorpay_payment_id);
-    // sign = sign.digest("hex");
-
   } catch (error) {
     console.error(error)
     next(error)
@@ -175,8 +168,7 @@ module.exports.getOrderStatusPage = async (req, res,next) => {
       authUser.userId,
       orderDocId
     );
-    //console.log('orderstatus');
-    //console.log(order);
+
     req.session.currentOrderId = "";
     res.render("user/orderconfirm.ejs", {
       title: "Order Status",
@@ -201,17 +193,6 @@ module.exports.getMyorders = async (req, res,next) => {
       .sort({ orderedAt: -1 })
       .populate("products.productId")
       .exec();
-    //console.log(orders);
-    // const arrivals = orders.map((order) => {
-    //   const options = {
-    //     weekday: "long",
-    //     year: "numeric",
-    //     month: "long",
-    //     day: "numeric",
-    //   };
-    //   return order.estimatedArrival.toLocaleDateString(undefined, options);
-    // });
-    //console.log(arrivals);
     res.render("user/myorders.ejs", {
       title: "My Orders",
       user: authUser.userName,
